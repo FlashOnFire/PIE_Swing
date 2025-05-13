@@ -14,11 +14,10 @@ public class Model extends Observable {
 
     public boolean[] keys = new boolean[5];
 
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
     public Model() {
         currentPiece = PieceGenerator.generatePiece(new boolean[][]{}, grid.getSize(), grid.getSize());
 
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(
                 () -> {
                     if (keys[0]) {
