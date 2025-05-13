@@ -1,7 +1,7 @@
 package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.M;
+import fr.polytech.pie.model.Model;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +9,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 @SuppressWarnings("deprecation")
-public class VC extends JFrame implements Observer {
+public class VueController extends JFrame implements Observer {
 
     private final JLabel xLabel = new JLabel("x=0");
     private final JLabel yLabel = new JLabel("y=0");
@@ -17,7 +17,7 @@ public class VC extends JFrame implements Observer {
     private final JPanel[] panels = new JPanel[Consts.SIZE*Consts.SIZE];
 
 
-    public VC(M m) {
+    public VueController(Model m) {
         super("VC");
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -81,8 +81,8 @@ public class VC extends JFrame implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        int x = ((M) o).getX();
-        int y = ((M) o).getY();
+        int x = ((Model) o).getX();
+        int y = ((Model) o).getY();
         xLabel.setText("x=" + x);
         yLabel.setText("y=" + y);
         updatePanel(x, y);

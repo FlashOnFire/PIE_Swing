@@ -4,11 +4,11 @@ import java.util.Observable;
 import fr.polytech.pie.Consts;
 
 @SuppressWarnings("deprecation")
-public class M extends Observable {
+public class Model extends Observable {
     private int x = 0;
     private int y = 0;
 
-    public M() {
+    public Model() {
         Thread t = new Thread(() -> {
             while (true) {
                 try {
