@@ -15,14 +15,13 @@ private static final boolean[][][] PIECES = {
 
     private static final Random random = new Random();
 
-    public static CurrentPiece generatePiece(boolean[][] piece, int maxX, int maxY) {
+    public static CurrentPiece generatePiece(int maxX) {
         int pieceIndex = new Random().nextInt(PIECES.length);
         boolean[][] selectedPiece = PIECES[pieceIndex];
 
         int pieceWidth = selectedPiece[0].length;
-        int pieceHeight = selectedPiece.length;
         int x = random.nextInt(maxX - pieceWidth + 1);
-        int y = 3;// random.nextInt(maxY - pieceHeight - 3, maxY - pieceHeight + 1);
+        int y = 0;// random.nextInt(maxY - pieceHeight - 3, maxY - pieceHeight + 1);
 
         return new CurrentPiece(selectedPiece, x, y);
     }

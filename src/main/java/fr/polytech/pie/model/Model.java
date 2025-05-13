@@ -15,7 +15,7 @@ public class Model extends Observable {
     public boolean[] keys = new boolean[5];
 
     public Model() {
-        currentPiece = PieceGenerator.generatePiece(new boolean[][]{}, grid.getSize(), grid.getSize());
+        currentPiece = PieceGenerator.generatePiece(grid.getSize());
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(
@@ -65,13 +65,23 @@ public class Model extends Observable {
 
             if (dy > 0) {
                 grid.freezePiece(currentPiece);
-                currentPiece = PieceGenerator.generatePiece(new boolean[][]{}, grid.getSize(), grid.getSize());
+                currentPiece = PieceGenerator.generatePiece(grid.getSize());
                 System.out.println("New piece generated");
+
+                if (checkCollision()) {
+                    System.out.println("Fin du jeu !");
+                    resetGame();
+                }
             }
         }
 
         setChanged();
         notifyObservers();
+    }
+
+    private void resetGame() {
+        grid = new Grid(Consts.SIZE);
+        currentPiece = PieceGenerator.generatePiece(grid.getSize());
     }
 
     private boolean checkCollision() {
