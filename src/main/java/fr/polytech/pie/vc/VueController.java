@@ -94,7 +94,7 @@ public class VueController extends JFrame implements Observer {
 
         for (int i = 0; i < model.getGrid().getSize(); i++) {
             for (int j = 0; j < model.getGrid().getSize(); j++) {
-                if (model.getGrid().getValue(i, j) == 1) {
+                if (model.getGrid().getValue(i, j)) {
                     panels[j * Consts.SIZE + i].setBackground(Color.BLUE);
                 }
             }

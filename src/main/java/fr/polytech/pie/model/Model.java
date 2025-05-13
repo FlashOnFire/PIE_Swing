@@ -57,7 +57,9 @@ public class Model extends Observable {
     }
 
     public void translateCurrentPiece(int dx, int dy) {
-        int orginalY = currentPiece.getY();
+        int originalX = currentPiece.getX();
+        int originalY = currentPiece.getY();
+
         currentPiece.translate(dx, dy);
 
         if (currentPiece.getX() < 0) {
@@ -68,19 +70,39 @@ public class Model extends Observable {
             currentPiece.setX(grid.getSize() - currentPiece.getWidth());
         }
 
-        if (currentPiece.getY() + currentPiece.getHeight() > grid.getSize()) {
-            currentPiece.setY(orginalY);
-            grid.freezePiece(currentPiece);
-            currentPiece = PieceGenerator.generatePiece(new boolean[][]{}, grid.getSize(), grid.getSize());
-            System.out.println("New piece generated");
-        }
+        if (checkCollision()) {
+            currentPiece.setX(originalX);
+            currentPiece.setY(originalY);
 
-        if (currentPiece.getY() < 0) {
-
+            if (dy > 0) {
+                grid.freezePiece(currentPiece);
+                currentPiece = PieceGenerator.generatePiece(new boolean[][]{}, grid.getSize(), grid.getSize());
+                System.out.println("New piece generated");
+            }
         }
 
         setChanged();
         notifyObservers();
+    }
+
+    private boolean checkCollision() {
+        for (int i = 0; i < currentPiece.getHeight(); i++) {
+            for (int j = 0; j < currentPiece.getWidth(); j++) {
+                if (currentPiece.getPiece()[i][j]) {
+                    int x = currentPiece.getX() + j;
+                    int y = currentPiece.getY() + i;
+
+                    if (x < 0 || x >= grid.getSize() || y < 0 || y >= grid.getSize()) {
+                        return true;
+                    }
+
+                    if (grid.getValue(x, y)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void rotateCurrentPiece() {
