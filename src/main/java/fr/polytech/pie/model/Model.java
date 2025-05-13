@@ -3,6 +3,9 @@ package fr.polytech.pie.model;
 import fr.polytech.pie.Consts;
 
 import java.util.Observable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("deprecation")
 public class Model extends Observable {
@@ -11,49 +14,36 @@ public class Model extends Observable {
 
     public boolean[] keys = new boolean[5];
 
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
     public Model() {
         currentPiece = PieceGenerator.generatePiece(new boolean[][]{}, grid.getSize(), grid.getSize());
 
-        Thread t = new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        scheduler.scheduleAtFixedRate(
+                () -> {
+                    if (keys[0]) {
+                        translateCurrentPiece(0, -1); // Down
+                    }
+                    if (keys[1]) {
+                        translateCurrentPiece(0, 1); // Up
+                    }
+                    if (keys[2]) {
+                        translateCurrentPiece(-1, 0); // Right
+                    }
+                    if (keys[3]) {
+                        translateCurrentPiece(1, 0); // Left
+                    }
+                    if (keys[4]) {
+                        rotateCurrentPiece(); // Rotate
+                    }
+                }, 0, 50, TimeUnit.MILLISECONDS
+        );
 
-                if (keys[0]) {
-                    translateCurrentPiece(0, -1); // Down
-                }
-                if (keys[1]) {
-                    translateCurrentPiece(0, 1); // Up
-                }
-                if (keys[2]) {
-                    translateCurrentPiece(-1, 0); // Right
-                }
-                if (keys[3]) {
-                    translateCurrentPiece(1, 0); // Left
-                }
-                if (keys[4]) {
-                    rotateCurrentPiece(); // Rotate
-                }
-            }
-        });
-        t.setDaemon(true);
-        t.start();
+        scheduler.scheduleAtFixedRate(
+                () -> translateCurrentPiece(0, 1), 0, 200, TimeUnit.MILLISECONDS
+        );
 
-        Thread gravityThread = new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                translateCurrentPiece(0, 1);
-            }
-        });
-        gravityThread.setDaemon(true);
-        gravityThread.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(scheduler::shutdown));
     }
 
     public void translateCurrentPiece(int dx, int dy) {
