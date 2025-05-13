@@ -1,8 +1,9 @@
 package fr.polytech.pie.model;
 
+import java.util.function.Predicate;
+
 public class Grid {
     private final boolean[][] grid;
-
     public Grid(int size) {
         this.grid = new boolean[size][size];
     }
@@ -29,5 +30,25 @@ public class Grid {
                 }
             }
         }
+    }
+
+    public boolean checkCollision(CurrentPiece currentPiece) {
+        for (int i = 0; i < currentPiece.getHeight(); i++) {
+            for (int j = 0; j < currentPiece.getWidth(); j++) {
+                if (currentPiece.getPiece()[i][j]) {
+                    int x = currentPiece.getX() + j;
+                    int y = currentPiece.getY() + i;
+
+                    if (x < 0 || x >= getSize() || y < 0 || y >= getSize()) {
+                        return true;
+                    }
+
+                    if (getValue(x, y)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

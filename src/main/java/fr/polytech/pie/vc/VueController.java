@@ -45,10 +45,10 @@ public class VueController extends JFrame implements Observer {
         updatePanel(m);
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
-        .addKeyEventDispatcher(e -> {
-            if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
-                return false;
-            }
+                .addKeyEventDispatcher(e -> {
+                    if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
+                        return false;
+                    }
 
             boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
             System.out.println(isKeyPressed);
@@ -94,5 +94,7 @@ public class VueController extends JFrame implements Observer {
                 }
             }
         }
+
+        repaint();
     }
 }

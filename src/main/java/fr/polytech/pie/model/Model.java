@@ -106,7 +106,7 @@ public class Model extends Observable {
     }
 
     public void rotateCurrentPiece() {
-        currentPiece.rotate();
+        currentPiece.rotate((currentPiece) -> grid.checkCollision(currentPiece));
         setChanged();
         notifyObservers();
     }
