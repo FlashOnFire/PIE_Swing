@@ -2,6 +2,9 @@ package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Game{
     private Grid grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
     private CurrentPiece currentPiece;
@@ -41,7 +44,7 @@ public class Game{
                 currentPiece = PieceGenerator.generatePiece(grid.getWidth());
 
                 if (checkCollision()) {
-                    System.out.println("Fin du jeu !");
+                    Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
                     resetGame();
                 }
             }
