@@ -1,9 +1,7 @@
 package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Model;
-import fr.polytech.pie.model.PieceGenerator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +11,6 @@ import java.util.Observer;
 
 @SuppressWarnings("deprecation")
 public class VueController extends JFrame implements Observer {
-
-    private final JLabel xLabel = new JLabel("x=0");
-    private final JLabel yLabel = new JLabel("y=0");
 
     private final JPanel[] panels = new JPanel[Consts.SIZE * Consts.SIZE];
 
@@ -76,8 +71,8 @@ public class VueController extends JFrame implements Observer {
     }
 
     private void updatePanel(Model model) {
-        for (int i = 0; i < panels.length; i++) {
-            panels[i].setBackground(Color.WHITE);
+        for (JPanel panel : panels) {
+            panel.setBackground(Color.WHITE);
         }
 
        for (int i = 0; i < model.getCurrentPiece().getHeight(); i++) {
