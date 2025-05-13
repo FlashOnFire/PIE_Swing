@@ -19,8 +19,8 @@ public class VueController extends JFrame implements Observer {
     private static final Color CURRENT_PIECE_COLOR = Color.RED;
     private static final Color FROZEN_PIECE_COLOR = Color.BLUE;
 
-
     private final JPanel[][] panels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
+    private final JLabel scoreLabel = new JLabel("Score: 0");
 
     public VueController(Model m) {
         super("VC");
@@ -30,6 +30,7 @@ public class VueController extends JFrame implements Observer {
 
         JPanel xPanel = new JPanel();
         xPanel.setLayout(new FlowLayout());
+        xPanel.add(scoreLabel);
         JPanel yPanel = new JPanel();
         yPanel.setLayout(new FlowLayout());
 
@@ -73,7 +74,6 @@ public class VueController extends JFrame implements Observer {
         this.pack();
     }
 
-
     @Override
     public void update(Observable o, Object arg) {
         updatePanel((Model) o);
@@ -85,6 +85,7 @@ public class VueController extends JFrame implements Observer {
                 clearGrid();
                 drawCurrentPiece(model.getCurrentPiece());
                 drawFrozenPieces(model.getGrid());
+                scoreLabel.setText("Score: " + model.getScore());
                 repaint();
             });
         } catch (Exception e) {
@@ -103,7 +104,6 @@ public class VueController extends JFrame implements Observer {
     private boolean isWithinBounds(int x, int y) {
         return x >= 0 && x < Consts.GRID_WIDTH && y >= 0 && y < Consts.GRID_HEIGHT;
     }
-
 
     private void drawCell(int x, int y, Color color) {
         if (isWithinBounds(x, y)) {

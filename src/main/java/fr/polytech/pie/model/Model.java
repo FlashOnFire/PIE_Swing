@@ -60,4 +60,8 @@ public class Model extends Observable {
     public CurrentPiece getCurrentPiece() {
         return game.getCurrentPiece();
     }
+
+    public int getScore() {
+        return game.getScore();
+    }
 }
