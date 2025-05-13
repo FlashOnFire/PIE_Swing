@@ -58,4 +58,32 @@ public class Grid {
         }
         return false;
     }
+
+    public int clearFullLines() {
+        int linesCleared = 0;
+
+        for (int i = height - 1; i >= 0; i--) {
+            boolean fullLine = true;
+            for (int j = 0; j < width; j++) {
+                if (!grid[i][j]) {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine) {
+                linesCleared++;
+                // Shift all lines above down
+                for (int k = i; k > 0; k--) {
+                    System.arraycopy(grid[k - 1], 0, grid[k], 0, width);
+                }
+                // Clear the top line
+                for (int j = 0; j < width; j++) {
+                    grid[0][j] = false;
+                }
+            }
+        }
+
+        return linesCleared;
+    }
 }

@@ -5,9 +5,10 @@ import fr.polytech.pie.Consts;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Game{
+public class Game {
     private Grid grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
     private CurrentPiece currentPiece;
+    private int score;
 
     public Game() {
         this.currentPiece = PieceGenerator.generatePiece(grid.getWidth());
@@ -19,6 +20,15 @@ public class Game{
 
     public CurrentPiece getCurrentPiece() {
         return currentPiece;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    private void updateScore(int linesCleared) {
+        // Exemple : 100 points par ligne supprimée, avec un bonus multiplicatif
+        score += linesCleared * 100;
     }
 
     public void translateCurrentPiece(int dx, int dy) {
@@ -41,6 +51,13 @@ public class Game{
 
             if (dy > 0) {
                 grid.freezePiece(currentPiece);
+
+                // Vérifiez et supprimez les lignes complètes
+                int linesCleared = grid.clearFullLines();
+                if (linesCleared > 0) {
+                    updateScore(linesCleared);
+                }
+
                 currentPiece = PieceGenerator.generatePiece(grid.getWidth());
 
                 if (checkCollision()) {
@@ -54,6 +71,7 @@ public class Game{
     public void resetGame() {
         grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
         currentPiece = PieceGenerator.generatePiece(grid.getWidth());
+        score = 0; // Réinitialisez le score
     }
 
     public boolean checkCollision() {
@@ -78,9 +96,5 @@ public class Game{
 
     public void rotateCurrentPiece() {
         currentPiece.rotate((currentPiece) -> grid.checkCollision(currentPiece));
-
     }
-
-
-
 }
