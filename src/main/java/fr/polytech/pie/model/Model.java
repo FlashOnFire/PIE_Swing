@@ -23,16 +23,16 @@ public class Model extends Observable {
                 }
 
                 if (keys[0]) {
-                    translateCurrentPiece(0, 1); // Down
+                    translateCurrentPiece(0, -1); // Down
                 }
                 if (keys[1]) {
-                    translateCurrentPiece(0, -1); // Up
+                    translateCurrentPiece(0, 1); // Up
                 }
                 if (keys[2]) {
-                    translateCurrentPiece(1, 0); // Right
+                    translateCurrentPiece(-1, 0); // Right
                 }
                 if (keys[3]) {
-                    translateCurrentPiece(-1, 0); // Left
+                    translateCurrentPiece(1, 0); // Left
                 }
                 if (keys[4]) {
                     rotateCurrentPiece(); // Rotate
