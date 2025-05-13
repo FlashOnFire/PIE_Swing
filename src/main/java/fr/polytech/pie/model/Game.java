@@ -3,11 +3,11 @@ package fr.polytech.pie.model;
 import fr.polytech.pie.Consts;
 
 public class Game{
-    private Grid grid = new Grid(Consts.SIZE);
+    private Grid grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
     private CurrentPiece currentPiece;
 
     public Game() {
-        this.currentPiece = PieceGenerator.generatePiece(grid.getSize());
+        this.currentPiece = PieceGenerator.generatePiece(grid.getWidth());
     }
 
     public Grid getGrid() {
@@ -28,8 +28,8 @@ public class Game{
             currentPiece.setX(0);
         }
 
-        if (currentPiece.getX() + currentPiece.getWidth() > grid.getSize()) {
-            currentPiece.setX(grid.getSize() - currentPiece.getWidth());
+        if (currentPiece.getX() + currentPiece.getWidth() > grid.getWidth()) {
+            currentPiece.setX(grid.getWidth() - currentPiece.getWidth());
         }
 
         if (checkCollision()) {
@@ -38,8 +38,7 @@ public class Game{
 
             if (dy > 0) {
                 grid.freezePiece(currentPiece);
-                currentPiece = PieceGenerator.generatePiece(grid.getSize());
-                System.out.println("New piece generated");
+                currentPiece = PieceGenerator.generatePiece(grid.getWidth());
 
                 if (checkCollision()) {
                     System.out.println("Fin du jeu !");
@@ -50,8 +49,8 @@ public class Game{
     }
 
     public void resetGame() {
-        grid = new Grid(Consts.SIZE);
-        currentPiece = PieceGenerator.generatePiece(grid.getSize());
+        grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
+        currentPiece = PieceGenerator.generatePiece(grid.getWidth());
     }
 
     public boolean checkCollision() {
@@ -61,7 +60,7 @@ public class Game{
                     int x = currentPiece.getX() + j;
                     int y = currentPiece.getY() + i;
 
-                    if (x < 0 || x >= grid.getSize() || y < 0 || y >= grid.getSize()) {
+                    if (x < 0 || x >= grid.getWidth() || y < 0 || y >= grid.getHeight()) {
                         return true;
                     }
 
