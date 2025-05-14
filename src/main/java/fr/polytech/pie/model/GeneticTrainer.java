@@ -561,9 +561,9 @@ public class GeneticTrainer {
         System.out.println("GeneticTrainer - Optimize Tetris AI parameters using genetic algorithms");
         System.out.println();
         System.out.println("Options:");
-        System.out.println("  --generations <num>  Number of generations to evolve (default: 50)");
-        System.out.println("  --population <num>   Population size (default: 1000)");
-        System.out.println("  --games <num>        Games per evaluation (default: 100)");
+        System.out.println("  --generations <num>  Number of generations to evolve (default: 50, min: 1)");
+        System.out.println("  --population <num>   Population size (default: 1000, min: 301)");
+        System.out.println("  --games <num>        Games per evaluation (default: 100, min: 1)");
         System.out.println("  --output <filename>  Save best parameters to a file");
         System.out.println("  --help               Display this help message");
     }
