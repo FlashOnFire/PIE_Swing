@@ -345,19 +345,26 @@ public class Grid {
 
     public int getHeightOfColumn(int i) {
         int height = 0;
-        if (is3D){
-            for (int j = 0; j < this.height; j++) {
+        if (is3D) {
+            for (int j = this.height - 1; j >= 0; j--) {
+                boolean filled = false;
                 for (int k = 0; k < this.depth; k++) {
                     if (grid3D[j][i][k]) {
-                        height++;
+                        filled = true;
+                        break;
                     }
+                }
+                if (filled) {
+                    height = this.height - j;
+                    break;
                 }
             }
             return height;
         } else {
-            for (int j = 0; j < this.height; j++) {
+            for (int j = this.height - 1; j >= 0; j--) {
                 if (grid2D[j][i]) {
-                    height++;
+                    height = this.height - j;
+                    break;
                 }
             }
             return height;
