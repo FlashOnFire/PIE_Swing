@@ -5,23 +5,9 @@ import java.util.Set;
 
 public class Ai {
     private final Grid grid;
-    private double heightWeight = -0.510066;
-    private double linesWeight = 0.760666;
-    private double holesWeight = -0.35663;
-    private double bumpinessWeight = -0.184483;
 
     public Ai(Grid grid) {
         this.grid = grid;
-    }
-
-    public Ai(Grid grid, double[] parameters) {
-        this.grid = grid;
-        if (parameters != null && parameters.length == 4) {
-            this.heightWeight = parameters[0];
-            this.linesWeight = parameters[1];
-            this.holesWeight = parameters[2];
-            this.bumpinessWeight = parameters[3];
-        }
     }
 
     public void makeMove(CurrentPiece currentPiece) {
@@ -64,6 +50,10 @@ public class Ai {
                 bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
             }
 
+            double heightWeight = 0.375;
+            double linesWeight = 0.331;
+            double bumpinessWeight = -0.076;
+            double holesWeight = -0.863;
             double finalScore = heightWeight * heights +
                     linesWeight * completedLines +
                     holesWeight * holes +
@@ -85,7 +75,7 @@ public class Ai {
         // generate rotations
         CurrentPiece workingPiece = currentPiece.clone();
         for (int i = 0; i < 4; i++) {
-            workingPiece.rotate(e -> grid.checkCollision(e));
+            workingPiece.rotate(grid::checkCollision);
             possibilities.add(workingPiece.clone());
         }
 

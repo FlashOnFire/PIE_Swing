@@ -174,6 +174,7 @@ public class Game {
     }
 
     public void runAi() {
+        grid.clearFullLines();
         ai.makeMove(currentPiece);
         if (is3D) {
             this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), true);
