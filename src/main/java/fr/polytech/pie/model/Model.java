@@ -1,7 +1,6 @@
 package fr.polytech.pie.model;
 
 import java.util.Observable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -18,22 +17,22 @@ public class Model extends Observable {
     public boolean[] keys = new boolean[10];
 
     /**
-     * Constructor for the model with default 2D mode.
+     * Constructor for the model with 2D mode as the default
      */
-    public Model() {
-        this(false);
+    public Model(ScheduledExecutorService scheduler) {
+        this(scheduler, false);
     }
 
     /**
      * Constructor that can create a model in either 2D or 3D mode.
-     * 
-     * @param is3D Whether the game should be in 3D mode
+     *
+     * @param scheduler The scheduler to use for scheduling tasks
+     * @param is3D      Whether the game should be in 3D mode
      */
-    public Model(boolean is3D) {
+    public Model(ScheduledExecutorService scheduler, boolean is3D) {
         this.is3D = is3D;
         this.game = new Game(is3D);
 
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
             if (is3D) {
                 handle3DControls();
@@ -50,8 +49,6 @@ public class Model extends Observable {
                 translateCurrentPiece(0, 1);
             }
         }, 0, 200, TimeUnit.MILLISECONDS);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(scheduler::shutdown));
     }
 
     /**

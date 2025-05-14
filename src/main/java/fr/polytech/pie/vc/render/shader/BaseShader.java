@@ -1,0 +1,116 @@
+package fr.polytech.pie.vc.render.shader;
+
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
+public class BaseShader extends ShaderProgram {
+
+    private static final String vertexShader = """
+            #version 330
+            
+            layout(location = 0) in vec3 position;
+            layout(location = 1) in vec3 normal;
+            
+            uniform vec3 pos;
+            uniform mat4 projectionMatrix;
+            uniform mat4 viewMatrix;
+            
+            uniform vec3 lightPosition = vec3(2, 6, 4);  // Adjusted light position for better angles
+            
+            out vec3 toLightVector;
+            out vec3 toCameraVector;
+            out vec3 surfaceNormal;
+            out vec3 fragPosition;  // To create position-based effects
+            
+            void main(void){
+                vec3 worldPosition = position + pos;
+                gl_Position = projectionMatrix * viewMatrix * vec4(worldPosition, 1.0);
+            
+                vec3 camPos = (inverse(viewMatrix) * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
+                toLightVector = lightPosition - worldPosition;
+            
+                toCameraVector = camPos - worldPosition;
+                surfaceNormal = normal;
+            
+                fragPosition = worldPosition;
+            }
+            """;
+    private static final String fragmentShader = """
+            #version 330
+            
+            in vec3 toLightVector;
+            in vec3 toCameraVector;
+            in vec3 surfaceNormal;
+            in vec3 fragPosition;
+            
+            uniform vec3 color;
+            
+            out vec4 out_color;
+            
+            void main(void) {
+                const float ambientStrength = 0.5;
+                const float diffuseStrength = 0.5;
+                const float specularStrength = 0.9;
+                const float shininess = 16.0;
+            
+                vec3 unitNormal = normalize(surfaceNormal);
+                vec3 unitLightVector = normalize(toLightVector);
+                vec3 unitCameraVector = normalize(toCameraVector);
+            
+                float distance = length(toLightVector);
+                float attenuation = 1.0 / (1.2 + 0.01 * distance + 0.001 * distance * distance);
+            
+                float ambient = ambientStrength;
+            
+                float diffuseFactor = max(dot(unitNormal, unitLightVector), 0.0);
+                float diffuse = diffuseFactor * diffuseStrength;
+            
+                vec3 halfwayDir = normalize(unitLightVector + unitCameraVector);
+                float specularFactor = pow(max(dot(unitNormal, halfwayDir), 0.0), shininess);
+                float specular = specularFactor * specularStrength;
+            
+                float lighting = (ambient + (diffuse + specular) * attenuation);
+            
+                vec3 result = color * lighting;
+                out_color = vec4(result, 1.0);
+            }
+            """;
+
+    private int location_projectionMatrix;
+    private int location_viewMatrix;
+    private int location_pos;
+    private int location_color;
+
+    public BaseShader() {
+
+    }
+
+    @Override
+    public void load() {
+        super.loadProgram(vertexShader, fragmentShader);
+    }
+
+    @Override
+    protected void getAllUniformLocations() {
+        location_projectionMatrix = getUniformLocation("projectionMatrix");
+        location_viewMatrix = getUniformLocation("viewMatrix");
+        location_pos = getUniformLocation("pos");
+        location_color = getUniformLocation("color");
+    }
+
+    public void setProjectionMatrix(Matrix4f mat) {
+        loadMat4(location_projectionMatrix, mat);
+    }
+
+    public void setViewMatrix(Matrix4f mat) {
+        loadMat4(location_viewMatrix, mat);
+    }
+
+    public void setPos(Vector3f pos) {
+        loadVector(location_pos, pos);
+    }
+
+    public void setColor(Vector3f color) {
+        loadVector(location_color, color);
+    }
+}

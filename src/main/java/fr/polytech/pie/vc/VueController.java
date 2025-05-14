@@ -16,7 +16,7 @@ public class VueController extends JFrame implements Observer {
     private final JPanel gridPanel = new JPanel();
     private Renderer currentRenderer;
     private final Renderer renderer2D;
-//    private final Renderer renderer3D;
+    //    private final Renderer renderer3D;
     private final JPanel cardPanel = new JPanel(new CardLayout());
     private final JPanel menuPanel = new JPanel();
     private final JButton play2DButton = new JButton("Play 2D");
