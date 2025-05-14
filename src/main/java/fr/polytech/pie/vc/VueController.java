@@ -1,8 +1,5 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
 import fr.polytech.pie.model.Model;
 
 import javax.swing.*;
@@ -15,124 +12,210 @@ import java.util.logging.Logger;
 
 @SuppressWarnings("deprecation")
 public class VueController extends JFrame implements Observer {
-    private static final Color EMPTY_CELL_COLOR = Color.WHITE;
-    private static final Color CURRENT_PIECE_COLOR = Color.RED;
-    private static final Color FROZEN_PIECE_COLOR = Color.BLUE;
-
-    private final JPanel[][] panels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
-    private final JLabel scoreLabel = new JLabel("Score: 0");
+    private final Model model;
+    private final JPanel gridPanel = new JPanel();
+    private Renderer currentRenderer;
+    private final Renderer renderer2D;
+//    private final Renderer renderer3D;
+    private final JPanel cardPanel = new JPanel(new CardLayout());
+    private final JPanel menuPanel = new JPanel();
+    private final JButton play2DButton = new JButton("Play 2D");
+    private final JButton play3DButton = new JButton("Play 3D");
+    private boolean gameStarted = false;
 
     public VueController(Model m) {
-        super("VC");
+        super("Tetris");
+        this.model = m;
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel xPanel = new JPanel();
-        xPanel.setLayout(new FlowLayout());
-        xPanel.add(scoreLabel);
-        JPanel yPanel = new JPanel();
-        yPanel.setLayout(new FlowLayout());
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new FlowLayout());
+        JLabel scoreLabel = new JLabel("Score: 0");
+        topPanel.add(scoreLabel);
 
-        this.add(xPanel, BorderLayout.NORTH);
-        this.add(yPanel, BorderLayout.SOUTH);
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new FlowLayout());
+        JButton switchModeButton = new JButton("Switch Mode");
+        switchModeButton.addActionListener(_ -> {
+            model.switchRenderingMode();
+            updateRenderer();
+        });
+        bottomPanel.add(switchModeButton);
 
-        JPanel gridPanel = new JPanel();
-        gridPanel.setLayout(new GridLayout(Consts.GRID_HEIGHT, Consts.GRID_WIDTH));
-        for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
-            for (int x = 0; x < Consts.GRID_WIDTH; x++) {
-                panels[y][x] = new JPanel();
-                panels[y][x].setPreferredSize(new Dimension(20, 20));
-                panels[y][x].setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                gridPanel.add(panels[y][x]);
-            }
-        }
+        this.add(topPanel, BorderLayout.NORTH);
+        this.add(bottomPanel, BorderLayout.SOUTH);
 
-        gridPanel.setPreferredSize(new Dimension(400, 800));
-        gridPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        renderer2D = new Renderer2D(scoreLabel, gridPanel);
+//        renderer3D = new Renderer3D(scoreLabel, gridPanel);
 
-        this.add(gridPanel, BorderLayout.CENTER);
+        setupMenuPanel();
 
-        updatePanel(m);
+        cardPanel.add(menuPanel, "MENU");
+        cardPanel.add(gridPanel, "GAME");
 
+        this.add(cardPanel, BorderLayout.CENTER);
+
+        setupKeyboardInput();
+
+        showMenu();
+
+        this.pack();
+    }
+
+    private void setupMenuPanel() {
+        menuPanel.setLayout(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("TETRIS", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
+        titleLabel.setForeground(Color.BLUE);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(2, 1, 10, 20));
+
+        play2DButton.setFont(new Font("Arial", Font.BOLD, 24));
+        play2DButton.addActionListener(_ -> startGame(false));
+
+        play3DButton.setFont(new Font("Arial", Font.BOLD, 24));
+        play3DButton.addActionListener(_ -> startGame(true));
+
+        buttonPanel.add(play2DButton);
+        buttonPanel.add(play3DButton);
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(Box.createVerticalStrut(100), BorderLayout.NORTH);
+        centerPanel.add(buttonPanel, BorderLayout.CENTER);
+        centerPanel.add(Box.createVerticalStrut(100), BorderLayout.SOUTH);
+
+        menuPanel.add(titleLabel, BorderLayout.NORTH);
+        menuPanel.add(centerPanel, BorderLayout.CENTER);
+
+        JTextArea controlsText = new JTextArea();
+        controlsText.setEditable(false);
+        controlsText.setFont(new Font("Arial", Font.PLAIN, 12));
+        controlsText.setText(
+                """
+                        2D Controls:
+                        z - Up, s - Down, q - Left, d - Right, a - Rotate
+                        
+                        3D Controls:
+                        z - Up, s - Down, q - Left, d - Right, a - Rotate Z
+                        r - Forward, f - Backward, t - Rotate X, g - Rotate Y
+                        m - Switch between 2D and 3D mode""");
+
+        menuPanel.add(controlsText, BorderLayout.SOUTH);
+    }
+
+    private void startGame(boolean is3D) {
+        model.setRenderingMode(is3D);
+        model.resetGame();
+        updateRenderer();
+        showGame();
+        gameStarted = true;
+    }
+
+    private void showMenu() {
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, "MENU");
+        gameStarted = false;
+    }
+
+    private void showGame() {
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, "GAME");
+    }
+
+    private void setupKeyboardInput() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(e -> {
+                    if (!gameStarted) {
+                        return false;
+                    }
+
                     if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
                         return false;
                     }
 
                     boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
-                    switch (e.getKeyChar()) {
-                        case 'z' -> m.setKey(0, isKeyPressed);
-                        case 's' -> m.setKey(1, isKeyPressed);
-                        case 'q' -> m.setKey(2, isKeyPressed);
-                        case 'd' -> m.setKey(3, isKeyPressed);
-                        case 'a' -> m.setKey(4, isKeyPressed);
+
+                    if (model.is3D()) {
+                        // 3D mode controls
+                        switch (e.getKeyChar()) {
+                            case 'z' -> model.setKey(0, isKeyPressed); // Up
+                            case 's' -> model.setKey(1, isKeyPressed); // Down
+                            case 'q' -> model.setKey(2, isKeyPressed); // Left
+                            case 'd' -> model.setKey(3, isKeyPressed); // Right
+                            case 'a' -> model.setKey(4, isKeyPressed); // Rotate Z
+                            case 'r' -> model.setKey(5, isKeyPressed); // Forward (z+)
+                            case 'f' -> model.setKey(6, isKeyPressed); // Backward (z-)
+                            case 't' -> model.setKey(7, isKeyPressed); // Rotate X
+                            case 'g' -> model.setKey(8, isKeyPressed); // Rotate Y
+                            case 'm' -> {
+                                if (isKeyPressed) {
+                                    model.setKey(9, false); // Reset key state
+                                    model.switchRenderingMode();
+                                    updateRenderer();
+                                }
+                            }
+                            case 'p' -> {
+                                if (isKeyPressed) {
+                                    showMenu();
+                                }
+                            }
+                        }
+                    } else {
+                        // 2D mode controls
+                        switch (e.getKeyChar()) {
+                            case 'z' -> model.setKey(0, isKeyPressed); // Up
+                            case 's' -> model.setKey(1, isKeyPressed); // Down
+                            case 'q' -> model.setKey(2, isKeyPressed); // Left
+                            case 'd' -> model.setKey(3, isKeyPressed); // Right
+                            case 'a' -> model.setKey(4, isKeyPressed); // Rotate
+                            case 'm' -> {
+                                if (isKeyPressed) {
+                                    model.switchRenderingMode();
+                                    updateRenderer();
+                                }
+                            }
+                            case 'p' -> {
+                                if (isKeyPressed) {
+                                    showMenu();
+                                }
+                            }
+                        }
                     }
                     return false;
                 });
+    }
+
+    private void updateRenderer() {
+        if (currentRenderer != null) {
+            currentRenderer.cleanup();
+        }
+
+        gridPanel.removeAll();
+
+        if (model.is3D()) {
+//            currentRenderer = renderer3D;
+        } else {
+            currentRenderer = renderer2D;
+        }
+
+        currentRenderer.initialize();
         this.pack();
+        update(model, null);
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        updatePanel((Model) o);
-    }
-
-    private synchronized void updatePanel(Model model) {
+        Model model = (Model) o;
         try {
-            SwingUtilities.invokeAndWait(() -> {
-                clearGrid();
-                drawCurrentPiece(model.getCurrentPiece());
-                drawFrozenPieces(model.getGrid());
-                scoreLabel.setText("Score: " + model.getScore());
-                repaint();
-            });
+            if (currentRenderer != null && gameStarted) {
+                currentRenderer.update(model.getGrid(), model.getCurrentPiece(), model.getScore());
+            }
         } catch (Exception e) {
-            Logger.getLogger(VueController.class.getName()).log(Level.SEVERE, "Error updating panel", e);
-        }
-    }
-
-    private void clearGrid() {
-        for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
-            for (int x = 0; x < Consts.GRID_WIDTH; x++) {
-                panels[y][x].setBackground(EMPTY_CELL_COLOR);
-            }
-        }
-    }
-
-    private boolean isWithinBounds(int x, int y) {
-        return x >= 0 && x < Consts.GRID_WIDTH && y >= 0 && y < Consts.GRID_HEIGHT;
-    }
-
-    private void drawCell(int x, int y, Color color) {
-        if (isWithinBounds(x, y)) {
-            panels[y][x].setBackground(color);
-        }
-    }
-
-    private void drawFrozenPieces(Grid grid) {
-        for (int i = 0; i < grid.getWidth(); i++) {
-            for (int j = 0; j < grid.getHeight(); j++) {
-                if (grid.getValue(i, j)) {
-                    drawCell(i, j, FROZEN_PIECE_COLOR);
-                }
-            }
-        }
-    }
-
-    private void drawCurrentPiece(CurrentPiece currentPiece) {
-        boolean[][] piece = currentPiece.getPiece();
-        for (int i = 0; i < currentPiece.getHeight(); i++) {
-            for (int j = 0; j < currentPiece.getWidth(); j++) {
-                if (piece[i][j]) {
-                    drawCell(
-                            currentPiece.getX() + j,
-                            currentPiece.getY() + i,
-                            CURRENT_PIECE_COLOR
-                    );
-                }
-            }
+            Logger.getLogger(VueController.class.getName()).log(Level.SEVERE, "Error updating VueController", e);
         }
     }
 }
