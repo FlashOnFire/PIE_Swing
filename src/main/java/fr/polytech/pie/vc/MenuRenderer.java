@@ -5,6 +5,10 @@ import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MenuRenderer implements Renderer {
     private final VueController vueController;
@@ -23,6 +27,19 @@ public class MenuRenderer implements Renderer {
     @Override
     public void initialize() {
         frame.setLayout(new BorderLayout());
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                new Thread(() -> {
+                    try {
+                        vueController.cleanup();
+                    } catch (Exception ex) {
+                        Logger.getLogger(MenuRenderer.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }).start();
+            }
+        });
 
         JLabel titleLabel = new JLabel("TETRIS", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
@@ -70,24 +87,15 @@ public class MenuRenderer implements Renderer {
         frame.setVisible(true);
     }
 
+    @Override
     public void loop() {
-        while (frame.isDisplayable()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
-        }
     }
 
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, int score) {
-
     }
 
     @Override
     public void cleanup() {
-        frame.dispose();
     }
 }

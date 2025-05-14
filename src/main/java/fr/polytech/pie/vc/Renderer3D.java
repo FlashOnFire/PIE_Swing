@@ -11,8 +11,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
-import java.util.Objects;
-import java.util.Observable;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +23,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 @SuppressWarnings("deprecation")
 public class Renderer3D implements Renderer {
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final long window;
     private final OpenGLRenderer renderer = new OpenGLRenderer();
@@ -37,12 +38,7 @@ public class Renderer3D implements Renderer {
     private boolean firstMouse = true;
     private final float mouseSensitivity = 0.1f;
 
-    public Renderer3D(ScheduledExecutorService scheduler, Model m) {
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!glfwInit())
-            throw new IllegalStateException("Unable to initialize GLFW");
-
+    public Renderer3D(Model m) {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -223,11 +219,9 @@ public class Renderer3D implements Renderer {
 
     @Override
     public void cleanup() {
+        scheduler.shutdown();
         renderer.destroy();
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
-
-        glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 }

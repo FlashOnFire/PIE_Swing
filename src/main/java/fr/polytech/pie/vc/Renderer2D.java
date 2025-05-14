@@ -32,7 +32,7 @@ public class Renderer2D implements Renderer {
 
     public Renderer2D(VueController vueController) {
         this.vueController = vueController;
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setSize(400, 800);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
@@ -69,15 +69,16 @@ public class Renderer2D implements Renderer {
 
 
                     // 2D mode controls
-                    switch (e.getKeyChar()) {
-                        case 'z' -> keys[0] = isKeyPressed; // Up
-                        case 's' -> keys[1] = isKeyPressed; // Down
-                        case 'q' -> keys[2] = isKeyPressed; // Left
-                        case 'd' -> keys[3] = isKeyPressed; // Right
-                        case 'a' -> keys[4] = isKeyPressed; // Rotate
-                        case 'p' -> {
+                    switch (e.getKeyCode()) {
+                        case KeyEvent.VK_Z -> keys[0] = isKeyPressed; // Up
+                        case KeyEvent.VK_S -> keys[1] = isKeyPressed; // Down
+                        case KeyEvent.VK_Q -> keys[2] = isKeyPressed; // Left
+                        case KeyEvent.VK_D -> keys[3] = isKeyPressed; // Right
+                        case KeyEvent.VK_A -> keys[4] = isKeyPressed; // Rotate
+                        case KeyEvent.VK_ESCAPE -> {
                             if (isKeyPressed) {
-                                //showMenu();
+                                frame.dispose();
+                                vueController.cleanup();
                             }
                         }
                     }
@@ -102,7 +103,7 @@ public class Renderer2D implements Renderer {
             if (keys[4]) {
                 currentPiece.rotate2d(piece -> vueController.getModel().getGrid().checkCollision(piece));
             }
-        }, 0, 70, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     public void loop() {
