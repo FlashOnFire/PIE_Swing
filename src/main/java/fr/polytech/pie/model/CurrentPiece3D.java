@@ -2,16 +2,13 @@ package fr.polytech.pie.model;
 
 import java.util.function.Predicate;
 
-public class CurrentPiece3D implements CurrentPiece {
-    private boolean[][][] piece; // 3D representation of the piece
-    private int x;
-    private int y;
+public class CurrentPiece3D extends CurrentPiece {
+    private boolean[][][] piece;
     private int z;
 
     public CurrentPiece3D(boolean[][][] piece, int x, int y, int z) {
+        super(x, y);
         this.piece = piece;
-        this.x = x;
-        this.y = y;
         this.z = z;
     }
 
@@ -29,26 +26,6 @@ public class CurrentPiece3D implements CurrentPiece {
 
     public int getDepth() {
         return piece[0][0].length;
-    }
-
-    @Override
-    public int getX() {
-        return x;
-    }
-
-    @Override
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    @Override
-    public int getY() {
-        return y;
-    }
-
-    @Override
-    public void setY(int y) {
-        this.y = y;
     }
 
     @Override
@@ -143,5 +120,10 @@ public class CurrentPiece3D implements CurrentPiece {
             }
         }
         return new CurrentPiece3D(newGrid, x, y, z);
+    }
+
+    @Override
+    public boolean checkCollision(Predicate<CurrentPiece> collisionChecker) {
+        return collisionChecker.test(this);
     }
 }

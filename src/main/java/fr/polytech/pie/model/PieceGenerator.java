@@ -1,8 +1,8 @@
 package fr.polytech.pie.model;
 
-import java.util.Random;
-
 import fr.polytech.pie.Consts;
+
+import java.util.Random;
 
 public class PieceGenerator {
     private static final boolean[][][] PIECES_2D = {

@@ -2,39 +2,16 @@ package fr.polytech.pie.model;
 
 import java.util.function.Predicate;
 
-public class CurrentPiece2D implements CurrentPiece {
+public class CurrentPiece2D extends CurrentPiece {
     private boolean[][] piece;
-    private int x;
-    private int y;
 
     public CurrentPiece2D(boolean[][] piece, int x, int y) {
+        super(x, y);
         this.piece = piece;
-        this.x = x;
-        this.y = y;
     }
 
     public boolean[][] getPiece2d() {
         return piece;
-    }
-
-    @Override
-    public int getX() {
-        return x;
-    }
-
-    @Override
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    @Override
-    public int getY() {
-        return y;
-    }
-
-    @Override
-    public void setY(int y) {
-        this.y = y;
     }
 
     @Override
@@ -52,7 +29,7 @@ public class CurrentPiece2D implements CurrentPiece {
         this.y += dy;
     }
 
-    public void rotate2d(Predicate<CurrentPiece2D> collisionChecker) {
+    public void rotate2d(Predicate<CurrentPiece> collisionChecker) {
         // Save the original piece in case rotation causes a collision
         var original = copy();
 
@@ -83,5 +60,10 @@ public class CurrentPiece2D implements CurrentPiece {
             newPiece[i] = piece[i].clone();
         }
         return new CurrentPiece2D(newPiece, x, y);
+    }
+
+    @Override
+    public boolean checkCollision(Predicate<CurrentPiece> collisionChecker) {
+        return collisionChecker.test(this);
     }
 }

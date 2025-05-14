@@ -14,14 +14,7 @@ public class Game {
 
     public Game(boolean is3D) {
         this.is3D = is3D;
-        if (is3D) {
-            this.grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, true);
-            this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), true);
-        } else {
-            this.grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
-            this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
-        }
-        this.score = 0;
+        resetGame();
     }
 
     public Grid getGrid() {
@@ -34,10 +27,6 @@ public class Game {
 
     public int getScore() {
         return score;
-    }
-
-    public boolean is3D() {
-        return is3D;
     }
 
     public void setRenderingMode(boolean is3D) {
@@ -56,7 +45,7 @@ public class Game {
         int originalX = currentPiece.getX();
         int originalY = currentPiece.getY();
 
-        ((CurrentPiece2D)currentPiece).translate2d(dx, dy);
+        ((CurrentPiece2D) currentPiece).translate2d(dx, dy);
 
         if (currentPiece.getX() < 0) {
             currentPiece.setX(0);
@@ -99,7 +88,6 @@ public class Game {
 
         piece3D.translate3D(dx, dy, dz);
 
-        // Check boundaries for x and y
         if (piece3D.getX() < 0) {
             piece3D.setX(0);
         }
@@ -108,16 +96,14 @@ public class Game {
             piece3D.setX(grid.getWidth() - piece3D.getWidth());
         }
 
-        // Check z boundaries
         if (piece3D.getZ() < 0) {
             piece3D.setZ(0);
         }
 
-        if (piece3D.getZ() + piece3D.getDepth() > grid.getDepth()) {
-            piece3D.setZ(grid.getDepth() - piece3D.getDepth());
+        if (piece3D.getZ() + piece3D.getDepth() > ((Grid3D) grid).getDepth()) {
+            piece3D.setZ(((Grid3D) grid).getDepth() - piece3D.getDepth());
         }
 
-        // Handle collision
         if (grid.checkCollision(piece3D)) {
             piece3D.setX(originalX);
             piece3D.setY(originalY);
@@ -142,35 +128,24 @@ public class Game {
     }
 
     public void resetGame() {
-        if (is3D) {
-            grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, true);
-            currentPiece = PieceGenerator.generatePiece(grid.getWidth(), true);
-        } else {
-            grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
-            currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
-        }
+        grid = Grid.create(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, is3D);
+        currentPiece = PieceGenerator.generatePiece(grid.getWidth(), is3D);
         ai = new Ai(grid);
         score = 0;
     }
 
     private void generateNewPiece() {
-        if (is3D) {
-            currentPiece = PieceGenerator.generatePiece(grid.getWidth(), true);
-        } else {
-            currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
-        }
+        currentPiece = PieceGenerator.generatePiece(grid.getWidth(), is3D);
     }
 
     public void rotateCurrentPiece() {
-        assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";        ((CurrentPiece2D)currentPiece).rotate2d((CurrentPiece2D piece) -> grid.checkCollision(piece));
+        assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
+        ((CurrentPiece2D) currentPiece).rotate2d((CurrentPiece2D piece) -> grid.checkCollision(piece));
     }
 
     public void rotateCurrentPiece3D(RotationAxis axis) {
-        if (!is3D || !(currentPiece instanceof CurrentPiece3D piece3D)) {
-            return;
-        }
-
-        piece3D.rotate3D(axis, (piece) -> grid.checkCollision(piece));
+        assert currentPiece instanceof CurrentPiece3D : "Current piece is not a 3D piece";
+        ((CurrentPiece3D) currentPiece).rotate3D(axis, (piece) -> grid.checkCollision(piece));
     }
 
     public void runAi() {

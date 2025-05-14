@@ -11,6 +11,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Renderer2D implements Renderer {
+    JFrame frame = new JFrame("Tetris");
+
     private static final Color EMPTY_CELL_COLOR = Color.WHITE;
     private static final Color CURRENT_PIECE_COLOR = Color.RED;
     private static final Color FROZEN_PIECE_COLOR = Color.BLUE;
@@ -19,10 +21,17 @@ public class Renderer2D implements Renderer {
     private final JLabel scoreLabel;
     private final JPanel gridPanel;
 
-    public Renderer2D(JLabel scoreLabel, JPanel gridPanel) {
-        this.scoreLabel = scoreLabel;
-        this.gridPanel = gridPanel;
+    public Renderer2D() {
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setSize(400, 800);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
+        frame.setLayout(new BorderLayout());
+        this.scoreLabel = new JLabel();
         this.panels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
+        this.gridPanel = new JPanel();
+        frame.add(gridPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
     }
 
     @Override

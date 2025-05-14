@@ -1,10 +1,33 @@
 package fr.polytech.pie.model;
 
-public interface CurrentPiece {
-    int getX();
-    void setX(int x);
-    int getY();
-    void setY(int y);
-    int getWidth();
-    int getHeight();
+import java.util.function.Predicate;
+
+public abstract class CurrentPiece {
+    protected int x;
+    protected int y;
+
+    public CurrentPiece(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public abstract int getWidth();
+    public abstract int getHeight();
+    public abstract boolean checkCollision(Predicate<CurrentPiece> collisionChecker);
 }
