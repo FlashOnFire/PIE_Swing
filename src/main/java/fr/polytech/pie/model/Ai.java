@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Ai {
-    private Grid grid;
+    private final Grid grid;
     private double heightWeight = -0.510066;
     private double linesWeight = 0.760666;
     private double holesWeight = -0.35663;
@@ -76,7 +76,7 @@ public class Ai {
             grid.removePiece(possibility);
         }
 
-        grid.freezePiece(bestPiece);
+        grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
     }
 
     private Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {

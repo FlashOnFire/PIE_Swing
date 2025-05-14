@@ -6,9 +6,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -122,17 +119,17 @@ public class GeneticTrainer {
             evaluatePopulation();
 
             // Sort population by fitness (descending)
-            Collections.sort(population, Collections.reverseOrder());
+            population.sort(Collections.reverseOrder());
 
             // Log best fitness in this generation
             LOGGER.log(Level.INFO, "Best fitness in generation {0}: {1}",
-                    new Object[] { gen + 1, population.get(0).fitness });
+                    new Object[] { gen + 1, population.getFirst().fitness });
             LOGGER.log(Level.INFO, "Parameters: {0}, {1}, {2}, {3}",
                     new Object[] {
-                            population.get(0).parameters[0],
-                            population.get(0).parameters[1],
-                            population.get(0).parameters[2],
-                            population.get(0).parameters[3]
+                            population.getFirst().parameters[0],
+                            population.getFirst().parameters[1],
+                            population.getFirst().parameters[2],
+                            population.getFirst().parameters[3]
                     });
 
             // Create offspring through selection, crossover, and mutation
@@ -143,8 +140,8 @@ public class GeneticTrainer {
         }
 
         // Return the best parameter vector after all generations
-        Collections.sort(population, Collections.reverseOrder());
-        return population.get(0).parameters;
+        population.sort(Collections.reverseOrder());
+        return population.getFirst().parameters;
     }
 
     /**
@@ -265,7 +262,7 @@ public class GeneticTrainer {
 
         // Sort by fitness and return the best one
         tournament.sort(Collections.reverseOrder());
-        return tournament.get(0);
+        return tournament.getFirst();
     }
 
     /**
@@ -333,11 +330,11 @@ public class GeneticTrainer {
      * returns the number of lines cleared from a move.
      */
     private static class TestAi {
-        private Grid grid;
-        private double heightWeight;
-        private double linesWeight;
-        private double holesWeight;
-        private double bumpinessWeight;
+        private final Grid grid;
+        private final double heightWeight;
+        private final double linesWeight;
+        private final double holesWeight;
+        private final double bumpinessWeight;
 
         public TestAi(Grid grid, double[] parameters) {
             this.grid = grid;
@@ -402,6 +399,7 @@ public class GeneticTrainer {
             }
 
             // Place the best piece and clear lines
+            assert bestPiece != null;
             grid.freezePiece(bestPiece);
             grid.clearFullLines();
 
