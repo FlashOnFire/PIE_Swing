@@ -5,10 +5,11 @@ import java.util.Set;
 
 public class Ai {
     private final Grid grid;
-    private double heightWeight = -0.510066;
-    private double linesWeight = 0.760666;
-    private double bumpinessWeight = -0.35663;
-    private double holesWeight = -0.184483;
+
+    private double heightWeight = -0.5626037616361799;
+    private double linesWeight = 0.7196847345645387;
+    private double bumpinessWeight = -0.21226115740599324;
+    private double holesWeight = -0.3470966598575362;
 
     public Ai(Grid grid) {
         this.grid = grid;
@@ -82,10 +83,10 @@ public class Ai {
 
         if (!grid.is3D()) {
             // generate rotations
-            CurrentPiece workingPiece = ((CurrentPiece2D) currentPiece).copy();
+            CurrentPiece2D workingPiece = ((CurrentPiece2D) currentPiece).copy();
             for (int i = 0; i < 4; i++) {
-                ((CurrentPiece2D) workingPiece).rotate2d(grid::checkCollision);
-                possibilities.add(((CurrentPiece2D) workingPiece).copy());
+                workingPiece.rotate2d(grid::checkCollision);
+                possibilities.add(workingPiece.copy());
             }
 
             // generate translations
