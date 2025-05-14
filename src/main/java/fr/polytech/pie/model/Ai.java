@@ -5,9 +5,24 @@ import java.util.Set;
 
 public class Ai {
     private final Grid grid;
+    private double heightWeight = 0.375;
+    private double linesWeight = 0.331;
+    private double bumpinessWeight = -0.076;
+    private double holesWeight = -0.863;
 
     public Ai(Grid grid) {
         this.grid = grid;
+    }
+
+    public Ai(Grid grid, double[] parameters) {
+        this.grid = grid;
+        if (parameters.length != 4) {
+            throw new IllegalArgumentException("Parameters must be of length 4");
+        }
+        this.heightWeight = parameters[0];
+        this.linesWeight = parameters[1];
+        this.bumpinessWeight = parameters[2];
+        this.holesWeight = parameters[3];
     }
 
     public void makeMove(CurrentPiece currentPiece) {
@@ -23,11 +38,9 @@ public class Ai {
             for (int i = 0; i < grid.getWidth(); i++) {
                 heights = heights + grid.getHeightOfColumn(i);
             }
-            System.out.println("height: " + heights);
 
             // Count completed lines
             int completedLines = grid.countFullLines();
-            System.out.println("completed lines: " + completedLines);
 
             // Count holes
             int holes = 0;
@@ -42,7 +55,6 @@ public class Ai {
                     }
                 }
             }
-            System.out.println("holes: " + holes);
 
             // calculate bumpiness (to avoid having a big vertical hole)
             int bumpiness = 0;
@@ -50,10 +62,7 @@ public class Ai {
                 bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
             }
 
-            double heightWeight = 0.375;
-            double linesWeight = 0.331;
-            double bumpinessWeight = -0.076;
-            double holesWeight = -0.863;
+
             double finalScore = heightWeight * heights +
                     linesWeight * completedLines +
                     holesWeight * holes +
@@ -72,34 +81,35 @@ public class Ai {
     private Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
         Set<CurrentPiece> possibilities = new HashSet<>();
 
-        // generate rotations
-        CurrentPiece workingPiece = currentPiece.clone();
-        for (int i = 0; i < 4; i++) {
-            workingPiece.rotate(grid::checkCollision);
-            possibilities.add(workingPiece.clone());
-        }
+        if (!grid.is3D()) {
+            // generate rotations
+            CurrentPiece workingPiece = ((CurrentPiece2D)currentPiece).copy();
+            for (int i = 0; i < 4; i++) {
+                ((CurrentPiece2D)workingPiece).rotate2d(grid::checkCollision);
+                possibilities.add(((CurrentPiece2D)workingPiece).copy());
+            }
 
-        // generate translations
-        Set<CurrentPiece> newTranslations = new HashSet<>();
-        for (var piece : possibilities) {
-            for (int i = 0; i < grid.getWidth(); i++) {
-                CurrentPiece translatedPiece = piece.clone();
-                translatedPiece.setX(i);
-                if (!grid.checkCollision(translatedPiece)) {
-                    newTranslations.add(translatedPiece);
+            // generate translations
+            Set<CurrentPiece> newTranslations = new HashSet<>();
+            for (var piece : possibilities) {
+                for (int i = 0; i < grid.getWidth(); i++) {
+                    CurrentPiece translatedPiece = ((CurrentPiece2D)piece).copy();
+                    translatedPiece.setX(i);
+                    if (!grid.checkCollision(translatedPiece)) {
+                        newTranslations.add(translatedPiece);
+                    }
                 }
             }
-        }
-        possibilities = newTranslations;
+            possibilities = newTranslations;
 
-        // drops the pieces
-        for (var piece : possibilities) {
-            do {
-                piece.setY(piece.getY() + 1);
-            } while (!grid.checkCollision(piece));
-            piece.setY(piece.getY() - 1);
+            // drops the pieces
+            for (var piece : possibilities) {
+                do {
+                    piece.setY(piece.getY() + 1);
+                } while (!grid.checkCollision(piece));
+                piece.setY(piece.getY() - 1);
+            }
         }
-
         return possibilities;
     }
 }

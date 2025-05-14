@@ -206,23 +206,60 @@ public class Grid {
     }
 
     public int countFullLines() {
-        int fullLines = 0;
+        if (is3D) {
+            return countFullLines3D();
+        } else {
+            return countFullLines2D();
+        }
+    }
+
+    private int countFullLines2D() {
+        int linesCounted = 0;
 
         for (int i = 0; i < height; i++) {
             boolean fullLine = true;
             for (int j = 0; j < width; j++) {
-                if (!grid[i][j]) {
+                assert grid2D != null;
+                if (!grid2D[i][j]) {
                     fullLine = false;
                     break;
                 }
             }
 
             if (fullLine) {
-                fullLines++;
+                linesCounted++;
             }
         }
 
-        return fullLines;
+        return linesCounted;
+    }
+
+    private int countFullLines3D() {
+        int linesCounted = 0;
+
+        // Check for full horizontal planes (XZ planes)
+        for (int y = 0; y < height; y++) {
+            boolean fullPlane = true;
+
+            // Check if the plane is full
+            for (int x = 0; x < width; x++) {
+                for (int z = 0; z < depth; z++) {
+                    assert grid3D != null;
+                    if (!grid3D[y][x][z]) {
+                        fullPlane = false;
+                        break;
+                    }
+                }
+                if (!fullPlane)
+                    break;
+            }
+
+            if (fullPlane) {
+                linesCounted++;
+            }
+        }
+
+        return linesCounted;
     }
 
     public int clearFullLines() {

@@ -292,21 +292,24 @@ public class GeneticTrainer {
     private int runGame(double[] parameters, int maxPieces) {
         // Create a new game and grid for evaluation
         Grid grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
-        TestAi ai = new TestAi(grid, parameters);
+        Ai ai = new Ai(grid, parameters);
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
         // Run the game for a fixed number of pieces
         for (int piece = 0; piece < maxPieces; piece++) {
-            CurrentPiece currentPiece = PieceGenerator.generatePiece(grid.getWidth());
+            CurrentPiece currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
 
             // If we can't place the piece, game over
             if (grid.checkCollision(currentPiece)) {
                 break;
             }
 
-            // Let the AI make a move and count cleared lines
-            int newLines = ai.makeMove(currentPiece);
+            // Let the AI make a move
+            ai.makeMove(currentPiece);
+
+            // Count and clear lines
+            int newLines = grid.clearFullLines();
             linesCleared += newLines;
 
             // Early termination logic for efficiency
@@ -491,125 +494,10 @@ public class GeneticTrainer {
     }
 
     /**
-     * Special version of the AI that uses custom parameters and
-     * returns the number of lines cleared from a move.
-     */
-    private static class TestAi {
-        private final Grid grid;
-        private final double heightWeight;
-        private final double linesWeight;
-        private final double holesWeight;
-        private final double bumpinessWeight;
-
-        public TestAi(Grid grid, double[] parameters) {
-            this.grid = grid;
-            this.heightWeight = parameters[0];
-            this.linesWeight = parameters[1];
-            this.holesWeight = parameters[2];
-            this.bumpinessWeight = parameters[3];
-        }
-
-        public int makeMove(CurrentPiece currentPiece) {
-            final var availablePossibilities = getPiecesPossibilities(currentPiece);
-
-            double bestScore = Double.NEGATIVE_INFINITY;
-            CurrentPiece bestPiece = null;
-            int bestLinesCleared = 0;
-
-            for (var possibility : availablePossibilities) {
-                grid.freezePiece(possibility);
-
-                // Calculate aggregate height
-                int heights = 0;
-                for (int i = 0; i < grid.getWidth(); i++) {
-                    heights += grid.getHeightOfColumn(i);
-                }
-
-                // Count lines that would be cleared
-                int linesCleared = grid.countFullLines();
-
-                // Count holes
-                int holes = 0;
-                for (int i = 0; i < grid.getWidth(); i++) {
-                    boolean foundBlock = false;
-                    for (int j = 0; j < grid.getHeight(); j++) {
-                        if (grid.getValue(i, j)) {
-                            foundBlock = true;
-                        } else if (foundBlock) {
-                            holes++;
-                            foundBlock = false;
-                        }
-                    }
-                }
-
-                // Calculate bumpiness
-                int bumpiness = 0;
-                for (int i = 0; i < grid.getWidth() - 1; i++) {
-                    bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
-                }
-
-                // Calculate score using the individual's parameters
-                double score = heightWeight * heights +
-                        linesWeight * linesCleared +
-                        holesWeight * holes +
-                        bumpinessWeight * bumpiness;
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestPiece = possibility;
-                    bestLinesCleared = linesCleared;
-                }
-
-                grid.removePiece(possibility);
-            }
-
-            // Place the best piece and clear lines
-            assert bestPiece != null;
-            grid.freezePiece(bestPiece);
-            grid.clearFullLines();
-
-            return bestLinesCleared;
-        }
-
-        private Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
-            Set<CurrentPiece> possibilities = new HashSet<>();
-
-            // Generate rotations
-            CurrentPiece workingPiece = currentPiece.clone();
-            for (int i = 0; i < 4; i++) {
-                workingPiece.rotate(grid::checkCollision);
-                possibilities.add(workingPiece.clone());
-            }
-
-            // Generate translations
-            Set<CurrentPiece> newTranslations = new HashSet<>();
-            for (var piece : possibilities) {
-                for (int i = 0; i < grid.getWidth(); i++) {
-                    CurrentPiece translatedPiece = piece.clone();
-                    translatedPiece.setX(i);
-                    if (!grid.checkCollision(translatedPiece)) {
-                        newTranslations.add(translatedPiece);
-                    }
-                }
-            }
-            possibilities = newTranslations;
-
-            // Drop the pieces
-            for (var piece : possibilities) {
-                do {
-                    piece.setY(piece.getY() + 1);
-                } while (!grid.checkCollision(piece));
-                piece.setY(piece.getY() - 1);
-            }
-
-            return possibilities;
-        }
-    }
-
-    /**
      * Main method to run the genetic algorithm and print the best parameters.
      * --generations 20 --population 500 --games 50 for a quick test
      * --generations 100 --population 2000 --games 200 for a better test
+     * --output parameters.txt to save the best parameters to a file
      */
     public static void main(String[] args) {
         // Default configuration
