@@ -5,10 +5,10 @@ import java.util.Set;
 
 public class Ai {
     private final Grid grid;
-    private double heightWeight = 0.375;
-    private double linesWeight = 0.331;
-    private double bumpinessWeight = -0.076;
-    private double holesWeight = -0.863;
+    private double heightWeight = -0.510066;
+    private double linesWeight = 0.760666;
+    private double bumpinessWeight = -0.35663;
+    private double holesWeight = -0.184483;
 
     public Ai(Grid grid) {
         this.grid = grid;
@@ -51,7 +51,6 @@ public class Ai {
                         foundBlock = true;
                     } else if (foundBlock) {
                         holes++;
-                        foundBlock = false;
                     }
                 }
             }
@@ -83,17 +82,17 @@ public class Ai {
 
         if (!grid.is3D()) {
             // generate rotations
-            CurrentPiece workingPiece = ((CurrentPiece2D)currentPiece).copy();
+            CurrentPiece workingPiece = ((CurrentPiece2D) currentPiece).copy();
             for (int i = 0; i < 4; i++) {
-                ((CurrentPiece2D)workingPiece).rotate2d(grid::checkCollision);
-                possibilities.add(((CurrentPiece2D)workingPiece).copy());
+                ((CurrentPiece2D) workingPiece).rotate2d(grid::checkCollision);
+                possibilities.add(((CurrentPiece2D) workingPiece).copy());
             }
 
             // generate translations
             Set<CurrentPiece> newTranslations = new HashSet<>();
             for (var piece : possibilities) {
                 for (int i = 0; i < grid.getWidth(); i++) {
-                    CurrentPiece translatedPiece = ((CurrentPiece2D)piece).copy();
+                    CurrentPiece translatedPiece = ((CurrentPiece2D) piece).copy();
                     translatedPiece.setX(i);
                     if (!grid.checkCollision(translatedPiece)) {
                         newTranslations.add(translatedPiece);
