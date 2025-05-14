@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 public class Game {
     private Grid grid;
+    private Ai ai = new Ai(grid);
     private CurrentPiece currentPiece;
     private int score;
     private boolean is3D;
@@ -148,6 +149,7 @@ public class Game {
             grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
             currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
         }
+        ai = new Ai(grid);
         score = 0;
     }
 
@@ -169,5 +171,14 @@ public class Game {
         }
 
         piece3D.rotate3D(axis, (piece) -> grid.checkCollision(piece));
+    }
+
+    public void runAi() {
+        ai.makeMove(currentPiece);
+        if (is3D) {
+            this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), true);
+        } else {
+            this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
+        }
     }
 }

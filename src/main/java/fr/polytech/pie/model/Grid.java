@@ -130,6 +130,27 @@ public class Grid {
         }
     }
 
+    public void removePiece(CurrentPiece currentPiece) {
+        for (int i = 0; i < currentPiece.getHeight(); i++) {
+            for (int j = 0; j < currentPiece.getWidth(); j++) {
+                if (currentPiece instanceof CurrentPiece3D) {
+                    if (((CurrentPiece3D) currentPiece).getPiece3d()[i][j][0]) { // Assuming depth is 1 for 2D
+                        int x = currentPiece.getX() + j;
+                        int y = currentPiece.getY() + i;
+                        setValue(x, y, false); // Remove the piece from the grid
+                    }
+                } else {
+                    // Handle 2D piece (or 3D piece in 2D mode)
+                    if (((CurrentPiece2D) currentPiece).getPiece2d()[i][j]) {
+                        int x = currentPiece.getX() + j;
+                        int y = currentPiece.getY() + i;
+                        setValue(x, y, false); // Remove the piece from the grid
+                    }
+                }
+            }
+        }
+    }
+
     public boolean checkCollision(CurrentPiece currentPiece) {
         if (is3D && currentPiece instanceof CurrentPiece3D) {
             return checkCollision3D((CurrentPiece3D) currentPiece);
@@ -263,5 +284,26 @@ public class Grid {
         }
 
         return linesCleared;
+    }
+
+    public int getHeightOfColumn(int i) {
+        int height = 0;
+        if (is3D){
+            for (int j = 0; j < this.height; j++) {
+                for (int k = 0; k < this.depth; k++) {
+                    if (grid3D[j][i][k]) {
+                        height++;
+                    }
+                }
+            }
+            return height;
+        } else {
+            for (int j = 0; j < this.height; j++) {
+                if (grid2D[j][i]) {
+                    height++;
+                }
+            }
+            return height;
+        }
     }
 }
