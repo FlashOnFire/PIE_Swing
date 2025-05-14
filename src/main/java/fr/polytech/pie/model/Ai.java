@@ -5,19 +5,33 @@ import java.util.Set;
 
 public class Ai {
     private Grid grid;
+    private double heightWeight = -0.510066;
+    private double linesWeight = 0.760666;
+    private double holesWeight = -0.35663;
+    private double bumpinessWeight = -0.184483;
 
     public Ai(Grid grid) {
         this.grid = grid;
     }
 
+    public Ai(Grid grid, double[] parameters) {
+        this.grid = grid;
+        if (parameters != null && parameters.length == 4) {
+            this.heightWeight = parameters[0];
+            this.linesWeight = parameters[1];
+            this.holesWeight = parameters[2];
+            this.bumpinessWeight = parameters[3];
+        }
+    }
+
     public void makeMove(CurrentPiece currentPiece) {
         final var availablePossiblities = getPiecesPossibilities(currentPiece);
 
-        //Rate each possibility
-        int best = Integer.MIN_VALUE;
+        // Rate each possibility
+        double best = Double.NEGATIVE_INFINITY;
         CurrentPiece bestPiece = null;
         for (var possibility : availablePossiblities) {
-            //Sum each height of the columns
+            // Sum each height of the columns
             grid.freezePiece(possibility);
             int heights = 0;
             for (int i = 0; i < grid.getWidth(); i++) {
@@ -25,18 +39,11 @@ public class Ai {
             }
             System.out.println("height: " + heights);
 
-            //Count completed lines
-            int completedLines = 0;
-            for (int i = 0; i < grid.getHeight(); i++) {
-                for (int j = 0; j < grid.getWidth(); j++) {
-                    if (grid.getValue(j, i)) {
-                        completedLines++;
-                    }
-                }
-            }
+            // Count completed lines
+            int completedLines = grid.countFullLines();
             System.out.println("completed lines: " + completedLines);
 
-            //Count holes
+            // Count holes
             int holes = 0;
             for (int i = 0; i < grid.getWidth(); i++) {
                 boolean foundBlock = false;
@@ -51,15 +58,19 @@ public class Ai {
             }
             System.out.println("holes: " + holes);
 
-            //calculate bumpiness (to avoid having a big vertical hole)
+            // calculate bumpiness (to avoid having a big vertical hole)
             int bumpiness = 0;
             for (int i = 0; i < grid.getWidth() - 1; i++) {
                 bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
             }
 
-            double finalScore = (-0.510066) * heights + (0.760666) * completedLines + (-0.35663) * holes + (-0.184483) * bumpiness;
+            double finalScore = heightWeight * heights +
+                    linesWeight * completedLines +
+                    holesWeight * holes +
+                    bumpinessWeight * bumpiness;
+
             if (finalScore > best) {
-                best = (int) finalScore;
+                best = finalScore;
                 bestPiece = possibility;
             }
             grid.removePiece(possibility);
@@ -71,21 +82,21 @@ public class Ai {
     private Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
         Set<CurrentPiece> possibilities = new HashSet<>();
 
-        //generate rotations
+        // generate rotations
+        CurrentPiece workingPiece = currentPiece.clone();
         for (int i = 0; i < 4; i++) {
-            if (currentPiece instanceof CurrentPiece2D) {
-                ((CurrentPiece2D) currentPiece).rotate2d(e -> grid.checkCollision(e));
-                possibilities.add(((CurrentPiece2D) currentPiece).copy());
-            }
+            workingPiece.rotate(e -> grid.checkCollision(e));
+            possibilities.add(workingPiece.clone());
         }
 
-        //generate translations
+        // generate translations
         Set<CurrentPiece> newTranslations = new HashSet<>();
         for (var piece : possibilities) {
             for (int i = 0; i < grid.getWidth(); i++) {
-                piece.setX(i);
-                if (!grid.checkCollision(piece)) {
-                    newTranslations.add(((CurrentPiece2D) currentPiece).copy());
+                CurrentPiece translatedPiece = piece.clone();
+                translatedPiece.setX(i);
+                if (!grid.checkCollision(translatedPiece)) {
+                    newTranslations.add(translatedPiece);
                 }
             }
         }

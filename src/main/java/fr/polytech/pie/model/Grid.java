@@ -205,6 +205,26 @@ public class Grid {
         return false;
     }
 
+    public int countFullLines() {
+        int fullLines = 0;
+
+        for (int i = 0; i < height; i++) {
+            boolean fullLine = true;
+            for (int j = 0; j < width; j++) {
+                if (!grid[i][j]) {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine) {
+                fullLines++;
+            }
+        }
+
+        return fullLines;
+    }
+
     public int clearFullLines() {
         if (is3D) {
             return clearFullLines3D();
