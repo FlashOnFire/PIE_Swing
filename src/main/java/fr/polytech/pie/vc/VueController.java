@@ -7,11 +7,14 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @SuppressWarnings("deprecation")
 public class VueController implements Observer {
+    private final ScheduledExecutorService scheduler;
+
     private final Model model;
     private final JPanel gridPanel = new JPanel();
     private Renderer currentRenderer;
@@ -19,99 +22,41 @@ public class VueController implements Observer {
     private final JPanel menuPanel = new JPanel();
     private final JButton play2DButton = new JButton("Play 2D");
     private final JButton play3DButton = new JButton("Play 3D");
-    private boolean gameStarted = false;
 
-    public VueController(Model m) {
+    public VueController(ScheduledExecutorService scheduler, Model m) {
+        this.scheduler = scheduler;
         this.model = m;
+        m.addObserver(this);
 
-        setupKeyboardInput();
+        this.currentRenderer = new MenuRenderer(this);
+        this.currentRenderer.initialize();
     }
 
-    /*private void startGame(boolean is3D) {
-        model.setRenderingMode(is3D);
+    void startGame(boolean is3D) {
+        //model.setRenderingMode(is3D);
         model.resetGame();
-        updateRenderer();
-        showGame();
-        gameStarted = true;
-    }*/
+        if (is3D) {
+            switchRenderer(RendererType.GAME_3D);
+        } else {
+            switchRenderer(RendererType.GAME_2D);
+        }
 
-    private void setupKeyboardInput() {
-        /*KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .addKeyEventDispatcher(e -> {
-                    if (!gameStarted) {
-                        return false;
-                    }
+        currentRenderer.loop();
 
-                    if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
-                        return false;
-                    }
-
-                    boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
-
-                    if (model.is3D()) {
-                        // 3D mode controls
-                        switch (e.getKeyChar()) {
-                            case 'z' -> model.setKey(0, isKeyPressed); // Up
-                            case 's' -> model.setKey(1, isKeyPressed); // Down
-                            case 'q' -> model.setKey(2, isKeyPressed); // Left
-                            case 'd' -> model.setKey(3, isKeyPressed); // Right
-                            case 'a' -> model.setKey(4, isKeyPressed); // Rotate Z
-                            case 'r' -> model.setKey(5, isKeyPressed); // Forward (z+)
-                            case 'f' -> model.setKey(6, isKeyPressed); // Backward (z-)
-                            case 't' -> model.setKey(7, isKeyPressed); // Rotate X
-                            case 'g' -> model.setKey(8, isKeyPressed); // Rotate Y
-                            case 'i' -> model.setKey(10, isKeyPressed);
-                            case 'm' -> {
-                                if (isKeyPressed) {
-                                    model.setKey(9, false); // Reset key state
-                                    //model.switchRenderingMode();
-                                    updateRenderer();
-                                }
-                            }
-                            case 'p' -> {
-                                if (isKeyPressed) {
-                                    //showMenu();
-                                }
-                            }
-                        }
-                    } else {
-                        // 2D mode controls
-                        switch (e.getKeyChar()) {
-                            case 'z' -> model.setKey(0, isKeyPressed); // Up
-                            case 's' -> model.setKey(1, isKeyPressed); // Down
-                            case 'q' -> model.setKey(2, isKeyPressed); // Left
-                            case 'd' -> model.setKey(3, isKeyPressed); // Right
-                            case 'a' -> model.setKey(4, isKeyPressed); // Rotate
-                            case 'i' -> model.setKey(10, isKeyPressed);
-                            case 'm' -> {
-                                if (isKeyPressed) {
-                                    //model.switchRenderingMode();
-                                    updateRenderer();
-                                }
-                            }
-                            case 'p' -> {
-                                if (isKeyPressed) {
-                                    //showMenu();
-                                }
-                            }
-                        }
-                    }
-                    return false;
-                });*/
+        switchRenderer(RendererType.MENU);
     }
 
-    private void updateRenderer() {
+    private void switchRenderer(RendererType type) {
         if (currentRenderer != null) {
             currentRenderer.cleanup();
         }
 
-        /*if (model.is3D()) {
-//            currentRenderer = renderer3D;
-        } else {
-            currentRenderer = renderer2D;
-        }*/
+        switch (type) {
+            case MENU -> currentRenderer = new MenuRenderer(this);
+            case GAME_2D -> currentRenderer = new Renderer2D(this);
+            case GAME_3D -> currentRenderer = new Renderer3D(scheduler, model);
+        }
 
-        currentRenderer = new Renderer2D();
         currentRenderer.initialize();
         update(model, null);
     }
@@ -120,11 +65,15 @@ public class VueController implements Observer {
     public void update(Observable o, Object arg) {
         Model model = (Model) o;
         try {
-            if (currentRenderer != null && gameStarted) {
+            if (currentRenderer != null) {
                 currentRenderer.update(model.getGrid(), model.getCurrentPiece(), model.getScore());
             }
         } catch (Exception e) {
             Logger.getLogger(VueController.class.getName()).log(Level.SEVERE, "Error updating VueController", e);
         }
+    }
+
+    public Model getModel() {
+        return model;
     }
 }

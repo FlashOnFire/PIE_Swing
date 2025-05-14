@@ -7,10 +7,15 @@ import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Renderer2D implements Renderer {
+    private final VueController vueController;
+
     JFrame frame = new JFrame("Tetris");
 
     private static final Color EMPTY_CELL_COLOR = Color.WHITE;
@@ -21,7 +26,12 @@ public class Renderer2D implements Renderer {
     private final JLabel scoreLabel;
     private final JPanel gridPanel;
 
-    public Renderer2D() {
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    private final boolean[] keys = new boolean[5];
+
+    public Renderer2D(VueController vueController) {
+        this.vueController = vueController;
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(400, 800);
         frame.setLocationRelativeTo(null);
@@ -48,11 +58,68 @@ public class Renderer2D implements Renderer {
 
         gridPanel.setPreferredSize(new Dimension(400, 800));
         gridPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .addKeyEventDispatcher(e -> {
+                    if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
+                        return false;
+                    }
+
+                    boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
+
+
+                    // 2D mode controls
+                    switch (e.getKeyChar()) {
+                        case 'z' -> keys[0] = isKeyPressed; // Up
+                        case 's' -> keys[1] = isKeyPressed; // Down
+                        case 'q' -> keys[2] = isKeyPressed; // Left
+                        case 'd' -> keys[3] = isKeyPressed; // Right
+                        case 'a' -> keys[4] = isKeyPressed; // Rotate
+                        case 'p' -> {
+                            if (isKeyPressed) {
+                                //showMenu();
+                            }
+                        }
+                    }
+                    return false;
+                });
+
+        scheduler.scheduleAtFixedRate(() -> {
+            CurrentPiece2D currentPiece = (CurrentPiece2D) vueController.getModel().getCurrentPiece();
+
+            if (keys[0]) {
+                currentPiece.translate2d(0, -1);
+            }
+            if (keys[1]) {
+                currentPiece.translate2d(0, 1);
+            }
+            if (keys[2]) {
+                currentPiece.translate2d(-1, 0);
+            }
+            if (keys[3]) {
+                currentPiece.translate2d(1, 0);
+            }
+            if (keys[4]) {
+                currentPiece.rotate2d(piece -> vueController.getModel().getGrid().checkCollision(piece));
+            }
+        }, 0, 70, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    public void loop() {
+        while (frame.isDisplayable()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, int score) {
         assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
+
         try {
             SwingUtilities.invokeAndWait(() -> {
                 clearGrid();
@@ -68,7 +135,7 @@ public class Renderer2D implements Renderer {
 
     @Override
     public void cleanup() {
-        // No resources to clean up in the 2D renderer
+        scheduler.shutdown();
     }
 
     private void clearGrid() {

@@ -6,11 +6,11 @@ import org.lwjgl.opengl.GL30;
 
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 
-public class Renderer {
+public class OpenGLRenderer {
     private final BaseShader shader;
     private VertexArray cubeVao;
 
-    public Renderer() {
+    public OpenGLRenderer() {
         this.shader = new BaseShader();
     }
 

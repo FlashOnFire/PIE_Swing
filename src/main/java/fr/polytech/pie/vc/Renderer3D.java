@@ -1,8 +1,10 @@
 package fr.polytech.pie.vc;
 
+import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.Grid;
 import fr.polytech.pie.model.Model;
 import fr.polytech.pie.vc.render.Camera;
-import fr.polytech.pie.vc.render.Renderer;
+import fr.polytech.pie.vc.render.OpenGLRenderer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -11,7 +13,6 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.IntBuffer;
 import java.util.Objects;
 import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -22,10 +23,10 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 @SuppressWarnings("deprecation")
-public class VueController3D implements Observer {
+public class Renderer3D implements Renderer {
 
     private final long window;
-    private final Renderer renderer = new Renderer();
+    private final OpenGLRenderer renderer = new OpenGLRenderer();
     private Camera cam;
 
     private final boolean[] keys = new boolean[7];
@@ -36,7 +37,7 @@ public class VueController3D implements Observer {
     private boolean firstMouse = true;
     private final float mouseSensitivity = 0.1f;
 
-    public VueController3D(ScheduledExecutorService scheduler, Model m) {
+    public Renderer3D(ScheduledExecutorService scheduler, Model m) {
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!glfwInit())
@@ -162,18 +163,7 @@ public class VueController3D implements Observer {
         );
     }
 
-    @Override
-    public void update(Observable observable, Object o) {
-
-    }
-
     public void shutdown() {
-        renderer.destroy();
-        glfwFreeCallbacks(window);
-        glfwDestroyWindow(window);
-
-        glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 
     public void loop() {
@@ -219,5 +209,25 @@ public class VueController3D implements Observer {
                 glfwPollEvents();
             }
         } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+    }
+
+    @Override
+    public void initialize() {
+
+    }
+
+    @Override
+    public void update(Grid grid, CurrentPiece currentPiece, int score) {
+
+    }
+
+    @Override
+    public void cleanup() {
+        renderer.destroy();
+        glfwFreeCallbacks(window);
+        glfwDestroyWindow(window);
+
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 }

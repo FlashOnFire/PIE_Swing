@@ -7,16 +7,21 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MenuRenderer implements Renderer {
-    private JFrame frame;
+    private final VueController vueController;
 
-    @Override
-    public void initialize() {
-        frame = new JFrame();
+    private final JFrame frame = new JFrame();
+
+    public MenuRenderer(VueController vueController) {
+        this.vueController = vueController;
         frame.setTitle("Tetris");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
+    }
+
+    @Override
+    public void initialize() {
         frame.setLayout(new BorderLayout());
 
         JLabel titleLabel = new JLabel("TETRIS", JLabel.CENTER);
@@ -26,13 +31,13 @@ public class MenuRenderer implements Renderer {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(2, 1, 10, 20));
 
-        JButton play2DButton = new JButton();
+        JButton play2DButton = new JButton("Play 2D");
         play2DButton.setFont(new Font("Arial", Font.BOLD, 24));
-        //play2DButton.addActionListener(_ -> startGame(false));
+        play2DButton.addActionListener(_ -> new Thread(() -> vueController.startGame(false)).start());
 
-        JButton play3DButton = new JButton();
+        JButton play3DButton = new JButton("Play 3D");
         play3DButton.setFont(new Font("Arial", Font.BOLD, 24));
-        //play3DButton.addActionListener(_ -> startGame(true));
+        play3DButton.addActionListener(_ -> new Thread(() -> vueController.startGame(true)).start());
 
         buttonPanel.add(play2DButton);
         buttonPanel.add(play3DButton);
@@ -65,6 +70,17 @@ public class MenuRenderer implements Renderer {
         frame.setVisible(true);
     }
 
+    public void loop() {
+        while (frame.isDisplayable()) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+    }
+
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, int score) {
 
@@ -72,6 +88,6 @@ public class MenuRenderer implements Renderer {
 
     @Override
     public void cleanup() {
-
+        frame.dispose();
     }
 }

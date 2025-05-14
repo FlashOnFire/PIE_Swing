@@ -140,7 +140,7 @@ public class Game {
 
     public void rotateCurrentPiece() {
         assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
-        ((CurrentPiece2D) currentPiece).rotate2d((CurrentPiece2D piece) -> grid.checkCollision(piece));
+        ((CurrentPiece2D) currentPiece).rotate2d(piece -> grid.checkCollision(piece));
     }
 
     public void rotateCurrentPiece3D(RotationAxis axis) {
