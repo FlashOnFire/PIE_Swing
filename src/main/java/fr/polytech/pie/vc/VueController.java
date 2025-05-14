@@ -151,6 +151,7 @@ public class VueController extends JFrame implements Observer {
                             case 'f' -> model.setKey(6, isKeyPressed); // Backward (z-)
                             case 't' -> model.setKey(7, isKeyPressed); // Rotate X
                             case 'g' -> model.setKey(8, isKeyPressed); // Rotate Y
+                            case 'i' -> model.setKey(10, isKeyPressed);
                             case 'm' -> {
                                 if (isKeyPressed) {
                                     model.setKey(9, false); // Reset key state
@@ -172,6 +173,7 @@ public class VueController extends JFrame implements Observer {
                             case 'q' -> model.setKey(2, isKeyPressed); // Left
                             case 'd' -> model.setKey(3, isKeyPressed); // Right
                             case 'a' -> model.setKey(4, isKeyPressed); // Rotate
+                            case 'i' -> model.setKey(10, isKeyPressed);
                             case 'm' -> {
                                 if (isKeyPressed) {
                                     model.switchRenderingMode();

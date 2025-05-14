@@ -14,7 +14,7 @@ public class Model extends Observable {
     private boolean is3D;
     // Extended to support 3D controls (forward/backward movement on z-axis and
     // rotation around x/y/z)
-    public boolean[] keys = new boolean[10];
+    public boolean[] keys = new boolean[11];
 
     /**
      * Constructor for the model with 2D mode as the default
@@ -71,6 +71,9 @@ public class Model extends Observable {
         if (keys[4]) {
             rotateCurrentPiece(); // Rotate
         }
+        if (keys[10]) {
+            runAi();
+        }
     }
 
     /**
@@ -108,6 +111,9 @@ public class Model extends Observable {
         }
         if (keys[9]) {
             switchRenderingMode(); // Switch between 2D and 3D
+        }
+        if (keys[10]) {
+            runAi();
         }
     }
 
@@ -158,6 +164,12 @@ public class Model extends Observable {
             setChanged();
             notifyObservers();
         }
+    }
+
+    public void runAi() {
+        game.runAi();
+        setChanged();
+        notifyObservers();
     }
 
     /**

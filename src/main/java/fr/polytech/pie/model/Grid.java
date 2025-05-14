@@ -130,6 +130,27 @@ public class Grid {
         }
     }
 
+    public void removePiece(CurrentPiece currentPiece) {
+        for (int i = 0; i < currentPiece.getHeight(); i++) {
+            for (int j = 0; j < currentPiece.getWidth(); j++) {
+                if (currentPiece instanceof CurrentPiece3D) {
+                    if (((CurrentPiece3D) currentPiece).getPiece3d()[i][j][0]) { // Assuming depth is 1 for 2D
+                        int x = currentPiece.getX() + j;
+                        int y = currentPiece.getY() + i;
+                        setValue(x, y, false); // Remove the piece from the grid
+                    }
+                } else {
+                    // Handle 2D piece (or 3D piece in 2D mode)
+                    if (((CurrentPiece2D) currentPiece).getPiece2d()[i][j]) {
+                        int x = currentPiece.getX() + j;
+                        int y = currentPiece.getY() + i;
+                        setValue(x, y, false); // Remove the piece from the grid
+                    }
+                }
+            }
+        }
+    }
+
     public boolean checkCollision(CurrentPiece currentPiece) {
         if (is3D && currentPiece instanceof CurrentPiece3D) {
             return checkCollision3D((CurrentPiece3D) currentPiece);
@@ -182,6 +203,63 @@ public class Grid {
             }
         }
         return false;
+    }
+
+    public int countFullLines() {
+        if (is3D) {
+            return countFullLines3D();
+        } else {
+            return countFullLines2D();
+        }
+    }
+
+    private int countFullLines2D() {
+        int linesCounted = 0;
+
+        for (int i = 0; i < height; i++) {
+            boolean fullLine = true;
+            for (int j = 0; j < width; j++) {
+                assert grid2D != null;
+                if (!grid2D[i][j]) {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine) {
+                linesCounted++;
+            }
+        }
+
+        return linesCounted;
+    }
+
+    private int countFullLines3D() {
+        int linesCounted = 0;
+
+        // Check for full horizontal planes (XZ planes)
+        for (int y = 0; y < height; y++) {
+            boolean fullPlane = true;
+
+            // Check if the plane is full
+            for (int x = 0; x < width; x++) {
+                for (int z = 0; z < depth; z++) {
+                    assert grid3D != null;
+                    if (!grid3D[y][x][z]) {
+                        fullPlane = false;
+                        break;
+                    }
+                }
+                if (!fullPlane)
+                    break;
+            }
+
+            if (fullPlane) {
+                linesCounted++;
+            }
+        }
+
+        return linesCounted;
     }
 
     public int clearFullLines() {
@@ -263,5 +341,26 @@ public class Grid {
         }
 
         return linesCleared;
+    }
+
+    public int getHeightOfColumn(int i) {
+        int height = 0;
+        if (is3D){
+            for (int j = 0; j < this.height; j++) {
+                for (int k = 0; k < this.depth; k++) {
+                    if (grid3D[j][i][k]) {
+                        height++;
+                    }
+                }
+            }
+            return height;
+        } else {
+            for (int j = 0; j < this.height; j++) {
+                if (grid2D[j][i]) {
+                    height++;
+                }
+            }
+            return height;
+        }
     }
 }
