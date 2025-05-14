@@ -86,22 +86,20 @@ public class Renderer2D implements Renderer {
                 });
 
         scheduler.scheduleAtFixedRate(() -> {
-            CurrentPiece2D currentPiece = (CurrentPiece2D) vueController.getModel().getCurrentPiece();
-
             if (keys[0]) {
-                currentPiece.translate2d(0, -1);
+                vueController.getModel().translateCurrentPiece2D(0, -1);
             }
             if (keys[1]) {
-                currentPiece.translate2d(0, 1);
+                vueController.getModel().translateCurrentPiece2D(0, 1);
             }
             if (keys[2]) {
-                currentPiece.translate2d(-1, 0);
+                vueController.getModel().translateCurrentPiece2D(-1, 0);
             }
             if (keys[3]) {
-                currentPiece.translate2d(1, 0);
+                vueController.getModel().translateCurrentPiece2D(1, 0);
             }
             if (keys[4]) {
-                currentPiece.rotate2d(piece -> vueController.getModel().getGrid().checkCollision(piece));
+                vueController.getModel().rotateCurrentPiece2D();
             }
         }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS);
     }

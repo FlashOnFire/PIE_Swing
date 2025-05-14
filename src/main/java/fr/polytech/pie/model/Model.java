@@ -12,9 +12,6 @@ import java.util.concurrent.TimeUnit;
 public class Model extends Observable {
     private final Game game;
     private boolean is3D;
-    // Extended to support 3D controls (forward/backward movement on z-axis and
-    // rotation around x/y/z)
-    public boolean[] keys = new boolean[10];
 
     /**
      * Constructor for the model with 2D mode as the default
@@ -37,7 +34,7 @@ public class Model extends Observable {
             if (is3D) {
                 translateCurrentPiece3D(0, 1, 0);
             } else {
-                translateCurrentPiece(0, 1);
+                translateCurrentPiece2D(0, 1);
             }
         }, 0, 200, TimeUnit.MILLISECONDS);
     }
@@ -45,7 +42,7 @@ public class Model extends Observable {
     /**
      * Translate the current piece in 2D mode.
      */
-    public void translateCurrentPiece(int dx, int dy) {
+    public void translateCurrentPiece2D(int dx, int dy) {
         game.translateCurrentPiece2D(dx, dy);
         setChanged();
         notifyObservers();
@@ -71,7 +68,7 @@ public class Model extends Observable {
     /**
      * Rotate the current piece in 2D mode.
      */
-    public void rotateCurrentPiece() {
+    public void rotateCurrentPiece2D() {
         game.rotateCurrentPiece();
         setChanged();
         notifyObservers();
@@ -90,15 +87,6 @@ public class Model extends Observable {
 
     public Grid getGrid() {
         return game.getGrid();
-    }
-
-    /**
-     * Set the state of a key.
-     */
-    public void setKey(int key, boolean state) {
-        if (key >= 0 && key < keys.length) {
-            keys[key] = state;
-        }
     }
 
     public CurrentPiece getCurrentPiece() {
