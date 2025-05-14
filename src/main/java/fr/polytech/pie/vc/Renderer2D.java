@@ -37,9 +37,18 @@ public class Renderer2D implements Renderer {
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setLayout(new BorderLayout());
-        this.scoreLabel = new JLabel();
+        frame.setBackground(Color.LIGHT_GRAY);
+        this.scoreLabel = new JLabel("Score: 0");
+        this.scoreLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        this.scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
         this.panels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
         this.gridPanel = new JPanel();
+        this.gridPanel.setBackground(Color.black);
+
+        JPanel scorePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        scorePanel.add(scoreLabel);
+        scorePanel.setBackground(Color.LIGHT_GRAY);
+        frame.add(scorePanel, BorderLayout.NORTH);
         frame.add(gridPanel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
@@ -47,17 +56,27 @@ public class Renderer2D implements Renderer {
     @Override
     public void initialize() {
         gridPanel.setLayout(new GridLayout(Consts.GRID_HEIGHT, Consts.GRID_WIDTH));
+
         for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
             for (int x = 0; x < Consts.GRID_WIDTH; x++) {
-                panels[y][x] = new JPanel();
-                panels[y][x].setPreferredSize(new Dimension(20, 20));
-                panels[y][x].setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                gridPanel.add(panels[y][x]);
+
+                JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
+                panel.setPreferredSize(new Dimension(25, 25));
+                panel.setLayout(new BorderLayout());
+                panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+                panels[y][x] = panel;
+                gridPanel.add(panel);
             }
         }
 
         gridPanel.setPreferredSize(new Dimension(400, 800));
-        gridPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        gridPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 3),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
+                        BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
+                )));
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(e -> {
@@ -78,7 +97,6 @@ public class Renderer2D implements Renderer {
                         case KeyEvent.VK_ESCAPE -> {
                             if (isKeyPressed) {
                                 frame.dispose();
-                                vueController.cleanup();
                             }
                         }
                     }
