@@ -45,15 +45,10 @@ public class Ai2D extends Ai {
             int holes = 0;
             for (int i = 0; i < grid.getWidth(); i++) {
                 boolean foundBlock = false;
-                for (int j = 0; j < grid.getHeight(); j++) {
-                    int localX = i - possibility.getX();
-                    int localY = j - possibility.getY();
-                    boolean isPieceBlock = localX >= 0 && localX < possibility.getHeight()
-                            && localY >= 0 && localY < possibility.getWidth()
-                            && grid.getValue(i, j);
-                    if (isPieceBlock) {
+                for (int j = grid.getHeight() - 1; j >= 0; j--) {
+                    if (grid.getValue(i, j)) {
                         foundBlock = true;
-                    } else if (foundBlock && !grid.getValue(i, j)) {
+                    } else if (foundBlock) {
                         holes++;
                     }
                 }
@@ -106,9 +101,9 @@ public class Ai2D extends Ai {
         // drops the pieces
         for (var piece : possibilities) {
             do {
-                piece.setY(piece.getY() + 1);
+                piece.setY(piece.getY() - 1);
             } while (!grid.checkCollision(piece));
-            piece.setY(piece.getY() - 1);
+            piece.setY(piece.getY() + 1);
         }
 
         return possibilities;

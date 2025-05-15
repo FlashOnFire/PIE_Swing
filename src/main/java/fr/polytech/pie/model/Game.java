@@ -61,27 +61,25 @@ public class Game {
             currentPiece.setX(0);
         }
 
-        if (currentPiece.getX() + currentPiece.getHeight() > grid.getWidth()) {
-            currentPiece.setX(grid.getWidth() - currentPiece.getHeight());
+        if (currentPiece.getX() + currentPiece.getWidth() > grid.getWidth()) {
+            currentPiece.setX(grid.getWidth() - currentPiece.getWidth());
         }
 
         if (grid.checkCollision(currentPiece)) {
             currentPiece.setX(originalX);
             currentPiece.setY(originalY);
 
-            if (dy > 0) {
-                freeze(currentPiece);
+            if (dy < 0) {
+                freeze();
             }
         }
     }
 
-    private void freeze(CurrentPiece currentPiece) {
+    private void freeze() {
         grid.freezePiece(currentPiece);
 
         int linesCleared = grid.clearFullLines();
-        if (linesCleared > 0) {
-            updateScore(linesCleared);
-        }
+        updateScore(linesCleared);
 
         generateNewPiece();
 
@@ -93,7 +91,7 @@ public class Game {
 
     public void translateCurrentPiece3D(int dx, int dy, int dz) {
         if (!is3D || !(currentPiece instanceof CurrentPiece3D piece3D)) {
-            return;
+            throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
         }
 
         int originalX = piece3D.getX();
@@ -123,8 +121,8 @@ public class Game {
             piece3D.setY(originalY);
             piece3D.setZ(originalZ);
 
-            if (dy != 0) {
-                freeze(piece3D);
+            if (dy < 0) {
+                freeze();
             }
         }
     }
@@ -159,8 +157,8 @@ public class Game {
     }
 
     public void runAi() {
-        updateScore(grid.clearFullLines());
         ai.makeMove(currentPiece);
+        updateScore(grid.clearFullLines());
         generateNewPiece();
     }
 }

@@ -53,7 +53,7 @@ public class Ai3D extends Ai {
                             int localX = x - possibility.getX();
                             int localY = y - possibility.getY();
                             int localZ = z - possibility.getZ();
-                            boolean isPieceBlock = localX >= 0 && localX < possibility.getHeight()
+                            boolean isPieceBlock = localX >= 0 && localX < possibility.getWidth()
                                     && localY >= 0 && localY < possibility.getWidth()
                                     && localZ >= 0 && localZ < possibility.getDepth()
                                     && grid.getValue(x, y, z);

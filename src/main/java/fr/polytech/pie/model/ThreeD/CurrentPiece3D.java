@@ -28,17 +28,17 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     public int getDepth() {
+        return piece.length;
+    }
+
+    @Override
+    public int getWidth() {
         return piece[0][0].length;
     }
 
     @Override
     public int getHeight() {
         return piece[0].length;
-    }
-
-    @Override
-    public int getWidth() {
-        return piece.length;
     }
 
     public void translate3D(int dx, int dy, int dz) {
@@ -67,14 +67,14 @@ public class CurrentPiece3D extends CurrentPiece {
 
     private void rotateAroundX() {
         int height = getWidth();
-        int width = getHeight();
+        int width = this.getWidth();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[depth][width][height];
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 for (int k = 0; k < depth; k++) {
-                    rotated[depth - 1 - k][j][i] = piece[i][j][k];
+                    rotated[k][width - 1 - i][j] = piece[i][j][k];
                 }
             }
         }
@@ -84,12 +84,12 @@ public class CurrentPiece3D extends CurrentPiece {
 
     private void rotateAroundY() {
         int height = getWidth();
-        int width = getHeight();
+        int width = this.getWidth();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[height][depth][width];
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
                 for (int k = 0; k < depth; k++) {
                     rotated[i][k][width - 1 - j] = piece[i][j][k];
                 }
@@ -101,13 +101,15 @@ public class CurrentPiece3D extends CurrentPiece {
 
     private void rotateAroundZ() {
         int height = getWidth();
-        int width = getHeight();
+        int width = this.getWidth();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[width][height][depth];
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                System.arraycopy(piece[i][j], 0, rotated[j][height - 1 - i], 0, depth);
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                for (int k = 0; k < depth; k++) {
+                    rotated[height - 1 - j][i][k] = piece[i][j][k];
+                }
             }
         }
 

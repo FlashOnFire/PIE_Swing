@@ -36,9 +36,9 @@ public class Grid2D extends Grid {
         boolean[][] piece = ((CurrentPiece2D) currentPiece).getPiece2d();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[i][j]) {
-                    int x = currentPiece.getX() + j;
-                    int y = currentPiece.getY() + i;
+                if (piece[j][i]) {
+                    int x = currentPiece.getX() + i;
+                    int y = currentPiece.getY() + j;
                     setValue(x, y, true);
                 }
             }
@@ -49,19 +49,11 @@ public class Grid2D extends Grid {
     public void removePiece(CurrentPiece currentPiece) {
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (currentPiece instanceof CurrentPiece3D) {
-                    if (((CurrentPiece3D) currentPiece).getPiece3d()[i][j][0]) { // Assuming depth is 1 for 2D
-                        int x = currentPiece.getX() + j;
-                        int y = currentPiece.getY() + i;
-                        setValue(x, y, false); // Remove the piece from the grid
-                    }
-                } else {
-                    // Handle 2D piece (or 3D piece in 2D mode)
-                    if (((CurrentPiece2D) currentPiece).getPiece2d()[i][j]) {
-                        int x = currentPiece.getX() + j;
-                        int y = currentPiece.getY() + i;
-                        setValue(x, y, false); // Remove the piece from the grid
-                    }
+                if (((CurrentPiece2D) currentPiece).getPiece2d()[j][i]) {
+                    int x = currentPiece.getX() + i;
+                    int y = currentPiece.getY() + j;
+                    setValue(x, y, false); // Remove the piece from the grid
+
                 }
             }
         }
@@ -77,9 +69,9 @@ public class Grid2D extends Grid {
         boolean[][] piece = piece2D.getPiece2d();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[i][j]) {
-                    int x = currentPiece.getX() + j;
-                    int y = currentPiece.getY() + i;
+                if (piece[j][i]) {
+                    int x = currentPiece.getX() + i;
+                    int y = currentPiece.getY() + j;
 
                     if (x < 0 || x >= width || y < 0 || y >= height) {
                         return true;
@@ -98,10 +90,10 @@ public class Grid2D extends Grid {
     public int clearFullLines() {
         int linesCleared = 0;
 
-        for (int i = height - 1; i >= 0; i--) {
+        for (int y = 0; y < height; y++) {
             boolean fullLine = true;
-            for (int j = 0; j < width; j++) {
-                if (!grid[i][j]) {
+            for (int x = 0; x < width; x++) {
+                if (!grid[y][x]) {
                     fullLine = false;
                     break;
                 }
@@ -110,12 +102,12 @@ public class Grid2D extends Grid {
             if (fullLine) {
                 linesCleared++;
                 // Shift all lines above down
-                for (int k = i; k > 0; k--) {
-                    System.arraycopy(grid[k - 1], 0, grid[k], 0, width);
+                for (int i = y; i < height - 1; i++) {
+                    System.arraycopy(grid[i + 1], 0, grid[i], 0, width);
                 }
-                // Clear the top line
-                for (int j = 0; j < width; j++) {
-                    grid[0][j] = false;
+                y--; // Check the same line again after shifting
+                for (int x = 0; x < width; x++) {
+                    grid[height - 1][x] = false; // Clear the last line
                 }
             }
         }
@@ -147,9 +139,9 @@ public class Grid2D extends Grid {
 
     public int getHeightOfColumn2D(int i) {
         int height = 0;
-        for (int j = 0; j < this.height; j++) {
+        for (int j = this.height - 1; j > 0; j--) {
             if (grid[j][i]) {
-                height = this.height - j;
+                height = j;
                 break;
             }
         }

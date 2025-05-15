@@ -108,10 +108,10 @@ public class Renderer2D implements Renderer {
         scheduler.scheduleAtFixedRate(
                 () -> {
                     if (keys[0]) {
-                        vueController.getModel().translateCurrentPiece2D(0, -1);
+                        vueController.getModel().translateCurrentPiece2D(0, 1);
                     }
                     if (keys[1]) {
-                        vueController.getModel().translateCurrentPiece2D(0, 1);
+                        vueController.getModel().translateCurrentPiece2D(0, -1);
                     }
                     if (keys[2]) {
                         vueController.getModel().translateCurrentPiece2D(-1, 0);
@@ -122,7 +122,7 @@ public class Renderer2D implements Renderer {
                     if (keys[4]) {
                         vueController.getModel().rotateCurrentPiece2D();
                     }
-                    if (keys[5]){
+                    if (keys[5]) {
                         vueController.getModel().runAi();
                     }
                 }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS
@@ -179,7 +179,7 @@ public class Renderer2D implements Renderer {
 
     private void drawCell(int x, int y, Color color) {
         if (isWithinBounds(x, y)) {
-            panels[y][x].setBackground(color);
+            panels[panels.length - y -1 ][x].setBackground(color);
         }
     }
 
@@ -197,10 +197,10 @@ public class Renderer2D implements Renderer {
         boolean[][] piece = currentPiece.getPiece2d();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[i][j]) {
+                if (piece[j][i]) {
                     drawCell(
-                            currentPiece.getX() + j,
-                            currentPiece.getY() + i,
+                            currentPiece.getX() + i,
+                            currentPiece.getY() + j,
                             CURRENT_PIECE_COLOR
                     );
                 }

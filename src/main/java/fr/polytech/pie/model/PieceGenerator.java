@@ -133,7 +133,7 @@ public class PieceGenerator {
 
             int pieceWidth = selectedPiece[0].length;
             int x = random.nextInt(maxX - pieceWidth + 1);
-            int y = 0;
+            int y = maxY - selectedPiece.length;
 
             return new CurrentPiece2D(selectedPiece, x, y);
     }
@@ -142,9 +142,9 @@ public class PieceGenerator {
         int pieceIndex = random.nextInt(PIECES_3D.length);
         boolean[][][] selected3DPiece = PIECES_3D[pieceIndex];
 
-        int width = selected3DPiece.length;
+        int width = selected3DPiece[0][0].length;
         int height = selected3DPiece[0].length;
-        int depth = selected3DPiece[0][0].length;
+        int depth = selected3DPiece.length;
 
         int x = random.nextInt(maxX - width + 1);
         int y = maxY - height;

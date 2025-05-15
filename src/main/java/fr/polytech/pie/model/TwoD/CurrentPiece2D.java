@@ -17,12 +17,12 @@ public class CurrentPiece2D extends CurrentPiece {
     }
 
     @Override
-    public int getHeight() {
+    public int getWidth() {
         return piece[0].length;
     }
 
     @Override
-    public int getWidth() {
+    public int getHeight() {
         return piece.length;
     }
 
@@ -36,13 +36,11 @@ public class CurrentPiece2D extends CurrentPiece {
         var original = copy();
 
         // Rotate the piece 90 degrees clockwise
-        int width = getHeight();
-        int height = getWidth();
-        boolean[][] rotatedPiece = new boolean[width][height];
+        boolean[][] rotatedPiece = new boolean[getWidth()][getHeight()];
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                rotatedPiece[j][height - 1 - i] = piece[i][j];
+        for (int i = 0; i < getWidth(); i++) {
+            for (int j = 0; j < getHeight(); j++) {
+                rotatedPiece[getWidth() - 1 - i][j] = piece[j][i];
             }
         }
 

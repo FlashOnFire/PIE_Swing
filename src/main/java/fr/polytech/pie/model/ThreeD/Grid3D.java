@@ -10,7 +10,7 @@ public class Grid3D extends Grid {
     public Grid3D(int width, int height, int depth) {
         super(width, height);
         this.depth = depth;
-        this.grid = new boolean[height][width][depth];
+        this.grid = new boolean[depth][height][width];
     }
 
     public int getDepth() {
@@ -32,7 +32,7 @@ public class Grid3D extends Grid {
         if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth) {
             return false;
         }
-        return grid[y][x][z];
+        return grid[z][y][x];
     }
 
     @Override
@@ -64,7 +64,7 @@ public class Grid3D extends Grid {
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (voxelGrid[i][j][k]) {
+                    if (voxelGrid[k][j][i]) {
                         int x = pieceX + i;
                         int y = pieceY + j;
                         int z = pieceZ + k;
@@ -90,8 +90,8 @@ public class Grid3D extends Grid {
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (voxelGrid[i][j][k]) {
-                        int x = pieceX + j;
+                    if (voxelGrid[k][i][j]) {
+                        int x = pieceX + i;
                         int y = pieceY + i;
                         int z = pieceZ + k;
                         setValue(x, y, z, false);
@@ -115,7 +115,7 @@ public class Grid3D extends Grid {
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (voxelGrid[i][j][k]) {
+                    if (voxelGrid[k][i][j]) {
                         int x = pieceX + i;
                         int y = pieceY + j;
                         int z = pieceZ + k;
@@ -203,11 +203,11 @@ public class Grid3D extends Grid {
         return linesCounted;
     }
 
-    public int getHeightOfColumn3D(int i, int j) {
+    public int getHeightOfColumn3D(int x, int z) {
         int height = 0;
-        for (int k = 0; k < depth; k++) {
-            if (grid[k][i][j]) {
-                height = depth - k;
+        for (int y = 0; y < depth; y++) {
+            if (grid[z][y][x]) {
+                height = depth - y;
                 break;
             }
         }

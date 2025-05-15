@@ -36,7 +36,7 @@ public class Model extends Observable {
                 if (this.is3D) {
                     translateCurrentPiece3D(0, -1, 0);
                 } else {
-                    translateCurrentPiece2D(0, 1);
+                    translateCurrentPiece2D(0, -1);
                 }
             }, 0, 200, TimeUnit.MILLISECONDS
         );
