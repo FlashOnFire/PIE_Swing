@@ -14,6 +14,8 @@ version = "1.0-SNAPSHOT"
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.7"
 
+val imguiVersion = "1.89.0"
+
 val lwjglNatives = Pair(
     System.getProperty("os.name")!!,
     System.getProperty("os.arch")!!
@@ -39,11 +41,16 @@ val lwjglNatives = Pair(
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    implementation("io.github.spair:imgui-java-binding:${imguiVersion}")
+    //implementation("io.github.spair:imgui-java-lwjgl3:${imguiVersion}")
+    implementation("com.github.FlashOnFire.imgui-java-fixed:imgui-java-lwjgl3:main-SNAPSHOT")
+
+    implementation("io.github.spair:imgui-java-natives-windows:${imguiVersion}")
+    implementation("io.github.spair:imgui-java-natives-linux:${imguiVersion}")
 
     implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
 
@@ -60,16 +67,4 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-val args = listOf(
-    "--enable-native-access=ALL-UNNAMED"
-)
-
-tasks.withType<JavaExec>().configureEach {
-    jvmArgs(args)
-}
-
-tasks.withType<Test>().configureEach {
-    jvmArgs(args)
 }

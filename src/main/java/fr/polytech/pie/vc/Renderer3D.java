@@ -1,10 +1,17 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.*;
+import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.Grid;
+import fr.polytech.pie.model.Model;
 import fr.polytech.pie.model.ThreeD.CurrentPiece3D;
 import fr.polytech.pie.model.ThreeD.Grid3D;
 import fr.polytech.pie.vc.render.Camera;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
+import imgui.ImGui;
+import imgui.ImGuiIO;
+import imgui.flag.ImGuiConfigFlags;
+import imgui.gl3.ImGuiImplGl3;
+import imgui.glfw.ImGuiImplGlfw;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -29,54 +36,20 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Renderer3D implements Renderer {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-    private long window;
     private final OpenGLRenderer renderer = new OpenGLRenderer();
-    private Camera cam;
-
+    private final ImGuiImplGlfw imGuiGlfw = new ImGuiImplGlfw();
+    private final ImGuiImplGl3 imGuiGl3 = new ImGuiImplGl3();
     private final boolean[] keys = new boolean[7];
-
+    private final float mouseSensitivity = 0.1f;
+    private long window;
+    private Camera cam;
     // Mouse handling variables
     private double lastX = 150.0;
     private double lastY = 150.0;
     private boolean firstMouse = true;
-    private final float mouseSensitivity = 0.1f;
 
     public Renderer3D(Model m) {
 
-    }
-
-    public LoopStatus loop() {
-        if (glfwWindowShouldClose(window)) {
-            return LoopStatus.SHOW_MENU;
-        }
-
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1);
-            IntBuffer pHeight = stack.mallocInt(1);
-            glfwGetWindowSize(window, pWidth, pHeight);
-            int width = pWidth.get();
-            int height = pHeight.get();
-
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            pWidth.clear();
-            pHeight.clear();
-            glfwGetWindowSize(window, pWidth, pHeight);
-            glViewport(0, 0, width, height);
-            width = pWidth.get();
-            height = pHeight.get();
-            cam.setAspectRatio(((float) width) / ((float) height));
-
-            renderer.render(cam);
-
-            glfwSwapBuffers(window);
-
-            glfwPollEvents();
-        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
-
-        return LoopStatus.CONTINUE;
     }
 
     @Override
@@ -176,29 +149,6 @@ public class Renderer3D implements Renderer {
 
         glfwShowWindow(window);
 
-        scheduler.scheduleAtFixedRate(
-                () -> {
-                    if (keys[0]) {
-                        cam.moveForward(0.2F);
-                    }
-                    if (keys[1]) {
-                        cam.moveForward(-0.2F);
-                    }
-                    if (keys[2]) {
-                        cam.moveRight(-0.2F);
-                    }
-                    if (keys[3]) {
-                        cam.moveRight(0.2F);
-                    }
-                    if (keys[4]) {
-                        cam.moveUp(0.2F);
-                    }
-                    if (keys[5]) {
-                        cam.moveUp(-0.20F);
-                    }
-                }, 0, 20, TimeUnit.MILLISECONDS
-        );
-
         GL.createCapabilities();
 
         renderer.init();
@@ -223,6 +173,103 @@ public class Renderer3D implements Renderer {
 
             cam = new Camera(((float) width) / ((float) height));
         }
+
+        ImGui.createContext();
+        ImGuiIO io = ImGui.getIO();
+        io.addConfigFlags(ImGuiConfigFlags.ViewportsEnable);
+
+        imGuiGlfw.init(window, true);
+        imGuiGl3.init("#version 130");
+        io.getFonts().build();
+
+        scheduler.scheduleAtFixedRate(
+                () -> {
+                    if (keys[0]) {
+                        cam.moveForward(0.2F);
+                    }
+                    imGuiGl3.renderDrawData(ImGui.getDrawData());
+
+                    if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
+                        final long backupWindowPtr = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
+                        try {
+                            ImGui.updatePlatformWindows();
+                            ImGui.renderPlatformWindowsDefault();
+                        } catch (Exception e) {
+                            Logger.getLogger(Renderer3D.class.getName()).log(Level.WARNING,
+                                    "Error updating platform windows (likely Wayland-related): " + e.getMessage());
+                        }
+                        glfwMakeContextCurrent(backupWindowPtr);
+                    }
+                    if (keys[1]) {
+                        cam.moveForward(-0.2F);
+                    }
+                    if (keys[2]) {
+                        cam.moveRight(-0.2F);
+                    }
+                    if (keys[3]) {
+                        cam.moveRight(0.2F);
+                    }
+                    if (keys[4]) {
+                        cam.moveUp(0.2F);
+                    }
+                    if (keys[5]) {
+                        cam.moveUp(-0.20F);
+                    }
+                }, 0, 20, TimeUnit.MILLISECONDS
+        );
+    }
+
+    public LoopStatus loop() {
+        if (glfwWindowShouldClose(window)) {
+            return LoopStatus.SHOW_MENU;
+        }
+
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer pWidth = stack.mallocInt(1);
+            IntBuffer pHeight = stack.mallocInt(1);
+            glfwGetWindowSize(window, pWidth, pHeight);
+            int width = pWidth.get();
+            int height = pHeight.get();
+
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            pWidth.clear();
+            pHeight.clear();
+            glfwGetWindowSize(window, pWidth, pHeight);
+            glViewport(0, 0, width, height);
+            width = pWidth.get();
+            height = pHeight.get();
+            cam.setAspectRatio(((float) width) / ((float) height));
+
+            imGuiGlfw.newFrame();
+            ImGui.newFrame();
+
+            ImGui.showDemoWindow();
+
+            ImGui.render();
+            imGuiGl3.renderDrawData(ImGui.getDrawData());
+
+            if (ImGui.getIO().hasConfigFlags(ImGuiConfigFlags.ViewportsEnable)) {
+                final long backupWindowPtr = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
+                try {
+                    ImGui.updatePlatformWindows();
+                    ImGui.renderPlatformWindowsDefault();
+                } catch (Exception e) {
+                    Logger.getLogger(Renderer3D.class.getName()).log(Level.WARNING,
+                            "Error rendering platform windows (likely Wayland-related): " + e.getMessage());
+                }
+                glfwMakeContextCurrent(backupWindowPtr);
+            }
+
+            renderer.render(cam);
+
+            glfwSwapBuffers(window);
+
+            glfwPollEvents();
+        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+
+        return LoopStatus.CONTINUE;
     }
 
     @Override
@@ -281,6 +328,10 @@ public class Renderer3D implements Renderer {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         scheduler.shutdownNow();
+
+        imGuiGl3.shutdown();
+        imGuiGlfw.shutdown();
+        ImGui.destroyContext();
         renderer.destroy();
 
         Objects.requireNonNull(glfwSetKeyCallback(window, null)).free();

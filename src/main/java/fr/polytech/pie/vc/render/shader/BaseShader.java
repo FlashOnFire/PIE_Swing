@@ -15,12 +15,12 @@ public class BaseShader extends ShaderProgram {
             uniform mat4 projectionMatrix;
             uniform mat4 viewMatrix;
             
-            uniform vec3 lightPosition = vec3(2, 6, 4);  // Adjusted light position for better angles
+            uniform vec3 lightPosition = vec3(2, 6, 4);
             
             out vec3 toLightVector;
             out vec3 toCameraVector;
             out vec3 surfaceNormal;
-            out vec3 fragPosition;  // To create position-based effects
+            out vec3 fragPosition;
             
             void main(void){
                 vec3 worldPosition = position + pos;
