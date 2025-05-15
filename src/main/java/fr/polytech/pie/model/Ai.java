@@ -37,11 +37,11 @@ public class Ai {
             grid.freezePiece(possibility);
             int heights = 0;
             for (int i = 0; i < grid.getWidth(); i++) {
-                heights = heights + grid.getHeightOfColumn(i);
+                //heights = heights + grid.getHeightOfColumn(i);
             }
 
             // Count completed lines
-            int completedLines = grid.countFullLines();
+            //int completedLines = grid.countFullLines();
 
             // Count holes
             int holes = 0;
@@ -59,7 +59,7 @@ public class Ai {
             // calculate bumpiness (to avoid having a big vertical hole)
             int bumpiness = 0;
             for (int i = 0; i < grid.getWidth() - 1; i++) {
-                bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
+                //bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
             }
 
 
