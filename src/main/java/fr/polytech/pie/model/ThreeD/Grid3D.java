@@ -65,8 +65,8 @@ public class Grid3D extends Grid {
             for (int j = 0; j < piece3D.getWidth(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[i][j][k]) {
-                        int x = pieceX + j;
-                        int y = pieceY + i;
+                        int x = pieceX + i;
+                        int y = pieceY + j;
                         int z = pieceZ + k;
                         setValue(x, y, z, true);
                     }
