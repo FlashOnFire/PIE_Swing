@@ -66,54 +66,54 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     private void rotateAroundX() {
-//        int depth = getDepth();
-//        int height = getHeight();
-//        int width = getWidth();
-//        boolean[][][] rotated = new boolean[depth][width][height];
-//
-//        for (int d = 0; d < depth; d++) {
-//            for (int h = 0; h < height; h++) {
-//                for (int w = 0; w < width; w++) {
-//                    rotated[d][w][height - 1 - h] = piece[d][h][w];
-//                }
-//            }
-//        }
-//
-//        piece = rotated;
+        int depth = getDepth();
+        int height = getHeight();
+        int width = getWidth();
+        boolean[][][] rotated = new boolean[depth][width][height];
+
+        for (int d = 0; d < depth; d++) {
+            for (int h = 0; h < height; h++) {
+                for (int w = 0; w < width; w++) {
+                    rotated[d][w][height - 1 - h] = piece[d][h][w];
+                }
+            }
+        }
+
+        piece = rotated;
     }
 
     private void rotateAroundY() {
-//        int depth = getDepth();
-//        int height = getHeight();
-//        int width = getWidth();
-//        boolean[][][] rotated = new boolean[width][height][depth];
-//
-//        for (int d = 0; d < depth; d++) {
-//            for (int h = 0; h < height; h++) {
-//                for (int w = 0; w < width; w++) {
-//                    rotated[w][h][depth - 1 - d] = piece[d][h][w];
-//                }
-//            }
-//        }
-//
-//        piece = rotated;
+        int depth = getDepth();
+        int height = getHeight();
+        int width = getWidth();
+        boolean[][][] rotated = new boolean[width][height][depth];
+
+        for (int d = 0; d < depth; d++) {
+            for (int h = 0; h < height; h++) {
+                for (int w = 0; w < width; w++) {
+                    rotated[w][h][depth - 1 - d] = piece[d][h][w];
+                }
+            }
+        }
+
+        piece = rotated;
     }
 
     private void rotateAroundZ() {
-//        int height = getWidth();
-//        int width = this.getWidth();
-//        int depth = getDepth();
-//        boolean[][][] rotated = new boolean[width][height][depth];
-//
-//        for (int i = 0; i < width; i++) {
-//            for (int j = 0; j < height; j++) {
-//                for (int k = 0; k < depth; k++) {
-//                    rotated[height - 1 - j][i][k] = piece[i][j][k];
-//                }
-//            }
-//        }
-//
-//        piece = rotated;
+        int depth = getDepth();
+        int height = getHeight();
+        int width = getWidth();
+        boolean[][][] rotated = new boolean[depth][width][height];
+
+        for (int d = 0; d < depth; d++) {
+            for (int h = 0; h < height; h++) {
+                for (int w = 0; w < width; w++) {
+                    rotated[d][w][height - 1 - h] = piece[d][h][w];
+                }
+            }
+        }
+
+        piece = rotated;
     }
 
     public CurrentPiece3D copy() {

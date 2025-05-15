@@ -151,18 +151,14 @@ public class PieceGenerator {
 
         // Apply random rotation before placing the piece
         var piece = new CurrentPiece3D(selected3DPiece, x, y, z);
-        System.out.println("Before rotation: " + piece);
         if (random.nextBoolean()) {
             rotate3DPieceRandomly(piece);
         }
-        System.out.println("After rotation: " + piece);
 
         return piece;
     }
 
     private static void rotate3DPieceRandomly(CurrentPiece3D piece) {
-        int axis = random.nextInt(3); // 0=X, 1=Y, 2=Z
-
         int rotations = random.nextInt(4); // 0, 90, 180, or 270 degrees
 
         if (rotations == 0) {
@@ -171,7 +167,8 @@ public class PieceGenerator {
 
 
         for (int i = 0; i < rotations; i++) {
-             switch (axis) {
+            int axis = random.nextInt(3); // 0=X, 1=Y, 2=Z
+            switch (axis) {
                 case 0 -> piece.rotate3D(RotationAxis.X, _ ->false);
                 case 1 -> piece.rotate3D(RotationAxis.Y, _ ->false);
                 case 2 -> piece.rotate3D(RotationAxis.Z, _ ->false);

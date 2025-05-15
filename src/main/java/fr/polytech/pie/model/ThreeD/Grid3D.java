@@ -60,19 +60,6 @@ public class Grid3D extends Grid {
         int pieceY = piece3D.getY();
         int pieceZ = piece3D.getZ();
 
-        System.out.println("lets freeze the piece3D");
-        System.out.println("Piece3D: " + piece3D);
-        System.out.println("Piece3D X: " + pieceX);
-        System.out.println("Piece3D Y: " + pieceY);
-        System.out.println("Piece3D Z: " + pieceZ);
-        System.out.println("Piece3D width: " + piece3D.getWidth());
-        System.out.println("Piece3D height: " + piece3D.getHeight());
-        System.out.println("Piece3D depth: " + piece3D.getDepth());
-        System.out.println("Piece3D voxelGrid: " + voxelGrid);
-        System.out.println("Piece3D voxelGrid length: " + voxelGrid.length);
-        System.out.println("Piece3D voxelGrid[0] length: " + voxelGrid[0].length);
-        System.out.println("Piece3D voxelGrid[0][0] length: " + voxelGrid[0][0].length);
-
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
@@ -85,16 +72,14 @@ public class Grid3D extends Grid {
                 }
             }
         }
-        System.out.println("Piece3D frozen");
     }
 
     @Override
     public void removePiece(CurrentPiece possibility) {
-        if (!(possibility instanceof CurrentPiece3D)) {
+        if (!(possibility instanceof CurrentPiece3D piece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece3D but got " + possibility.getClass().getName());
         }
 
-        CurrentPiece3D piece3D = (CurrentPiece3D) possibility;
         boolean[][][] voxelGrid = piece3D.getPiece3d();
         int pieceX = piece3D.getX();
         int pieceY = piece3D.getY();
