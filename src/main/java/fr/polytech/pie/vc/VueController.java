@@ -6,9 +6,9 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,7 +20,7 @@ public class VueController implements Observer {
     private final Model model;
     private Renderer currentRenderer;
 
-    public VueController(ScheduledExecutorService scheduler, Model m) {
+    public VueController(Model m) {
         this.model = m;
 
         GLFWErrorCallback.createPrint(System.err).set();
@@ -49,11 +49,12 @@ public class VueController implements Observer {
     }
 
     void startGame(boolean is3D) {
-        //model.setRenderingMode(is3D);
         model.resetGame();
         if (is3D) {
+            model.changeRenderingMode(true);
             switchRenderer(RendererType.GAME_3D);
         } else {
+            model.changeRenderingMode(false);
             switchRenderer(RendererType.GAME_2D);
         }
     }
@@ -97,7 +98,20 @@ public class VueController implements Observer {
         Model model = (Model) o;
         try {
             if (currentRenderer != null) {
-                currentRenderer.update(model.getGrid(), model.getCurrentPiece(), model.getScore());
+                if (model.getGame().is3D() && !(currentRenderer instanceof Renderer3D) || !model.getGame().is3D() && !(currentRenderer instanceof Renderer2D)) {
+                    return;
+                }
+
+                currentRenderer.update(
+                        model.getGame().getGrid(),
+                        model.getGame().getCurrentPiece(),
+                        model.getGame().getScore()
+                );
+                currentRenderer.update(
+                        model.getGame().getGrid(),
+                        model.getGame().getCurrentPiece(),
+                        model.getGame().getScore()
+                );
             }
         } catch (Exception e) {
             Logger.getLogger(VueController.class.getName()).log(Level.SEVERE, "Error updating VueController", e);
@@ -117,6 +131,6 @@ public class VueController implements Observer {
 
         // Cleanup GLFW
         glfwTerminate();
-        glfwSetErrorCallback(null).close();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).close();
     }
 }

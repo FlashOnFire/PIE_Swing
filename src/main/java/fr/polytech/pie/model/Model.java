@@ -27,16 +27,26 @@ public class Model extends Observable {
      * @param is3D      Whether the game should be in 3D mode
      */
     public Model(ScheduledExecutorService scheduler, boolean is3D) {
+        this.is3D = is3D;
         this.game = new Game(is3D);
 
         // Automatic downward movement
-        scheduler.scheduleAtFixedRate(() -> {
-            if (is3D) {
-                translateCurrentPiece3D(0, 1, 0);
-            } else {
-                translateCurrentPiece2D(0, 1);
-            }
-        }, 0, 200, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(
+            () -> {
+                if (this.is3D) {
+                    translateCurrentPiece3D(0, 1, 0);
+                } else {
+                    translateCurrentPiece2D(0, 1);
+                }
+            }, 0, 200, TimeUnit.MILLISECONDS
+        );
+    }
+
+    public void changeRenderingMode(boolean is3D) {
+        this.is3D = is3D;
+        game.setRenderingMode(is3D);
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -88,16 +98,8 @@ public class Model extends Observable {
         }
     }
 
-    public Grid getGrid() {
-        return game.getGrid();
-    }
-
-    public CurrentPiece getCurrentPiece() {
-        return game.getCurrentPiece();
-    }
-
-    public int getScore() {
-        return game.getScore();
+    public Game getGame() {
+        return game;
     }
 
     public void resetGame() {

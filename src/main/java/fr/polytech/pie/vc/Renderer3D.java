@@ -1,19 +1,22 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
-import fr.polytech.pie.model.Model;
+import fr.polytech.pie.model.*;
 import fr.polytech.pie.vc.render.Camera;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -21,7 +24,6 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-@SuppressWarnings("deprecation")
 public class Renderer3D implements Renderer {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -223,7 +225,51 @@ public class Renderer3D implements Renderer {
 
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, int score) {
+        assert currentPiece != null : "Current piece is null";
+        assert grid != null : "Grid is null";
 
+        assert grid instanceof Grid3D;
+
+        Grid3D grid3D = (Grid3D) grid;
+
+        List<Vector3f> cubesPos = new ArrayList<>();
+        List<Vector3f> colors = new ArrayList<>();
+
+
+        for (int x = 0; x < grid.getWidth(); x++) {
+            for (int y = 0; y < grid.getHeight(); y++) {
+                for (int z = 0; z < grid3D.getDepth(); z++) {
+                    if (grid3D.getValue(x, y, z)) {
+                        Vector3f pos = new Vector3f(x, y, z);
+                        Vector3f color = new Vector3f(0.0F, 0.0F, 1.0F);
+
+                        cubesPos.add(pos);
+                        colors.add(color);
+                    }
+                }
+            }
+        }
+
+        CurrentPiece3D currentPiece3D = (CurrentPiece3D) currentPiece;
+        boolean[][][] positions = currentPiece3D.getPiece3d();
+
+        Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
+
+        for (int x = 0; x < positions.length; x++) {
+            for (int y = 0; y < positions[x].length; y++) {
+                for (int z = 0; z < positions[x][y].length; z++) {
+                    if (positions[x][y][z]) {
+                        cubesPos.add(new Vector3f(x, y, z).add(piecePos));
+                        colors.add(new Vector3f(1.0F, 0.0F, 0.0F));
+                    }
+                }
+            }
+        }
+        try {
+            renderer.update(cubesPos.toArray(new Vector3f[0]), colors.toArray(new Vector3f[0]));
+        } catch (Exception e) {
+            Logger.getLogger(Renderer3D.class.getName()).log(Level.SEVERE, null, e);
+        }
     }
 
     @Override

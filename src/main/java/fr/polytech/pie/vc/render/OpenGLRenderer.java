@@ -10,6 +10,9 @@ public class OpenGLRenderer {
     private final BaseShader shader;
     private VertexArray cubeVao;
 
+    Vector3f[] cubesPos = new Vector3f[]{};
+    Vector3f[] colors = new Vector3f[]{};
+
     public OpenGLRenderer() {
         this.shader = new BaseShader();
     }
@@ -169,7 +172,7 @@ public class OpenGLRenderer {
         this.shader.setProjectionMatrix(cam.getPerspectiveMatrix());
         this.shader.setViewMatrix(cam.getViewMatrix());
 
-        drawCubes(cubes, colors);
+        drawCubes(this.cubesPos, this.colors);
 
         this.shader.stop();
     }
@@ -213,5 +216,10 @@ public class OpenGLRenderer {
 
         // Restore the original polygon mode
         GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, currentMode[0]);
+    }
+
+    public void update(Vector3f[] cubesPos, Vector3f[] colors) {
+        this.cubesPos = cubesPos;
+        this.colors = colors;
     }
 }

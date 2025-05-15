@@ -17,6 +17,10 @@ public class Game {
         resetGame();
     }
 
+    public boolean is3D() {
+        return is3D;
+    }
+
     public Grid getGrid() {
         return grid;
     }

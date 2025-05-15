@@ -2,7 +2,6 @@ package fr.polytech.pie;
 
 import fr.polytech.pie.model.Model;
 import fr.polytech.pie.vc.VueController;
-import org.lwjgl.glfw.GLFWErrorCallback;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -13,12 +12,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 public class Main {
     public static void main(String[] args) {
         try {
-            InputStream audioSrc = Main.class.getResourceAsStream("/sounds/tetris-theme.wav");
+            InputStream audioSrc = Main.class.getResourceAsStream("/sounds/tetris-tek.wav");
             if (audioSrc != null) {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(
                         new BufferedInputStream(audioSrc));
@@ -37,7 +34,7 @@ public class Main {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         Model m = new Model(scheduler);
 
-        VueController vc = new VueController(scheduler, m);
+        VueController vc = new VueController(m);
         vc.loop();
         vc.cleanup();
         scheduler.shutdownNow();
