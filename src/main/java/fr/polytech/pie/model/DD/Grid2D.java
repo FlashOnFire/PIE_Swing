@@ -1,4 +1,8 @@
-package fr.polytech.pie.model;
+package fr.polytech.pie.model.DD;
+
+import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.DDD.CurrentPiece3D;
+import fr.polytech.pie.model.Grid;
 
 public class Grid2D extends Grid {
     private final boolean[][] grid;

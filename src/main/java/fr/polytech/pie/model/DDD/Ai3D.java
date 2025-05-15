@@ -1,4 +1,8 @@
-package fr.polytech.pie.model;
+package fr.polytech.pie.model.DDD;
+
+import fr.polytech.pie.model.Ai;
+import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.RotationAxis;
 
 import java.util.HashSet;
 import java.util.Set;

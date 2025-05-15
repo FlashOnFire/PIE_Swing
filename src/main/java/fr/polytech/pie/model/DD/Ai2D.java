@@ -1,4 +1,7 @@
-package fr.polytech.pie.model;
+package fr.polytech.pie.model.DD;
+
+import fr.polytech.pie.model.Ai;
+import fr.polytech.pie.model.CurrentPiece;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,5 +1,8 @@
 package fr.polytech.pie.model;
 
+import fr.polytech.pie.model.DD.Grid2D;
+import fr.polytech.pie.model.DDD.Grid3D;
+
 public abstract class Grid {
     protected final int width;
     protected final int height;

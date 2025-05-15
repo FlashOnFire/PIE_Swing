@@ -1,4 +1,6 @@
-package fr.polytech.pie.model;
+package fr.polytech.pie.model.DD;
+
+import fr.polytech.pie.model.CurrentPiece;
 
 import java.util.function.Predicate;
 

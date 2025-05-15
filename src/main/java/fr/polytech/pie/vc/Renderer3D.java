@@ -1,6 +1,8 @@
 package fr.polytech.pie.vc;
 
 import fr.polytech.pie.model.*;
+import fr.polytech.pie.model.DDD.CurrentPiece3D;
+import fr.polytech.pie.model.DDD.Grid3D;
 import fr.polytech.pie.vc.render.Camera;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
 import org.joml.Vector3f;
