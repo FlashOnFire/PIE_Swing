@@ -102,11 +102,11 @@ public class Game {
             piece3D.setX(0);
         }
 
-        if (piece3D.getX() + piece3D.getHeight() > grid.getWidth()) {
-            piece3D.setX(grid.getWidth() - piece3D.getHeight());
+        if (piece3D.getX() + piece3D.getWidth() > grid.getWidth()) {
+            piece3D.setX(grid.getWidth() - piece3D.getWidth());
         }
 
-        if (piece3D.getZ() < 0) {
+        if (piece3D.getZ() > 0) {
             piece3D.setZ(0);
         }
 
@@ -119,7 +119,7 @@ public class Game {
             piece3D.setY(originalY);
             piece3D.setZ(originalZ);
 
-            if (dy > 0) {
+            if (dy != 0) {
                 grid.freezePiece(piece3D);
 
                 int linesCleared = grid.clearFullLines();
@@ -139,17 +139,21 @@ public class Game {
 
     public void resetGame() {
         grid = Grid.create(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, is3D);
-        currentPiece = PieceGenerator.generatePiece(grid.getWidth(), is3D);
         if (is3D) {
             ai = new Ai3D((Grid3D) grid);
         } else {
             ai = new Ai2D((Grid2D) grid);
         }
+        generateNewPiece();
         score = 0;
     }
 
     private void generateNewPiece() {
-        currentPiece = PieceGenerator.generatePiece(grid.getWidth(), is3D);
+        if (is3D) {
+            currentPiece = PieceGenerator.generateTrue3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+        } else {
+            currentPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+        }
     }
 
     public void rotateCurrentPiece() {
@@ -165,10 +169,6 @@ public class Game {
     public void runAi() {
         updateScore(grid.clearFullLines());
         ai.makeMove(currentPiece);
-        if (is3D) {
-            this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), true);
-        } else {
-            this.currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
-        }
+        generateNewPiece();
     }
 }

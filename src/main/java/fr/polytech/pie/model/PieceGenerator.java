@@ -127,10 +127,7 @@ public class PieceGenerator {
 
     private static final Random random = new Random();
 
-    public static CurrentPiece generatePiece(int maxX, boolean is3D) {
-        if (is3D) {
-            return generateTrue3DPiece(maxX);
-        } else {
+    public static CurrentPiece2D generatePiece2D(int maxX, int maxY) {
             int pieceIndex = random.nextInt(PIECES_2D.length);
             boolean[][] selectedPiece = PIECES_2D[pieceIndex];
 
@@ -139,19 +136,19 @@ public class PieceGenerator {
             int y = 0;
 
             return new CurrentPiece2D(selectedPiece, x, y);
-        }
     }
 
-    public static CurrentPiece3D generateTrue3DPiece(int maxX) {
+    public static CurrentPiece3D generateTrue3DPiece(int maxX, int maxY, int maxZ) {
         int pieceIndex = random.nextInt(PIECES_3D.length);
         boolean[][][] selected3DPiece = PIECES_3D[pieceIndex];
 
-        int width = selected3DPiece[0].length;
+        int width = selected3DPiece.length;
+        int height = selected3DPiece[0].length;
         int depth = selected3DPiece[0][0].length;
 
         int x = random.nextInt(maxX - width + 1);
-        int y = 0;
-        int z = random.nextInt(Consts.GRID_DEPTH - depth + 1); // Random z-position
+        int y = maxY - height;
+        int z = random.nextInt(maxZ - depth + 1); // Random z-position
 
         // Apply random rotation before placing the piece
         var piece = new CurrentPiece3D(selected3DPiece, x, y, z);

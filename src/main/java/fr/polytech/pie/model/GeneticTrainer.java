@@ -194,7 +194,7 @@ public class GeneticTrainer {
         int piecesWithoutLines = 0;
 
         for (int piece = 0; piece < maxPieces; piece++) {
-            CurrentPiece currentPiece = PieceGenerator.generatePiece(grid.getWidth(), false);
+            CurrentPiece currentPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
 
             if (grid.checkCollision(currentPiece)) {
                 break;

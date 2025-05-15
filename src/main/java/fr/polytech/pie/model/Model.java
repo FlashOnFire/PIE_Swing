@@ -34,7 +34,7 @@ public class Model extends Observable {
         scheduler.scheduleAtFixedRate(
             () -> {
                 if (this.is3D) {
-                    translateCurrentPiece3D(0, 1, 0);
+                    translateCurrentPiece3D(0, -1, 0);
                 } else {
                     translateCurrentPiece2D(0, 1);
                 }
