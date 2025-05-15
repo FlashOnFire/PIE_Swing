@@ -2,7 +2,7 @@ package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Consts;
 import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.DD.CurrentPiece2D;
+import fr.polytech.pie.model.TwoD.CurrentPiece2D;
 import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;

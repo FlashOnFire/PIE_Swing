@@ -1,4 +1,4 @@
-package fr.polytech.pie.model.DD;
+package fr.polytech.pie.model.TwoD;
 
 import fr.polytech.pie.model.CurrentPiece;
 

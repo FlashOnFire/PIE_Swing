@@ -1,7 +1,7 @@
-package fr.polytech.pie.model.DD;
+package fr.polytech.pie.model.TwoD;
 
 import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.DDD.CurrentPiece3D;
+import fr.polytech.pie.model.ThreeD.CurrentPiece3D;
 import fr.polytech.pie.model.Grid;
 
 public class Grid2D extends Grid {

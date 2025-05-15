@@ -1,4 +1,4 @@
-package fr.polytech.pie.model.DDD;
+package fr.polytech.pie.model.ThreeD;
 
 import fr.polytech.pie.model.Ai;
 import fr.polytech.pie.model.CurrentPiece;

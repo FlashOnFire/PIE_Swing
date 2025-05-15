@@ -1,12 +1,12 @@
 package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.DD.Ai2D;
-import fr.polytech.pie.model.DD.CurrentPiece2D;
-import fr.polytech.pie.model.DD.Grid2D;
-import fr.polytech.pie.model.DDD.Ai3D;
-import fr.polytech.pie.model.DDD.CurrentPiece3D;
-import fr.polytech.pie.model.DDD.Grid3D;
+import fr.polytech.pie.model.TwoD.Ai2D;
+import fr.polytech.pie.model.TwoD.CurrentPiece2D;
+import fr.polytech.pie.model.TwoD.Grid2D;
+import fr.polytech.pie.model.ThreeD.Ai3D;
+import fr.polytech.pie.model.ThreeD.CurrentPiece3D;
+import fr.polytech.pie.model.ThreeD.Grid3D;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

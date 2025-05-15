@@ -1,8 +1,8 @@
 package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.DD.Ai2D;
-import fr.polytech.pie.model.DD.Grid2D;
+import fr.polytech.pie.model.TwoD.Ai2D;
+import fr.polytech.pie.model.TwoD.Grid2D;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
