@@ -70,20 +70,24 @@ public class Game {
             currentPiece.setY(originalY);
 
             if (dy > 0) {
-                grid.freezePiece(currentPiece);
-
-                int linesCleared = grid.clearFullLines();
-                if (linesCleared > 0) {
-                    updateScore(linesCleared);
-                }
-
-                generateNewPiece();
-
-                if (grid.checkCollision(currentPiece)) {
-                    Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
-                    resetGame();
-                }
+                freeze(currentPiece);
             }
+        }
+    }
+
+    private void freeze(CurrentPiece currentPiece) {
+        grid.freezePiece(currentPiece);
+
+        int linesCleared = grid.clearFullLines();
+        if (linesCleared > 0) {
+            updateScore(linesCleared);
+        }
+
+        generateNewPiece();
+
+        if (grid.checkCollision(currentPiece)) {
+            Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
+            resetGame();
         }
     }
 
@@ -120,19 +124,7 @@ public class Game {
             piece3D.setZ(originalZ);
 
             if (dy != 0) {
-                grid.freezePiece(piece3D);
-
-                int linesCleared = grid.clearFullLines();
-                if (linesCleared > 0) {
-                    updateScore(linesCleared);
-                }
-
-                generateNewPiece();
-
-                if (grid.checkCollision(currentPiece)) {
-                    Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
-                    resetGame();
-                }
+                freeze(piece3D);
             }
         }
     }
