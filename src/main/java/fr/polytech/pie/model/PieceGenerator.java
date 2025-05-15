@@ -146,11 +146,6 @@ public class PieceGenerator {
         int pieceIndex = random.nextInt(PIECES_3D.length);
         boolean[][][] selected3DPiece = PIECES_3D[pieceIndex];
 
-        // Apply random rotation before placing the piece
-        if (random.nextBoolean()) {
-            selected3DPiece = rotate3DPieceRandomly(selected3DPiece);
-        }
-
         int width = selected3DPiece[0].length;
         int depth = selected3DPiece[0][0].length;
 
@@ -158,81 +153,32 @@ public class PieceGenerator {
         int y = 0;
         int z = random.nextInt(Consts.GRID_DEPTH - depth + 1); // Random z-position
 
-        return new CurrentPiece3D(selected3DPiece, x, y, z);
+        // Apply random rotation before placing the piece
+        var piece = new CurrentPiece3D(selected3DPiece, x, y, z);
+        if (random.nextBoolean()) {
+            rotate3DPieceRandomly(piece);
+        }
+
+        return piece;
     }
 
-    private static boolean[][][] rotate3DPieceRandomly(boolean[][][] piece) {
+    private static void rotate3DPieceRandomly(CurrentPiece3D piece) {
         int axis = random.nextInt(3); // 0=X, 1=Y, 2=Z
 
         int rotations = random.nextInt(4); // 0, 90, 180, or 270 degrees
 
         if (rotations == 0) {
-            return piece; // No rotation
+            return ; // No rotation
         }
 
-        boolean[][][] rotatedPiece = piece;
 
         for (int i = 0; i < rotations; i++) {
-            rotatedPiece = switch (axis) {
-                case 0 -> rotateAroundX(rotatedPiece);
-                case 1 -> rotateAroundY(rotatedPiece);
-                case 2 -> rotateAroundZ(rotatedPiece);
-                default -> rotatedPiece;
-            };
-        }
-
-        return rotatedPiece;
-    }
-
-    private static boolean[][][] rotateAroundX(boolean[][][] piece) {
-        int height = piece.length;
-        int width = piece[0].length;
-        int depth = piece[0][0].length;
-
-        boolean[][][] rotated = new boolean[depth][width][height];
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                for (int k = 0; k < depth; k++) {
-                    rotated[depth - 1 - k][j][i] = piece[i][j][k];
-                }
+             switch (axis) {
+                case 0 -> piece.rotate3D(RotationAxis.X, _ ->false);
+                case 1 -> piece.rotate3D(RotationAxis.Y, _ ->false);
+                case 2 -> piece.rotate3D(RotationAxis.Z, _ ->false);
             }
         }
-
-        return rotated;
     }
 
-    private static boolean[][][] rotateAroundY(boolean[][][] piece) {
-        int height = piece.length;
-        int width = piece[0].length;
-        int depth = piece[0][0].length;
-
-        boolean[][][] rotated = new boolean[height][depth][width];
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                for (int k = 0; k < depth; k++) {
-                    rotated[i][k][width - 1 - j] = piece[i][j][k];
-                }
-            }
-        }
-
-        return rotated;
-    }
-
-    private static boolean[][][] rotateAroundZ(boolean[][][] piece) {
-        int height = piece.length;
-        int width = piece[0].length;
-        int depth = piece[0][0].length;
-
-        boolean[][][] rotated = new boolean[width][height][depth];
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                System.arraycopy(piece[i][j], 0, rotated[j][height - 1 - i], 0, depth);
-            }
-        }
-
-        return rotated;
-    }
 }
