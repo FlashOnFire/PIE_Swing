@@ -20,7 +20,7 @@ public class VertexArray {
     }
 
     public void destroy() {
-        GL30.glDeleteBuffers(this.id);
+        GL30.glDeleteVertexArrays(this.id);
         for (VertexBuffer vertexBuffer : vertexBuffers) {
             vertexBuffer.destroy();
         }

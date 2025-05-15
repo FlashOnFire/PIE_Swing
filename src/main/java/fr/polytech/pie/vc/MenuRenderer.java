@@ -5,20 +5,16 @@ import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MenuRenderer implements Renderer {
-    private final VueController vueController;
 
     private final JFrame frame = new JFrame();
 
-    public MenuRenderer(VueController vueController) {
-        this.vueController = vueController;
+    private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
+
+    public MenuRenderer() {
         frame.setTitle("Tetris");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
@@ -27,19 +23,6 @@ public class MenuRenderer implements Renderer {
     @Override
     public void initialize() {
         frame.setLayout(new BorderLayout());
-
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                new Thread(() -> {
-                    try {
-                        vueController.cleanup();
-                    } catch (Exception ex) {
-                        Logger.getLogger(MenuRenderer.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }).start();
-            }
-        });
 
         JLabel titleLabel = new JLabel("TETRIS", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
@@ -50,11 +33,11 @@ public class MenuRenderer implements Renderer {
 
         JButton play2DButton = new JButton("Play 2D");
         play2DButton.setFont(new Font("Arial", Font.BOLD, 24));
-        play2DButton.addActionListener(_ -> new Thread(() -> vueController.startGame(false)).start());
+        play2DButton.addActionListener(_ -> nextLoopStatus = LoopStatus.START_GAME_2D);
 
         JButton play3DButton = new JButton("Play 3D");
         play3DButton.setFont(new Font("Arial", Font.BOLD, 24));
-        play3DButton.addActionListener(_ -> new Thread(() -> vueController.startGame(true)).start());
+        play3DButton.addActionListener(_ -> nextLoopStatus = LoopStatus.START_GAME_3D);
 
         buttonPanel.add(play2DButton);
         buttonPanel.add(play3DButton);
@@ -88,7 +71,18 @@ public class MenuRenderer implements Renderer {
     }
 
     @Override
-    public void loop() {
+    public LoopStatus loop() {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (!frame.isDisplayable()) {
+            return LoopStatus.QUIT;
+        }
+
+        return nextLoopStatus;
     }
 
     @Override
@@ -97,5 +91,8 @@ public class MenuRenderer implements Renderer {
 
     @Override
     public void cleanup() {
+        if (frame.isDisplayable()) {
+            frame.dispose();
+        }
     }
 }

@@ -5,7 +5,7 @@ import fr.polytech.pie.model.Grid;
 
 public interface Renderer {
     void initialize();
-    void loop();
+    LoopStatus loop();
     void update(Grid grid, CurrentPiece currentPiece, int score);
     void cleanup();
 }

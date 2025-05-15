@@ -6,7 +6,6 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,17 +16,15 @@ import static org.lwjgl.glfw.GLFW.*;
 
 @SuppressWarnings("deprecation")
 public class VueController implements Observer {
-    private final ScheduledExecutorService scheduler;
 
     private final Model model;
     private Renderer currentRenderer;
 
     public VueController(ScheduledExecutorService scheduler, Model m) {
-        this.scheduler = scheduler;
         this.model = m;
 
         GLFWErrorCallback.createPrint(System.err).set();
-        // Initialize GLFW in the main thread to avoid issues with OpenGL context
+        // This is called from the main thread (since the call path is either from VueController constructor or loop() method)
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
@@ -48,8 +45,7 @@ public class VueController implements Observer {
 
         m.addObserver(this);
 
-        this.currentRenderer = new MenuRenderer(this);
-        this.currentRenderer.initialize();
+        switchRenderer(RendererType.MENU);
     }
 
     void startGame(boolean is3D) {
@@ -60,10 +56,6 @@ public class VueController implements Observer {
         } else {
             switchRenderer(RendererType.GAME_2D);
         }
-
-        currentRenderer.loop();
-
-        switchRenderer(RendererType.MENU);
     }
 
     private void switchRenderer(RendererType type) {
@@ -72,7 +64,7 @@ public class VueController implements Observer {
         }
 
         switch (type) {
-            case MENU -> currentRenderer = new MenuRenderer(this);
+            case MENU -> currentRenderer = new MenuRenderer();
             case GAME_2D -> currentRenderer = new Renderer2D(this);
             case GAME_3D -> currentRenderer = new Renderer3D(model);
         }
@@ -80,6 +72,23 @@ public class VueController implements Observer {
         currentRenderer.initialize();
         if (type != RendererType.MENU) {
             update(model, null);
+        }
+    }
+
+    public void loop() {
+        loop:
+        while (true) {
+            switch (currentRenderer.loop()) {
+                case CONTINUE -> {
+                    // Continue the game loop
+                }
+                case SHOW_MENU -> switchRenderer(RendererType.MENU);
+                case START_GAME_2D -> startGame(false);
+                case START_GAME_3D -> startGame(true);
+                case QUIT -> {
+                    break loop;
+                }
+            }
         }
     }
 
@@ -104,9 +113,10 @@ public class VueController implements Observer {
             currentRenderer.cleanup();
         }
         currentRenderer = null;
-        scheduler.shutdown();
 
+
+        // Cleanup GLFW
         glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
+        glfwSetErrorCallback(null).close();
     }
 }

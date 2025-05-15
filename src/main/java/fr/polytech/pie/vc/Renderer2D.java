@@ -76,7 +76,8 @@ public class Renderer2D implements Renderer {
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
                         BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
-                )));
+                )
+        ));
 
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
                 .addKeyEventDispatcher(e -> {
@@ -103,34 +104,39 @@ public class Renderer2D implements Renderer {
                     return false;
                 });
 
-        scheduler.scheduleAtFixedRate(() -> {
-            if (keys[0]) {
-                vueController.getModel().translateCurrentPiece2D(0, -1);
-            }
-            if (keys[1]) {
-                vueController.getModel().translateCurrentPiece2D(0, 1);
-            }
-            if (keys[2]) {
-                vueController.getModel().translateCurrentPiece2D(-1, 0);
-            }
-            if (keys[3]) {
-                vueController.getModel().translateCurrentPiece2D(1, 0);
-            }
-            if (keys[4]) {
-                vueController.getModel().rotateCurrentPiece2D();
-            }
-        }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(
+                () -> {
+                    if (keys[0]) {
+                        vueController.getModel().translateCurrentPiece2D(0, -1);
+                    }
+                    if (keys[1]) {
+                        vueController.getModel().translateCurrentPiece2D(0, 1);
+                    }
+                    if (keys[2]) {
+                        vueController.getModel().translateCurrentPiece2D(-1, 0);
+                    }
+                    if (keys[3]) {
+                        vueController.getModel().translateCurrentPiece2D(1, 0);
+                    }
+                    if (keys[4]) {
+                        vueController.getModel().rotateCurrentPiece2D();
+                    }
+                }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS
+        );
     }
 
-    public void loop() {
-        while (frame.isDisplayable()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
+    public LoopStatus loop() {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+
+        if (frame.isDisplayable()) {
+            return LoopStatus.CONTINUE;
+        }
+
+        return LoopStatus.SHOW_MENU;
     }
 
     @Override
@@ -191,7 +197,8 @@ public class Renderer2D implements Renderer {
                     drawCell(
                             currentPiece.getX() + j,
                             currentPiece.getY() + i,
-                            CURRENT_PIECE_COLOR);
+                            CURRENT_PIECE_COLOR
+                    );
                 }
             }
         }

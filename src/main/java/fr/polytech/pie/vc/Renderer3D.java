@@ -5,12 +5,12 @@ import fr.polytech.pie.model.Grid;
 import fr.polytech.pie.model.Model;
 import fr.polytech.pie.vc.render.Camera;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
-import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,7 +26,7 @@ public class Renderer3D implements Renderer {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private final long window;
+    private long window;
     private final OpenGLRenderer renderer = new OpenGLRenderer();
     private Camera cam;
 
@@ -39,6 +39,44 @@ public class Renderer3D implements Renderer {
     private final float mouseSensitivity = 0.1f;
 
     public Renderer3D(Model m) {
+
+    }
+
+    public LoopStatus loop() {
+        if (glfwWindowShouldClose(window)) {
+            return LoopStatus.SHOW_MENU;
+        }
+
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer pWidth = stack.mallocInt(1);
+            IntBuffer pHeight = stack.mallocInt(1);
+            glfwGetWindowSize(window, pWidth, pHeight);
+            int width = pWidth.get();
+            int height = pHeight.get();
+
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            pWidth.clear();
+            pHeight.clear();
+            glfwGetWindowSize(window, pWidth, pHeight);
+            glViewport(0, 0, width, height);
+            width = pWidth.get();
+            height = pHeight.get();
+            cam.setAspectRatio(((float) width) / ((float) height));
+
+            renderer.render(cam);
+
+            glfwSwapBuffers(window);
+
+            glfwPollEvents();
+        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+
+        return LoopStatus.CONTINUE;
+    }
+
+    @Override
+    public void initialize() {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -57,7 +95,7 @@ public class Renderer3D implements Renderer {
         }
 
         glfwSetKeyCallback(
-                window, (window, key, scancode, action, mods) -> {
+                window, (window, key, _ /*scancode*/, action, _ /*mods*/) -> {
                     if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
                         glfwSetWindowShouldClose(window, true);
                     } else if (action == GLFW_PRESS || action == GLFW_RELEASE) {
@@ -74,9 +112,8 @@ public class Renderer3D implements Renderer {
                 }
         );
 
-
         glfwSetCursorPosCallback(
-                window, (window, xpos, ypos) -> {
+                window, (_, xpos, ypos) -> {
                     if (firstMouse) {
                         lastX = xpos;
                         lastY = ypos;
@@ -157,12 +194,7 @@ public class Renderer3D implements Renderer {
                     }
                 }, 0, 20, TimeUnit.MILLISECONDS
         );
-    }
 
-    public void shutdown() {
-    }
-
-    public void loop() {
         GL.createCapabilities();
 
         renderer.init();
@@ -186,30 +218,7 @@ public class Renderer3D implements Renderer {
             int height = pHeight.get();
 
             cam = new Camera(((float) width) / ((float) height));
-
-            while (!glfwWindowShouldClose(window)) {
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-                pWidth.clear();
-                pHeight.clear();
-                glfwGetWindowSize(window, pWidth, pHeight);
-                glViewport(0, 0, width, height);
-                width = pWidth.get();
-                height = pHeight.get();
-                cam.setAspectRatio(((float) width) / ((float) height));
-
-                renderer.render(cam);
-
-                glfwSwapBuffers(window);
-
-                glfwPollEvents();
-            }
-        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
-    }
-
-    @Override
-    public void initialize() {
-
+        }
     }
 
     @Override
@@ -219,9 +228,18 @@ public class Renderer3D implements Renderer {
 
     @Override
     public void cleanup() {
-        scheduler.shutdown();
+        glfwMakeContextCurrent(window);
+
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+        scheduler.shutdownNow();
         renderer.destroy();
+
+        Objects.requireNonNull(glfwSetKeyCallback(window, null)).free();
+        Objects.requireNonNull(glfwSetCursorPosCallback(window, null)).free();
+
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
+        glfwWaitEventsTimeout(1000);
     }
 }

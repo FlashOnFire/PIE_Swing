@@ -170,13 +170,8 @@ public class OpenGLRenderer {
         this.shader.setViewMatrix(cam.getViewMatrix());
 
         drawCubes(cubes, colors);
-    }
 
-    public void renderVao(VertexArray vertexArray) {
-        this.shader.start();
-        vertexArray.bind();
-        GL30.glDrawElements(GL30.GL_TRIANGLES, vertexArray.getVertexCount(), GL_UNSIGNED_INT, 0);
-        vertexArray.unbind();
+        this.shader.stop();
     }
 
     public void drawCubes(Vector3f[] pos, Vector3f[] colors) {
@@ -188,12 +183,6 @@ public class OpenGLRenderer {
             GL30.glDrawElements(GL30.GL_TRIANGLES, cubeVao.getVertexCount(), GL_UNSIGNED_INT, 0);
         }
         cubeVao.unbind();
-    }
-
-    public void renderCube(Vector3f pos, Vector3f color) {
-        this.shader.setPos(pos);
-        this.shader.setColor(color);
-        renderVao(cubeVao);
     }
 
     public void renderPlayingBox(Vector3f pos, Vector3f color) {
