@@ -66,7 +66,7 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     private void rotateAroundX() {
-        int height = getWidth();
+        int height = getHeight();
         int width = this.getWidth();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[depth][width][height];
