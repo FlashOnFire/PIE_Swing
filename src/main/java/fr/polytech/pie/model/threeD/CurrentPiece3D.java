@@ -48,67 +48,29 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     public void rotate3D(RotationAxis axis, Predicate<CurrentPiece> collisionChecker) {
-        // Save the original voxel grid in case rotation causes a collision
         CurrentPiece3D original = copy();
 
-        // Perform rotation based on the axis
         switch (axis) {
-            case X -> rotateAroundX();
-            case Y -> rotateAroundY();
-            case Z -> rotateAroundZ();
+            case X -> rotate((d, h, w) -> new int[]{d, w, getHeight() - 1 - h}, getDepth(), getWidth(), getHeight());
+            case Y -> rotate((d, h, w) -> new int[]{w, h, getDepth() - 1 - d}, getWidth(), getHeight(), getDepth());
+            case Z -> rotate((d, h, w) -> new int[]{d, w, getHeight() - 1 - h}, getDepth(), getWidth(), getHeight());
         }
 
-        // Check if the rotation causes a collision
         if (collisionChecker.test(this)) {
-            // Restore the original voxel grid if there's a collision
             piece = original.getPiece3d();
         }
     }
 
-    private void rotateAroundX() {
-        int depth = getDepth();
-        int height = getHeight();
-        int width = getWidth();
-        boolean[][][] rotated = new boolean[depth][width][height];
+    private void rotate(TriFunction<Integer, Integer, Integer, int[]> transform, int newD, int newH, int newW) {
+        boolean[][][] rotated = new boolean[newD][newH][newW];
 
-        for (int d = 0; d < depth; d++) {
-            for (int h = 0; h < height; h++) {
-                for (int w = 0; w < width; w++) {
-                    rotated[d][w][height - 1 - h] = piece[d][h][w];
-                }
-            }
-        }
-
-        piece = rotated;
-    }
-
-    private void rotateAroundY() {
-        int depth = getDepth();
-        int height = getHeight();
-        int width = getWidth();
-        boolean[][][] rotated = new boolean[width][height][depth];
-
-        for (int d = 0; d < depth; d++) {
-            for (int h = 0; h < height; h++) {
-                for (int w = 0; w < width; w++) {
-                    rotated[w][h][depth - 1 - d] = piece[d][h][w];
-                }
-            }
-        }
-
-        piece = rotated;
-    }
-
-    private void rotateAroundZ() {
-        int depth = getDepth();
-        int height = getHeight();
-        int width = getWidth();
-        boolean[][][] rotated = new boolean[depth][width][height];
-
-        for (int d = 0; d < depth; d++) {
-            for (int h = 0; h < height; h++) {
-                for (int w = 0; w < width; w++) {
-                    rotated[d][w][height - 1 - h] = piece[d][h][w];
+        for (int d = 0; d < getDepth(); d++) {
+            for (int h = 0; h < getHeight(); h++) {
+                for (int w = 0; w < getWidth(); w++) {
+                    if (piece[d][h][w]) {
+                        int[] coords = transform.apply(d, h, w);
+                        rotated[coords[0]][coords[1]][coords[2]] = true;
+                    }
                 }
             }
         }
@@ -130,5 +92,10 @@ public class CurrentPiece3D extends CurrentPiece {
     @Override
     public boolean checkCollision(Predicate<CurrentPiece> collisionChecker) {
         return collisionChecker.test(this);
+    }
+
+    @FunctionalInterface
+    private interface TriFunction<A, B, C, R> {
+        R apply(A a, B b, C c);
     }
 }
