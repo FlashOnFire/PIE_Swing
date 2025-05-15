@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -92,6 +93,7 @@ public class Renderer3D implements Renderer {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         glfwWindowHint(GLFW_DEPTH_BITS, 24);
+        glfwWindowHint(GLFW_SAMPLES, 16);
 
         window = glfwCreateWindow(800, 800, "Tetris", NULL, NULL);
         if (window == NULL) {
@@ -214,6 +216,8 @@ public class Renderer3D implements Renderer {
         glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
 
+        glEnable(GL_MULTISAMPLE);
+
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -236,7 +240,6 @@ public class Renderer3D implements Renderer {
 
         List<Vector3f> cubesPos = new ArrayList<>();
         List<Vector3f> colors = new ArrayList<>();
-
 
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
