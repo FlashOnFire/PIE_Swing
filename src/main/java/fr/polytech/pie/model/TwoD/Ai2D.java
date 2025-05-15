@@ -48,8 +48,8 @@ public class Ai2D extends Ai {
                 for (int j = 0; j < grid.getHeight(); j++) {
                     int localX = i - possibility.getX();
                     int localY = j - possibility.getY();
-                    boolean isPieceBlock = localX >= 0 && localX < possibility.getWidth()
-                            && localY >= 0 && localY < possibility.getHeight()
+                    boolean isPieceBlock = localX >= 0 && localX < possibility.getHeight()
+                            && localY >= 0 && localY < possibility.getWidth()
                             && grid.getValue(i, j);
                     if (isPieceBlock) {
                         foundBlock = true;

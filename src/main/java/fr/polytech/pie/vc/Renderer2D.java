@@ -195,8 +195,8 @@ public class Renderer2D implements Renderer {
 
     private void drawCurrentPiece(CurrentPiece2D currentPiece) {
         boolean[][] piece = currentPiece.getPiece2d();
-        for (int i = 0; i < currentPiece.getHeight(); i++) {
-            for (int j = 0; j < currentPiece.getWidth(); j++) {
+        for (int i = 0; i < currentPiece.getWidth(); i++) {
+            for (int j = 0; j < currentPiece.getHeight(); j++) {
                 if (piece[i][j]) {
                     drawCell(
                             currentPiece.getX() + j,

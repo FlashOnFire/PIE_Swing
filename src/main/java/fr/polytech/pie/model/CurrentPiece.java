@@ -27,7 +27,7 @@ public abstract class CurrentPiece {
         this.y = y;
     }
 
-    public abstract int getWidth();
     public abstract int getHeight();
+    public abstract int getWidth();
     public abstract boolean checkCollision(Predicate<CurrentPiece> collisionChecker);
 }

@@ -61,8 +61,8 @@ public class Game {
             currentPiece.setX(0);
         }
 
-        if (currentPiece.getX() + currentPiece.getWidth() > grid.getWidth()) {
-            currentPiece.setX(grid.getWidth() - currentPiece.getWidth());
+        if (currentPiece.getX() + currentPiece.getHeight() > grid.getWidth()) {
+            currentPiece.setX(grid.getWidth() - currentPiece.getHeight());
         }
 
         if (grid.checkCollision(currentPiece)) {
@@ -102,8 +102,8 @@ public class Game {
             piece3D.setX(0);
         }
 
-        if (piece3D.getX() + piece3D.getWidth() > grid.getWidth()) {
-            piece3D.setX(grid.getWidth() - piece3D.getWidth());
+        if (piece3D.getX() + piece3D.getHeight() > grid.getWidth()) {
+            piece3D.setX(grid.getWidth() - piece3D.getHeight());
         }
 
         if (piece3D.getZ() < 0) {

@@ -32,12 +32,12 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     @Override
-    public int getWidth() {
+    public int getHeight() {
         return piece[0].length;
     }
 
     @Override
-    public int getHeight() {
+    public int getWidth() {
         return piece.length;
     }
 
@@ -66,8 +66,8 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     private void rotateAroundX() {
-        int height = getHeight();
-        int width = getWidth();
+        int height = getWidth();
+        int width = getHeight();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[depth][width][height];
 
@@ -83,8 +83,8 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     private void rotateAroundY() {
-        int height = getHeight();
-        int width = getWidth();
+        int height = getWidth();
+        int width = getHeight();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[height][depth][width];
 
@@ -100,8 +100,8 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     private void rotateAroundZ() {
-        int height = getHeight();
-        int width = getWidth();
+        int height = getWidth();
+        int width = getHeight();
         int depth = getDepth();
         boolean[][][] rotated = new boolean[width][height][depth];
 

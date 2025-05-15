@@ -34,8 +34,8 @@ public class Grid2D extends Grid {
         }
 
         boolean[][] piece = ((CurrentPiece2D) currentPiece).getPiece2d();
-        for (int i = 0; i < currentPiece.getHeight(); i++) {
-            for (int j = 0; j < currentPiece.getWidth(); j++) {
+        for (int i = 0; i < currentPiece.getWidth(); i++) {
+            for (int j = 0; j < currentPiece.getHeight(); j++) {
                 if (piece[i][j]) {
                     int x = currentPiece.getX() + j;
                     int y = currentPiece.getY() + i;
@@ -47,8 +47,8 @@ public class Grid2D extends Grid {
 
     @Override
     public void removePiece(CurrentPiece currentPiece) {
-        for (int i = 0; i < currentPiece.getHeight(); i++) {
-            for (int j = 0; j < currentPiece.getWidth(); j++) {
+        for (int i = 0; i < currentPiece.getWidth(); i++) {
+            for (int j = 0; j < currentPiece.getHeight(); j++) {
                 if (currentPiece instanceof CurrentPiece3D) {
                     if (((CurrentPiece3D) currentPiece).getPiece3d()[i][j][0]) { // Assuming depth is 1 for 2D
                         int x = currentPiece.getX() + j;
@@ -75,8 +75,8 @@ public class Grid2D extends Grid {
         }
 
         boolean[][] piece = piece2D.getPiece2d();
-        for (int i = 0; i < currentPiece.getHeight(); i++) {
-            for (int j = 0; j < currentPiece.getWidth(); j++) {
+        for (int i = 0; i < currentPiece.getWidth(); i++) {
+            for (int j = 0; j < currentPiece.getHeight(); j++) {
                 if (piece[i][j]) {
                     int x = currentPiece.getX() + j;
                     int y = currentPiece.getY() + i;

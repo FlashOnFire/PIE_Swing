@@ -61,8 +61,8 @@ public class Grid3D extends Grid {
         int pieceY = piece3D.getY();
         int pieceZ = piece3D.getZ();
 
-        for (int i = 0; i < piece3D.getHeight(); i++) {
-            for (int j = 0; j < piece3D.getWidth(); j++) {
+        for (int i = 0; i < piece3D.getWidth(); i++) {
+            for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[i][j][k]) {
                         int x = pieceX + i;
@@ -87,8 +87,8 @@ public class Grid3D extends Grid {
         int pieceY = piece3D.getY();
         int pieceZ = piece3D.getZ();
 
-        for (int i = 0; i < piece3D.getHeight(); i++) {
-            for (int j = 0; j < piece3D.getWidth(); j++) {
+        for (int i = 0; i < piece3D.getWidth(); i++) {
+            for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[i][j][k]) {
                         int x = pieceX + j;
@@ -112,8 +112,8 @@ public class Grid3D extends Grid {
         int pieceY = piece3D.getY();
         int pieceZ = piece3D.getZ();
 
-        for (int i = 0; i < piece3D.getHeight(); i++) {
-            for (int j = 0; j < piece3D.getWidth(); j++) {
+        for (int i = 0; i < piece3D.getWidth(); i++) {
+            for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[i][j][k]) {
                         int x = pieceX + j;
