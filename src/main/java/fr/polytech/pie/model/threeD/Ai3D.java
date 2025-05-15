@@ -1,4 +1,4 @@
-package fr.polytech.pie.model.ThreeD;
+package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.model.Ai;
 import fr.polytech.pie.model.CurrentPiece;
@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Ai3D extends Ai {
-    private Grid3D grid;
+    private final Grid3D grid;
 
     public Ai3D(Grid3D grid) {
         super();

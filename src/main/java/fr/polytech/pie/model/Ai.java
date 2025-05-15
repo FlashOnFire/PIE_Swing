@@ -1,8 +1,5 @@
 package fr.polytech.pie.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public abstract class Ai {
     protected double heightWeight = -0.7303205229567257;
     protected double linesWeight = 0.6082323862482821;

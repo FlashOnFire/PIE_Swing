@@ -2,7 +2,7 @@ package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Consts;
 import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.TwoD.CurrentPiece2D;
+import fr.polytech.pie.model.twoD.CurrentPiece2D;
 import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class Renderer2D implements Renderer {
     private final VueController vueController;
 
-    JFrame frame = new JFrame("Tetris");
+    final JFrame frame = new JFrame("Tetris");
 
     private static final Color EMPTY_CELL_COLOR = Color.WHITE;
     private static final Color CURRENT_PIECE_COLOR = Color.RED;

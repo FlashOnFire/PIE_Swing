@@ -1,4 +1,4 @@
-package fr.polytech.pie.model.ThreeD;
+package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.RotationAxis;

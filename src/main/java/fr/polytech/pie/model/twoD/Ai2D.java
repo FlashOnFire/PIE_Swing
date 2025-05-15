@@ -1,4 +1,4 @@
-package fr.polytech.pie.model.TwoD;
+package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.model.Ai;
 import fr.polytech.pie.model.CurrentPiece;
@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Ai2D extends Ai {
-    private Grid2D grid;
+    private final Grid2D grid;
 
     public Ai2D(Grid2D grid) {
         super();

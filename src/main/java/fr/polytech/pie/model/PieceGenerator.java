@@ -1,7 +1,7 @@
 package fr.polytech.pie.model;
 
-import fr.polytech.pie.model.TwoD.CurrentPiece2D;
-import fr.polytech.pie.model.ThreeD.CurrentPiece3D;
+import fr.polytech.pie.model.twoD.CurrentPiece2D;
+import fr.polytech.pie.model.threeD.CurrentPiece3D;
 
 import java.util.Random;
 

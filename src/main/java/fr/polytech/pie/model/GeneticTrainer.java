@@ -1,8 +1,8 @@
 package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.TwoD.Ai2D;
-import fr.polytech.pie.model.TwoD.Grid2D;
+import fr.polytech.pie.model.twoD.Ai2D;
+import fr.polytech.pie.model.twoD.Grid2D;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -164,7 +164,7 @@ public class GeneticTrainer {
             }
         } catch (Exception e) {
             System.out.println("Error during evaluation: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Exception détaillée lors de l'évaluation de la population: " + e);
         } finally {
             executor.shutdown();
         }
@@ -212,7 +212,7 @@ public class GeneticTrainer {
 
             int maxHeight = 0;
             for (int i = 0; i < grid.getWidth(); i++) {
-                maxHeight = Math.max(maxHeight, ((Grid2D) grid).getHeightOfColumn2D(i));
+                maxHeight = Math.max(maxHeight, grid.getHeightOfColumn2D(i));
             }
 
             if (piecesWithoutLines > 25 && maxHeight > grid.getHeight() * 0.7) {
@@ -387,7 +387,7 @@ public class GeneticTrainer {
             System.out.println("Parameters saved to " + filename);
         } catch (Exception e) {
             System.out.println("Failed to save parameters: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Exception lors de la sauvegarde des paramètres: " + e);
         }
     }
 }

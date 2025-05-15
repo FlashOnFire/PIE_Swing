@@ -2,6 +2,7 @@ package fr.polytech.pie.vc;
 
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,6 +29,44 @@ public class MenuRenderer implements Renderer {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setForeground(Color.BLUE);
 
+        JPanel buttonPanel = getJPanel();
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(Box.createVerticalStrut(100), BorderLayout.NORTH);
+        centerPanel.add(buttonPanel, BorderLayout.CENTER);
+        centerPanel.add(Box.createVerticalStrut(100), BorderLayout.SOUTH);
+
+        JPanel menuPanel = new JPanel(new BorderLayout());
+        menuPanel.add(titleLabel, BorderLayout.NORTH);
+        menuPanel.add(centerPanel, BorderLayout.CENTER);
+
+        JTextArea controlsText = getJTextArea();
+
+        menuPanel.add(controlsText, BorderLayout.SOUTH);
+        frame.add(menuPanel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    @NotNull
+    private static JTextArea getJTextArea() {
+        JTextArea controlsText = new JTextArea();
+        controlsText.setEditable(false);
+        controlsText.setFont(new Font("Arial", Font.PLAIN, 12));
+        controlsText.setText(
+                """
+                        2D Controls:
+                        z - Up, s - Down, q - Left, d - Right, a - Rotate
+                        
+                        3D Controls:
+                        z - Up, s - Down, q - Left, d - Right, a - Rotate Z
+                        r - Forward, f - Backward, t - Rotate X, g - Rotate Y
+                        m - Switch between 2D and 3D mode""");
+        return controlsText;
+    }
+
+    @NotNull
+    private JPanel getJPanel() {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(2, 1, 10, 20));
 
@@ -41,33 +80,7 @@ public class MenuRenderer implements Renderer {
 
         buttonPanel.add(play2DButton);
         buttonPanel.add(play3DButton);
-
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(Box.createVerticalStrut(100), BorderLayout.NORTH);
-        centerPanel.add(buttonPanel, BorderLayout.CENTER);
-        centerPanel.add(Box.createVerticalStrut(100), BorderLayout.SOUTH);
-
-        JPanel menuPanel = new JPanel(new BorderLayout());
-        menuPanel.add(titleLabel, BorderLayout.NORTH);
-        menuPanel.add(centerPanel, BorderLayout.CENTER);
-
-        JTextArea controlsText = new JTextArea();
-        controlsText.setEditable(false);
-        controlsText.setFont(new Font("Arial", Font.PLAIN, 12));
-        controlsText.setText(
-                """
-                        2D Controls:
-                        z - Up, s - Down, q - Left, d - Right, a - Rotate
-                        
-                        3D Controls:
-                        z - Up, s - Down, q - Left, d - Right, a - Rotate Z
-                        r - Forward, f - Backward, t - Rotate X, g - Rotate Y
-                        m - Switch between 2D and 3D mode""");
-
-        menuPanel.add(controlsText, BorderLayout.SOUTH);
-        frame.add(menuPanel, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
+        return buttonPanel;
     }
 
     @Override

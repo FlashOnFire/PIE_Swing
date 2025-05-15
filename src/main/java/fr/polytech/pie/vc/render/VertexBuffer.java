@@ -10,7 +10,7 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 public class VertexBuffer {
     private final int id;
     private final int dataStride;
-    List<VertexAttribPointer> vertexAttribs;
+    final List<VertexAttribPointer> vertexAttribs;
 
     public VertexBuffer(float[] data, int stride) {
         this.id = GL30.glGenBuffers();
