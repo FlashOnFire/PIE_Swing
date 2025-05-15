@@ -45,21 +45,33 @@ public class Grid3D extends Grid {
 
     public void setValue(int x, int y, int z, boolean value) {
         if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth) {
-            grid[y][x][z] = value;
+            grid[z][y][x] = value;
         }
     }
 
     @Override
     public void freezePiece(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece3D)) {
+        if (!(currentPiece instanceof CurrentPiece3D piece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
         }
 
-        CurrentPiece3D piece3D = (CurrentPiece3D) currentPiece;
         boolean[][][] voxelGrid = piece3D.getPiece3d();
         int pieceX = piece3D.getX();
         int pieceY = piece3D.getY();
         int pieceZ = piece3D.getZ();
+
+        System.out.println("lets freeze the piece3D");
+        System.out.println("Piece3D: " + piece3D);
+        System.out.println("Piece3D X: " + pieceX);
+        System.out.println("Piece3D Y: " + pieceY);
+        System.out.println("Piece3D Z: " + pieceZ);
+        System.out.println("Piece3D width: " + piece3D.getWidth());
+        System.out.println("Piece3D height: " + piece3D.getHeight());
+        System.out.println("Piece3D depth: " + piece3D.getDepth());
+        System.out.println("Piece3D voxelGrid: " + voxelGrid);
+        System.out.println("Piece3D voxelGrid length: " + voxelGrid.length);
+        System.out.println("Piece3D voxelGrid[0] length: " + voxelGrid[0].length);
+        System.out.println("Piece3D voxelGrid[0][0] length: " + voxelGrid[0][0].length);
 
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
@@ -73,6 +85,7 @@ public class Grid3D extends Grid {
                 }
             }
         }
+        System.out.println("Piece3D frozen");
     }
 
     @Override
@@ -115,7 +128,7 @@ public class Grid3D extends Grid {
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (voxelGrid[k][i][j]) {
+                    if (voxelGrid[k][j][i]) {
                         int x = pieceX + i;
                         int y = pieceY + j;
                         int z = pieceZ + k;
@@ -139,35 +152,39 @@ public class Grid3D extends Grid {
         int linesCleared = 0;
 
         // Check for full horizontal planes (XZ planes)
-        for (int y = height - 1; y >= 0; y--) {
+        for (int y = 0; y < height; y++) {
             boolean fullPlane = true;
 
             // Check if the plane is full
-            for (int x = 0; x < width; x++) {
+            for (int x = 0; x < width && fullPlane; x++) {
                 for (int z = 0; z < depth; z++) {
-                    if (!grid[y][x][z]) {
+                    if (!grid[z][y][x]) {
                         fullPlane = false;
                         break;
                     }
                 }
-                if (!fullPlane)
-                    break;
             }
 
             if (fullPlane) {
                 linesCleared++;
+
                 // Shift all planes above down
-                for (int k = y; k > 0; k--) {
+                for (int i = y; i < height - 1; i++) {
                     for (int x = 0; x < width; x++) {
-                        System.arraycopy(grid[k - 1][x], 0, grid[k][x], 0, depth);
+                        for (int z = 0; z < depth; z++) {
+                            grid[z][i][x] = grid[z][i + 1][x];
+                        }
                     }
                 }
+
                 // Clear the top plane
                 for (int x = 0; x < width; x++) {
                     for (int z = 0; z < depth; z++) {
-                        grid[0][x][z] = false;
+                        grid[z][height - 1][x] = false;
                     }
                 }
+
+                y--; // Check the same line again after shifting
             }
         }
 
@@ -176,31 +193,28 @@ public class Grid3D extends Grid {
 
     @Override
     public int countFullLines() {
-        int linesCounted = 0;
+        int linesCleared = 0;
 
         // Check for full horizontal planes (XZ planes)
         for (int y = 0; y < height; y++) {
             boolean fullPlane = true;
 
             // Check if the plane is full
-            for (int x = 0; x < width; x++) {
+            for (int x = 0; x < width && fullPlane; x++) {
                 for (int z = 0; z < depth; z++) {
-                    assert grid != null;
-                    if (!grid[y][x][z]) {
+                    if (!grid[z][y][x]) {
                         fullPlane = false;
                         break;
                     }
                 }
-                if (!fullPlane)
-                    break;
             }
 
             if (fullPlane) {
-                linesCounted++;
+                linesCleared++;
             }
         }
 
-        return linesCounted;
+        return linesCleared;
     }
 
     public int getHeightOfColumn3D(int x, int z) {

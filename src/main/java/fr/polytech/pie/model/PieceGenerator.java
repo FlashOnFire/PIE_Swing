@@ -1,6 +1,5 @@
 package fr.polytech.pie.model;
 
-import fr.polytech.pie.Consts;
 import fr.polytech.pie.model.TwoD.CurrentPiece2D;
 import fr.polytech.pie.model.ThreeD.CurrentPiece3D;
 
@@ -138,7 +137,7 @@ public class PieceGenerator {
             return new CurrentPiece2D(selectedPiece, x, y);
     }
 
-    public static CurrentPiece3D generateTrue3DPiece(int maxX, int maxY, int maxZ) {
+    public static CurrentPiece3D generate3DPiece(int maxX, int maxY, int maxZ) {
         int pieceIndex = random.nextInt(PIECES_3D.length);
         boolean[][][] selected3DPiece = PIECES_3D[pieceIndex];
 
@@ -152,9 +151,11 @@ public class PieceGenerator {
 
         // Apply random rotation before placing the piece
         var piece = new CurrentPiece3D(selected3DPiece, x, y, z);
+        System.out.println("Before rotation: " + piece);
         if (random.nextBoolean()) {
             rotate3DPieceRandomly(piece);
         }
+        System.out.println("After rotation: " + piece);
 
         return piece;
     }

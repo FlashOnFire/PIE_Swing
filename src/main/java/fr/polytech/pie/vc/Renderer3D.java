@@ -257,10 +257,10 @@ public class Renderer3D implements Renderer {
 
         Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
 
-        for (int x = 0; x < positions.length; x++) {
-            for (int y = 0; y < positions[x].length; y++) {
-                for (int z = 0; z < positions[x][y].length; z++) {
-                    if (positions[x][y][z]) {
+        for (int x = 0; x < positions[0][0].length; x++) {
+            for (int y = 0; y < positions[0].length; y++) {
+                for (int z = 0; z < positions.length; z++) {
+                    if (positions[z][y][x]) {
                         cubesPos.add(new Vector3f(x, y, z).add(piecePos));
                         colors.add(new Vector3f(1.0F, 0.0F, 0.0F));
                     }

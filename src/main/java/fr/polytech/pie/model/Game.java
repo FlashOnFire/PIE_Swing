@@ -78,10 +78,14 @@ public class Game {
     private void freeze() {
         grid.freezePiece(currentPiece);
 
+        System.out.println("clearing lines");
+
         int linesCleared = grid.clearFullLines();
         updateScore(linesCleared);
+        System.out.println("lines cleared: " + linesCleared);
 
         generateNewPiece();
+        System.out.println("new piece generated: " + currentPiece);
 
         if (grid.checkCollision(currentPiece)) {
             Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
@@ -93,12 +97,14 @@ public class Game {
         if (!is3D || !(currentPiece instanceof CurrentPiece3D piece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
         }
+        System.out.println("Translating piece: " + piece3D);
 
         int originalX = piece3D.getX();
         int originalY = piece3D.getY();
         int originalZ = piece3D.getZ();
 
         piece3D.translate3D(dx, dy, dz);
+        System.out.println("Piece after translation: " + piece3D);
 
         if (piece3D.getX() < 0) {
             piece3D.setX(0);
@@ -116,15 +122,20 @@ public class Game {
             piece3D.setZ(((Grid3D) grid).getDepth() - piece3D.getDepth());
         }
 
+        System.out.println("Piece after bounds check: " + piece3D);
+
         if (grid.checkCollision(piece3D)) {
+            System.out.println("Collision detected");
             piece3D.setX(originalX);
             piece3D.setY(originalY);
             piece3D.setZ(originalZ);
 
             if (dy < 0) {
+                System.out.println("Freezing piece");
                 freeze();
             }
         }
+        System.out.println("Piece after collision check: " + piece3D);
     }
 
     public void resetGame() {
@@ -140,7 +151,7 @@ public class Game {
 
     private void generateNewPiece() {
         if (is3D) {
-            currentPiece = PieceGenerator.generateTrue3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+            currentPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
         } else {
             currentPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         }

@@ -137,11 +137,11 @@ public class Grid2D extends Grid {
         return linesCounted;
     }
 
-    public int getHeightOfColumn2D(int i) {
+    public int getHeightOfColumn2D(int x) {
         int height = 0;
-        for (int j = this.height - 1; j > 0; j--) {
-            if (grid[j][i]) {
-                height = j;
+        for (int y = this.height - 1; y >= 0; y--) {
+            if (grid[y][x]) {
+                height = y+1;
                 break;
             }
         }
