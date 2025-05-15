@@ -28,7 +28,7 @@ public class Renderer2D implements Renderer {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private final boolean[] keys = new boolean[5];
+    private final boolean[] keys = new boolean[6];
 
     public Renderer2D(VueController vueController) {
         this.vueController = vueController;
@@ -95,6 +95,7 @@ public class Renderer2D implements Renderer {
                         case KeyEvent.VK_Q -> keys[2] = isKeyPressed; // Left
                         case KeyEvent.VK_D -> keys[3] = isKeyPressed; // Right
                         case KeyEvent.VK_A -> keys[4] = isKeyPressed; // Rotate
+                        case KeyEvent.VK_I -> keys[5] = isKeyPressed;
                         case KeyEvent.VK_ESCAPE -> {
                             if (isKeyPressed) {
                                 frame.dispose();
@@ -120,6 +121,9 @@ public class Renderer2D implements Renderer {
                     }
                     if (keys[4]) {
                         vueController.getModel().rotateCurrentPiece2D();
+                    }
+                    if (keys[5]){
+                        vueController.getModel().runAi();
                     }
                 }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS
         );

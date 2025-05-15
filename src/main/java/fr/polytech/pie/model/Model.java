@@ -59,6 +59,9 @@ public class Model extends Observable {
         }
     }
 
+    /**
+     * Run the AI for the current game state.
+     */
     public void runAi() {
         game.runAi();
         setChanged();

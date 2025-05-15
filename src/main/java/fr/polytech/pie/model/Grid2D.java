@@ -42,6 +42,29 @@ public class Grid2D extends Grid {
     }
 
     @Override
+    public void removePiece(CurrentPiece currentPiece) {
+        for (int i = 0; i < currentPiece.getHeight(); i++) {
+            for (int j = 0; j < currentPiece.getWidth(); j++) {
+                if (currentPiece instanceof CurrentPiece3D) {
+                    if (((CurrentPiece3D) currentPiece).getPiece3d()[i][j][0]) { // Assuming depth is 1 for 2D
+                        int x = currentPiece.getX() + j;
+                        int y = currentPiece.getY() + i;
+                        setValue(x, y, false); // Remove the piece from the grid
+                    }
+                } else {
+                    // Handle 2D piece (or 3D piece in 2D mode)
+                    if (((CurrentPiece2D) currentPiece).getPiece2d()[i][j]) {
+                        int x = currentPiece.getX() + j;
+                        int y = currentPiece.getY() + i;
+                        setValue(x, y, false); // Remove the piece from the grid
+                    }
+                }
+            }
+        }
+    }
+
+
+    @Override
     public boolean checkCollision(CurrentPiece currentPiece) {
         if (!(currentPiece instanceof CurrentPiece2D piece2D)) {
             throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
@@ -94,5 +117,39 @@ public class Grid2D extends Grid {
         }
 
         return linesCleared;
+    }
+
+    @Override
+    public int countFullLines() {
+        int linesCounted = 0;
+
+        for (int i = 0; i < height; i++) {
+            boolean fullLine = true;
+            for (int j = 0; j < width; j++) {
+                assert grid != null;
+                if (!grid[i][j]) {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine) {
+                linesCounted++;
+            }
+        }
+
+        return linesCounted;
+    }
+
+    public int getHeightOfColumn2D(int i) {
+        int height = 0;
+        for (int j = 0; j < this.height; j++) {
+            if (grid[j][i]) {
+                height = this.height - j;
+                break;
+            }
+        }
+
+        return height;
     }
 }

@@ -73,6 +73,32 @@ public class Grid3D extends Grid {
     }
 
     @Override
+    public void removePiece(CurrentPiece possibility) {
+        if (!(possibility instanceof CurrentPiece3D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + possibility.getClass().getName());
+        }
+
+        CurrentPiece3D piece3D = (CurrentPiece3D) possibility;
+        boolean[][][] voxelGrid = piece3D.getPiece3d();
+        int pieceX = piece3D.getX();
+        int pieceY = piece3D.getY();
+        int pieceZ = piece3D.getZ();
+
+        for (int i = 0; i < piece3D.getHeight(); i++) {
+            for (int j = 0; j < piece3D.getWidth(); j++) {
+                for (int k = 0; k < piece3D.getDepth(); k++) {
+                    if (voxelGrid[i][j][k]) {
+                        int x = pieceX + j;
+                        int y = pieceY + i;
+                        int z = pieceZ + k;
+                        setValue(x, y, z, false);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public boolean checkCollision(CurrentPiece currentPiece) {
         if (!(currentPiece instanceof CurrentPiece3D piece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
@@ -143,5 +169,45 @@ public class Grid3D extends Grid {
         }
 
         return linesCleared;
+    }
+
+    @Override
+    public int countFullLines() {
+        int linesCounted = 0;
+
+        // Check for full horizontal planes (XZ planes)
+        for (int y = 0; y < height; y++) {
+            boolean fullPlane = true;
+
+            // Check if the plane is full
+            for (int x = 0; x < width; x++) {
+                for (int z = 0; z < depth; z++) {
+                    assert grid != null;
+                    if (!grid[y][x][z]) {
+                        fullPlane = false;
+                        break;
+                    }
+                }
+                if (!fullPlane)
+                    break;
+            }
+
+            if (fullPlane) {
+                linesCounted++;
+            }
+        }
+
+        return linesCounted;
+    }
+
+    public int getHeightOfColumn3D(int i, int j) {
+        int height = 0;
+        for (int k = 0; k < depth; k++) {
+            if (grid[k][i][j]) {
+                height = depth - k;
+                break;
+            }
+        }
+        return height;
     }
 }

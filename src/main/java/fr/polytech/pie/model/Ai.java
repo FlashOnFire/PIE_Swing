@@ -36,12 +36,20 @@ public class Ai {
             // Sum each height of the columns
             grid.freezePiece(possibility);
             int heights = 0;
-            for (int i = 0; i < grid.getWidth(); i++) {
-                //heights = heights + grid.getHeightOfColumn(i);
+            if ((grid instanceof Grid3D)) {
+                for (int i = 0; i < grid.getWidth(); i++) {
+                    for (int j = 0; j < ((Grid3D) grid).getDepth(); j++) {
+                        heights += ((Grid3D) grid).getHeightOfColumn3D(i, j);
+                    }
+                }
+            } else if (grid instanceof Grid2D) {
+                for (int i = 0; i < grid.getWidth(); i++) {
+                    heights += ((Grid2D) grid).getHeightOfColumn2D(i);
+                }
             }
 
             // Count completed lines
-            //int completedLines = grid.countFullLines();
+            int completedLines = grid.countFullLines();
 
             // Count holes
             int holes = 0;
@@ -58,8 +66,16 @@ public class Ai {
 
             // calculate bumpiness (to avoid having a big vertical hole)
             int bumpiness = 0;
-            for (int i = 0; i < grid.getWidth() - 1; i++) {
-                //bumpiness += Math.abs(grid.getHeightOfColumn(i) - grid.getHeightOfColumn(i + 1));
+            if (grid instanceof Grid3D) {
+                for (int i = 0; i < grid.getWidth() - 1; i++) {
+                    for (int j = 0; j < ((Grid3D) grid).getDepth() - 1; j++) {
+                        bumpiness += Math.abs(((Grid3D) grid).getHeightOfColumn3D(i, j) - ((Grid3D) grid).getHeightOfColumn3D(i, j + 1));
+                    }
+                }
+            } else if (grid instanceof Grid2D) {
+                for (int i = 0; i < grid.getWidth() - 1; i++) {
+                    bumpiness += Math.abs(((Grid2D) grid).getHeightOfColumn2D(i) - ((Grid2D) grid).getHeightOfColumn2D(i + 1));
+                }
             }
 
 
@@ -81,7 +97,7 @@ public class Ai {
     private Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
         Set<CurrentPiece> possibilities = new HashSet<>();
 
-        if (!grid.is3D()) {
+        if (grid instanceof Grid2D) {
             // generate rotations
             CurrentPiece2D workingPiece = ((CurrentPiece2D) currentPiece).copy();
             for (int i = 0; i < 4; i++) {
@@ -97,6 +113,40 @@ public class Ai {
                     translatedPiece.setX(i);
                     if (!grid.checkCollision(translatedPiece)) {
                         newTranslations.add(translatedPiece);
+                    }
+                }
+            }
+            possibilities = newTranslations;
+
+            // drops the pieces
+            for (var piece : possibilities) {
+                do {
+                    piece.setY(piece.getY() + 1);
+                } while (!grid.checkCollision(piece));
+                piece.setY(piece.getY() - 1);
+            }
+        } else if (grid instanceof Grid3D) {
+            // generate rotations
+            CurrentPiece3D workingPiece = ((CurrentPiece3D) currentPiece).copy();
+            for (var axis : RotationAxis.values()) {
+                for (int i = 0; i < 4; i++) {
+                    workingPiece.rotate3D(axis, grid::checkCollision);
+                    possibilities.add(workingPiece.copy());
+                }
+            }
+
+
+            // generate translations
+            Set<CurrentPiece> newTranslations = new HashSet<>();
+            for (var piece : possibilities) {
+                for (int i = 0; i < grid.getWidth(); i++) {
+                    for (int j = 0; j < ((Grid3D) grid).getDepth(); j++) {
+                        CurrentPiece translatedPiece = ((CurrentPiece3D) piece).copy();
+                        translatedPiece.setX(i);
+                        ((CurrentPiece3D) translatedPiece).setZ(j);
+                        if (!grid.checkCollision(translatedPiece)) {
+                            newTranslations.add(translatedPiece);
+                        }
                     }
                 }
             }

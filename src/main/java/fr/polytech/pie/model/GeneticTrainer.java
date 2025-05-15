@@ -185,7 +185,7 @@ public class GeneticTrainer {
     }
 
     private int runGame(double[] parameters, int maxPieces) {
-        Grid grid = new Grid(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
+        Grid grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
         Ai ai = new Ai(grid, parameters);
         int linesCleared = 0;
         int piecesWithoutLines = 0;
@@ -209,7 +209,7 @@ public class GeneticTrainer {
 
             int maxHeight = 0;
             for (int i = 0; i < grid.getWidth(); i++) {
-                maxHeight = Math.max(maxHeight, grid.getHeightOfColumn(i));
+                maxHeight = Math.max(maxHeight, ((Grid2D) grid).getHeightOfColumn2D(i));
             }
 
             if (piecesWithoutLines > 25 && maxHeight > grid.getHeight() * 0.7) {
