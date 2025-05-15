@@ -185,8 +185,9 @@ public class GeneticTrainer {
     }
 
     private int runGame(double[] parameters, int maxPieces) {
-        Grid grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
-        Ai ai = new Ai(grid, parameters);
+        Grid2D grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
+
+        Ai2D ai = new Ai2D(grid, parameters);
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 

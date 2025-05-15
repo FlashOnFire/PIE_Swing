@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 public class Game {
     private Grid grid;
-    private Ai ai = new Ai(grid);
+    private Ai ai;
     private CurrentPiece currentPiece;
     private int score;
     private boolean is3D;
@@ -130,7 +130,11 @@ public class Game {
     public void resetGame() {
         grid = Grid.create(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, is3D);
         currentPiece = PieceGenerator.generatePiece(grid.getWidth(), is3D);
-        ai = new Ai(grid);
+        if (is3D) {
+            ai = new Ai3D((Grid3D) grid);
+        } else {
+            ai = new Ai2D((Grid2D) grid);
+        }
         score = 0;
     }
 
