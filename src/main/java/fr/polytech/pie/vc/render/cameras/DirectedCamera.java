@@ -1,6 +1,7 @@
 package fr.polytech.pie.vc.render.cameras;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class DirectedCamera {
@@ -120,9 +121,9 @@ public class DirectedCamera {
     }
 
     public Matrix4f getViewMatrix() {
-        float x = target.x + distanceFromTarget * (float)Math.cos(verticalAngle) * (float)Math.sin(horizontalAngle);
-        float y = target.y + distanceFromTarget * (float)Math.sin(verticalAngle);
-        float z = target.z + distanceFromTarget * (float)Math.cos(verticalAngle) * (float)Math.cos(horizontalAngle);
+        float x = target.x + distanceFromTarget * (float) Math.cos(verticalAngle) * (float) Math.sin(horizontalAngle);
+        float y = target.y + distanceFromTarget * (float) Math.sin(verticalAngle);
+        float z = target.z + distanceFromTarget * (float) Math.cos(verticalAngle) * (float) Math.cos(horizontalAngle);
 
         pos.set(x, y, z);
 

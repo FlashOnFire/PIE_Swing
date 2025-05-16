@@ -38,48 +38,10 @@ public class Renderer3D implements Renderer {
     private final boolean[] keys = new boolean[GLFW_KEY_LAST];
 
     private final Model model;
+    private double lastTime;
 
     public Renderer3D(Model m) {
         this.model = m;
-    }
-
-    public LoopStatus loop() {
-        if (glfwWindowShouldClose(window)) {
-            return LoopStatus.SHOW_MENU;
-        }
-
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1);
-            IntBuffer pHeight = stack.mallocInt(1);
-            glfwGetWindowSize(window, pWidth, pHeight);
-            int width = pWidth.get();
-            int height = pHeight.get();
-
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            pWidth.clear();
-            pHeight.clear();
-            glfwGetWindowSize(window, pWidth, pHeight);
-            glViewport(0, 0, width, height);
-            width = pWidth.get();
-            height = pHeight.get();
-            camController.setAspectRatio(((float) width) / ((float) height));
-
-            if (keys[GLFW_KEY_ESCAPE]) {
-                glfwSetWindowShouldClose(window, true);
-            }
-
-            camController.handleKeyboardInput(1.0F, keys);
-
-            renderer.render(camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
-
-            glfwSwapBuffers(window);
-
-            glfwPollEvents();
-        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
-
-        return LoopStatus.CONTINUE;
     }
 
     @Override
@@ -186,7 +148,53 @@ public class Renderer3D implements Renderer {
         Vector3f center = new Vector3f(gridWidth / 2.0F, gridHeight / 2.0F, gridDepth / 2.0F);
 
         camController.setDirectedCamTarget(center);
+
+        lastTime = glfwGetTime();
     }
+
+    public LoopStatus loop() {
+        if (glfwWindowShouldClose(window)) {
+            return LoopStatus.SHOW_MENU;
+        }
+
+        double currentTime = glfwGetTime();
+        float deltaTime = (float) (currentTime - lastTime);
+        lastTime = currentTime;
+
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer pWidth = stack.mallocInt(1);
+            IntBuffer pHeight = stack.mallocInt(1);
+            glfwGetWindowSize(window, pWidth, pHeight);
+            int width = pWidth.get();
+            int height = pHeight.get();
+
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            pWidth.clear();
+            pHeight.clear();
+            glfwGetWindowSize(window, pWidth, pHeight);
+            glViewport(0, 0, width, height);
+            width = pWidth.get();
+            height = pHeight.get();
+            camController.setAspectRatio(((float) width) / ((float) height));
+        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+
+        if (keys[GLFW_KEY_ESCAPE]) {
+            glfwSetWindowShouldClose(window, true);
+        }
+
+        camController.handleKeyboardInput(deltaTime, keys);
+
+        renderer.render(camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
+
+        glfwSwapBuffers(window);
+
+        glfwPollEvents();
+
+        return LoopStatus.CONTINUE;
+    }
+
 
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, int score) {

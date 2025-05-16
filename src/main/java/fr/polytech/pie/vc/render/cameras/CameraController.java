@@ -6,7 +6,7 @@ import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CameraController {
-    private static final float speed = 1.0F;
+    private static final float speed = 5.0F;
     private static final float mouseSensitivity = 0.1F;
     private static final float mouseScrollSensitivity = 1.2F;
 
@@ -19,6 +19,8 @@ public class CameraController {
     private boolean firstMouse = true;
 
     private Vector3f directedCamTarget = new Vector3f(0, 0, 0);
+
+    private boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
 
 
     public CameraController(boolean isFreeCam, float aspectRatio) {
@@ -42,6 +44,7 @@ public class CameraController {
             freeCam.setX(directedCamera.getPos().x);
             freeCam.setY(directedCamera.getPos().y);
             freeCam.setZ(directedCamera.getPos().z);
+            freeCam.lookAt(directedCamTarget);
             directedCamera = null;
         }
     }
@@ -130,19 +133,23 @@ public class CameraController {
                 directedCamera.addVerticalAngle(speed * 0.15F * deltaTime);
             }
         }
+        System.out.println("Left shift: " + keys[GLFW_KEY_LEFT_SHIFT] + "last keys: " + lastKeys[GLFW_KEY_LEFT_SHIFT]);
 
-        if (keys[GLFW_KEY_RIGHT_SHIFT]) {
+        if (keys[GLFW_KEY_RIGHT_SHIFT] && !lastKeys[GLFW_KEY_RIGHT_SHIFT]) {
+            System.out.println("Switching camera");
             if (isFreeCam) {
                 switchToDirectedCam();
             } else {
                 switchToFreeCam();
             }
         }
+
+        System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
     }
 
     public Matrix4f getCurrentProjectionMatrix() {
         if (isFreeCam) {
-            return freeCam.getPerspectiveMatrix();
+            return freeCam.getProjectionMatrix();
         } else {
             return directedCamera.getProjectionMatrix();
         }

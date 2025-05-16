@@ -145,7 +145,13 @@ public class FreeCamCamera {
         return aspectRatio;
     }
 
-    public Matrix4f getPerspectiveMatrix() {
+    public void lookAt(Vector3f target) {
+        Vector3f direction = new Vector3f(target).sub(pos).normalize();
+        this.yaw = (float) Math.atan2(direction.z, direction.x);
+        this.pitch = (float) Math.asin(direction.y);
+    }
+
+    public Matrix4f getProjectionMatrix() {
         return new Matrix4f().perspective((float) (Math.toRadians(fov)), aspectRatio, zNear, zFar);
     }
 
