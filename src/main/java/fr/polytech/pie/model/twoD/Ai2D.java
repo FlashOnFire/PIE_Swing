@@ -93,7 +93,8 @@ public class Ai2D extends Ai {
         // generate rotations
         CurrentPiece2D workingPiece = currentPiece.copy();
         for (int i = 0; i < 4; i++) {
-            workingPiece.rotate2d(grid::checkCollision);
+            workingPiece.rotate2d(_ -> false);
+            workingPiece.setY(grid.getHeight() - workingPiece.getHeight());
             possibilities.add(workingPiece.copy());
         }
 

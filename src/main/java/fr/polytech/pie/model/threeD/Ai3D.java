@@ -98,6 +98,7 @@ public class Ai3D extends Ai {
         for (var axe: RotationAxis.values()) {
             for (int i = 0; i < 4; i++) {
                 workingPiece.rotate3D(axe, grid::checkCollision);
+                workingPiece.setY(grid.getHeight() - workingPiece.getHeight());
                 possibilities.add(workingPiece.copy());
             }
         }
