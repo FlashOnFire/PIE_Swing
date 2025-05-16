@@ -69,7 +69,6 @@ public class Renderer3D implements Renderer {
                     if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
                         glfwSetWindowShouldClose(window, true);
                     } else if (action == GLFW_PRESS || action == GLFW_RELEASE) {
-                        System.out.println("Key " + key + " pressed: " + (action == GLFW_PRESS));
                         keys[key] = action == GLFW_PRESS;
                     }
                 }
@@ -168,9 +167,6 @@ public class Renderer3D implements Renderer {
             int width = pWidth.get();
             int height = pHeight.get();
 
-
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
             pWidth.clear();
             pHeight.clear();
             glfwGetWindowSize(window, pWidth, pHeight);
@@ -179,6 +175,8 @@ public class Renderer3D implements Renderer {
             height = pHeight.get();
             camController.setAspectRatio(((float) width) / ((float) height));
         } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (keys[GLFW_KEY_ESCAPE]) {
             glfwSetWindowShouldClose(window, true);

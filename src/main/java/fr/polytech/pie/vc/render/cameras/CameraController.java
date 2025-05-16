@@ -22,7 +22,6 @@ public class CameraController {
 
     private boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
 
-
     public CameraController(boolean isFreeCam, float aspectRatio) {
         this.isFreeCam = isFreeCam;
         if (isFreeCam) {
@@ -135,7 +134,6 @@ public class CameraController {
         }
 
         if (keys[GLFW_KEY_RIGHT_SHIFT] && !lastKeys[GLFW_KEY_RIGHT_SHIFT]) {
-            System.out.println("Switching camera");
             if (isFreeCam) {
                 switchToDirectedCam();
             } else {

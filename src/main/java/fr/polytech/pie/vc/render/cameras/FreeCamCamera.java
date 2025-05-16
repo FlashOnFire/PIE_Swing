@@ -33,8 +33,8 @@ public class FreeCamCamera {
     }
 
     public void rotate(float yaw, float pitch) {
-        this.yaw += yaw;
-        this.pitch += pitch;
+        this.yaw += (float) (yaw % (2 * Math.PI));
+        this.pitch += (float) (pitch % (2 * Math.PI));
     }
 
     public Vector3f getPos() {
