@@ -127,14 +127,29 @@ public class PieceGenerator {
     private static final Random random = new Random();
 
     public static CurrentPiece2D generatePiece2D(int maxX, int maxY) {
-            int pieceIndex = random.nextInt(PIECES_2D.length);
-            boolean[][] selectedPiece = PIECES_2D[pieceIndex];
+        int pieceIndex = random.nextInt(PIECES_2D.length);
+        var piece = new CurrentPiece2D(PIECES_2D[pieceIndex], 0, 0);
 
-            int pieceWidth = selectedPiece[0].length;
-            int x = random.nextInt(maxX - pieceWidth + 1);
-            int y = maxY - selectedPiece.length;
+        if (random.nextBoolean()) {
+            rotate2DPieceRandomly(piece);
+        }
 
-            return new CurrentPiece2D(selectedPiece, x, y);
+        piece.setX(random.nextInt(maxX - piece.getWidth() + 1));
+        piece.setY(maxY - piece.getHeight());
+
+        return piece;
+    }
+
+    private static void rotate2DPieceRandomly(CurrentPiece2D piece) {
+        int rotations = random.nextInt(4); // 0, 90, 180, or 270 degrees
+
+        if (rotations == 0) {
+            return; // No rotation
+        }
+
+        for (int i = 0; i < rotations; i++) {
+            piece.rotate2d(_ -> false);
+        }
     }
 
     public static CurrentPiece3D generate3DPiece(int maxX, int maxY, int maxZ) {
