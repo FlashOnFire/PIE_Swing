@@ -73,9 +73,7 @@ public class Renderer3D implements Renderer {
         );
 
         glfwSetScrollCallback(
-                window, (_ /*window*/, _ /*w*/, y) -> {
-                    camController.handleMouseWheel(1.0F, y);
-                }
+                window, (_ /*window*/, _ /*w*/, y) -> camController.handleMouseWheel(1.0F, y)
         );
 
         glfwSetCursorPosCallback(
