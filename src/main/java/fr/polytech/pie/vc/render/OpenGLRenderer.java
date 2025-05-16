@@ -1,6 +1,7 @@
 package fr.polytech.pie.vc.render;
 
 import fr.polytech.pie.vc.render.shader.BaseShader;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL30;
 
@@ -87,7 +88,7 @@ public class OpenGLRenderer {
                 // Top face (CCW winding when viewed from above)
                 2, 6, 3,
                 3, 6, 7,
-                // Left face (CCW winding when viewed from left)
+                // Left face (CCW winding when viewed from the left)
                 0, 4, 2,
                 2, 4, 6,
                 // Right face (CCW winding when viewed from right)
@@ -153,7 +154,7 @@ public class OpenGLRenderer {
         this.cubeVao.unbind();
     }
 
-    public void render(Camera cam) {
+    public void render(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
         Vector3f[] cubes = {
                 new Vector3f(0.0F, 0.0F, 0.0F),
                 new Vector3f(1.0F, 0.0F, 0.0F),
@@ -169,8 +170,8 @@ public class OpenGLRenderer {
         };
 
         this.shader.start();
-        this.shader.setProjectionMatrix(cam.getPerspectiveMatrix());
-        this.shader.setViewMatrix(cam.getViewMatrix());
+        this.shader.setProjectionMatrix(projectionMatrix);
+        this.shader.setViewMatrix(viewMatrix);
 
         drawCubes(this.cubesPos, this.colors);
 

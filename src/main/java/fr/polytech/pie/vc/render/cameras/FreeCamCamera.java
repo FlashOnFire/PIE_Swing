@@ -1,12 +1,14 @@
-package fr.polytech.pie.vc.render;
+package fr.polytech.pie.vc.render.cameras;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class Camera {
+public class FreeCamCamera {
     public static final float fov = 70.0F;
     public static final float zNear = 0.1F;
     public static final float zFar = 50.0F;
+
+    public static final float pitchLimit = (float) (Math.PI / 2.0 - 0.01);
 
     public float aspectRatio = 1.0F;
     private Vector3f pos;
@@ -14,13 +16,13 @@ public class Camera {
     private float yaw = 0.0F;
     private float pitch = 0.0F;
 
-    public Camera() {
+    public FreeCamCamera() {
         this.pos = new Vector3f(0, 2.0F, 0);
         this.yaw = 0.0F;
         this.pitch = 0.0F;
     }
 
-    public Camera(float aspectRatio) {
+    public FreeCamCamera(float aspectRatio) {
         this();
         this.aspectRatio = aspectRatio;
     }
@@ -68,6 +70,13 @@ public class Camera {
     }
 
     public void setPitch(float pitch) {
+        // Limit pitch to avoid flipping
+        if (pitch > pitchLimit) {
+            pitch = pitchLimit;
+        } else if (pitch < -pitchLimit) {
+            pitch = -pitchLimit;
+        }
+
         this.pitch = pitch;
     }
 
@@ -90,9 +99,17 @@ public class Camera {
         pos.z += distance * (float) Math.sin(yaw);
     }
 
+    public void moveBackwards(float distance) {
+        moveForward(-distance);
+    }
+
     public void moveRight(float distance) {
         pos.x += distance * (float) Math.cos(yaw + Math.PI / 2);
         pos.z += distance * (float) Math.sin(yaw + Math.PI / 2);
+    }
+
+    public void moveLeft(float distance) {
+        moveRight(-distance);
     }
 
     public void setAspectRatio(float aspectRatio) {
@@ -108,11 +125,11 @@ public class Camera {
     }
 
     public void addYaw(float angle) {
-        yaw += angle;
+        setYaw(yaw + angle);
     }
 
     public void addPitch(float angle) {
-        pitch += angle;
+        setPitch(pitch + angle);
     }
 
     public void setPosition(Vector3f pos) {
@@ -122,6 +139,10 @@ public class Camera {
     public void setRotation(float yaw, float pitch) {
         this.yaw = yaw;
         this.pitch = pitch;
+    }
+
+    public float getAspectRatio() {
+        return aspectRatio;
     }
 
     public Matrix4f getPerspectiveMatrix() {
@@ -138,4 +159,5 @@ public class Camera {
 
         return new Matrix4f().lookAt(pos, target, new Vector3f(0.0F, 1.0F, 0.0F));
     }
+
 }
