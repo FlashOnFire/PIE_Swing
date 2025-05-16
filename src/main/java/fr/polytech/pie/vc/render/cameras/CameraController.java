@@ -8,7 +8,7 @@ import static org.lwjgl.glfw.GLFW.*;
 public class CameraController {
     private static final float speed = 1.0F;
     private static final float mouseSensitivity = 0.1F;
-    private static final float mouseScrollSensitivity = 0.5F;
+    private static final float mouseScrollSensitivity = 1.2F;
 
     private DirectedCamera directedCamera;
     private FreeCamCamera freeCam;
@@ -98,7 +98,7 @@ public class CameraController {
 
     public void handleMouseWheel(float deltaTime, double yOffset) {
         if (!isFreeCam) {
-            directedCamera.addDistanceFromTarget((float) yOffset * mouseScrollSensitivity * deltaTime);
+            directedCamera.addDistanceFromTarget((float) yOffset * mouseScrollSensitivity * deltaTime * -1.0F); // Reversed for more intuitive control
         }
     }
 
@@ -124,10 +124,10 @@ public class CameraController {
             }
         } else {
             if (keys[GLFW_KEY_LEFT_SHIFT]) {
-                directedCamera.addVerticalAngle(-speed * 0.5F * deltaTime);
+                directedCamera.addVerticalAngle(-speed * 0.15F * deltaTime);
             }
             if (keys[GLFW_KEY_SPACE]) {
-                directedCamera.addVerticalAngle(speed * 0.5F * deltaTime);
+                directedCamera.addVerticalAngle(speed * 0.15F * deltaTime);
             }
         }
 
