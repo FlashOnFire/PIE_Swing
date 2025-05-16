@@ -139,21 +139,15 @@ public class PieceGenerator {
 
     public static CurrentPiece3D generate3DPiece(int maxX, int maxY, int maxZ) {
         int pieceIndex = random.nextInt(PIECES_3D.length);
-        boolean[][][] selected3DPiece = PIECES_3D[pieceIndex];
 
-        int width = selected3DPiece[0][0].length;
-        int height = selected3DPiece[0].length;
-        int depth = selected3DPiece.length;
-
-        int x = random.nextInt(maxX - width + 1);
-        int y = maxY - height;
-        int z = random.nextInt(maxZ - depth + 1); // Random z-position
-
-        // Apply random rotation before placing the piece
-        var piece = new CurrentPiece3D(selected3DPiece, x, y, z);
+        var piece = new CurrentPiece3D(PIECES_3D[pieceIndex], 0, 0, 0);
         if (random.nextBoolean()) {
             rotate3DPieceRandomly(piece);
         }
+
+        piece.setX(random.nextInt(maxX - piece.getWidth() + 1));
+        piece.setY(maxY - piece.getHeight());
+        piece.setZ(random.nextInt(maxZ - piece.getDepth() + 1));
 
         return piece;
     }
