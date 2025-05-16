@@ -57,6 +57,13 @@ public class VueController implements Observer {
             model.changeRenderingMode(false);
             switchRenderer(RendererType.GAME_2D);
         }
+        model.startScheduler();
+    }
+
+    void stopGame() {
+        model.stopScheduler();
+        model.resetGame();
+        switchRenderer(RendererType.MENU);
     }
 
     private void switchRenderer(RendererType type) {
@@ -83,7 +90,7 @@ public class VueController implements Observer {
                 case CONTINUE -> {
                     // Continue the game loop
                 }
-                case SHOW_MENU -> switchRenderer(RendererType.MENU);
+                case SHOW_MENU -> stopGame();
                 case START_GAME_2D -> startGame(false);
                 case START_GAME_3D -> startGame(true);
                 case QUIT -> {

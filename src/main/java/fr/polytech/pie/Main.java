@@ -8,8 +8,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 public class Main {
@@ -31,12 +29,11 @@ public class Main {
             Logger.getLogger(Main.class.getName()).severe("Error playing music: " + e.getMessage());
         }
 
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        Model m = new Model(scheduler);
+        Model m = new Model();
 
         VueController vc = new VueController(m);
         vc.loop();
         vc.cleanup();
-        scheduler.shutdownNow();
+        m.stopScheduler();
     }
 }

@@ -1,6 +1,7 @@
 package fr.polytech.pie.model;
 
 import java.util.Observable;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -12,34 +13,23 @@ import java.util.concurrent.TimeUnit;
 public class Model extends Observable {
     private final Game game;
     private boolean is3D;
+    private ScheduledExecutorService executor;
 
     /**
      * Constructor for the model with 2D mode as the default
      */
-    public Model(ScheduledExecutorService scheduler) {
-        this(scheduler, false);
+    public Model() {
+        this(false);
     }
 
     /**
      * Constructor that can create a model in either 2D or 3D mode.
      *
-     * @param scheduler The scheduler to use for scheduling tasks
      * @param is3D      Whether the game should be in 3D mode
      */
-    public Model(ScheduledExecutorService scheduler, boolean is3D) {
+    public Model( boolean is3D) {
         this.is3D = is3D;
         this.game = new Game(is3D);
-
-        // Automatic downward movement
-        scheduler.scheduleAtFixedRate(
-            () -> {
-                if (this.is3D) {
-                    translateCurrentPiece3D(0, -1, 0);
-                } else {
-                    translateCurrentPiece2D(0, -1);
-                }
-            }, 0, 200, TimeUnit.MILLISECONDS
-        );
     }
 
     public void changeRenderingMode(boolean is3D) {
@@ -104,5 +94,28 @@ public class Model extends Observable {
 
     public void resetGame() {
         game.resetGame();
+    }
+
+    public void stopScheduler() {
+        if (executor != null && !executor.isShutdown()) {
+            this.executor.shutdown();
+        }
+    }
+
+    public void startScheduler() {
+        if (executor == null || executor.isShutdown()) {
+            this.executor = Executors.newScheduledThreadPool(1);
+        }
+
+        // Automatic downward movement
+        executor.scheduleAtFixedRate(
+                () -> {
+                    if (this.is3D) {
+                        translateCurrentPiece3D(0, -1, 0);
+                    } else {
+                        translateCurrentPiece2D(0, -1);
+                    }
+                }, 0, 200, TimeUnit.MILLISECONDS
+        );
     }
 }
