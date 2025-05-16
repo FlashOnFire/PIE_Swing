@@ -53,7 +53,7 @@ public class CurrentPiece3D extends CurrentPiece {
         switch (axis) {
             case X -> rotate((d, h, w) -> new int[]{d, w, getHeight() - 1 - h}, getDepth(), getWidth(), getHeight());
             case Y -> rotate((d, h, w) -> new int[]{w, h, getDepth() - 1 - d}, getWidth(), getHeight(), getDepth());
-            case Z -> rotate((d, h, w) -> new int[]{d, w, getHeight() - 1 - h}, getDepth(), getWidth(), getHeight());
+            case Z -> rotate((d, h, w) -> new int[]{getWidth() - 1 - w, d, h}, getWidth(), getDepth(), getHeight());
         }
 
         if (collisionChecker.test(this)) {
