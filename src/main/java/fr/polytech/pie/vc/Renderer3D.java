@@ -66,9 +66,7 @@ public class Renderer3D implements Renderer {
 
         glfwSetKeyCallback(
                 window, (window, key, _ /*scancode*/, action, _ /*mods*/) -> {
-                    if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                        glfwSetWindowShouldClose(window, true);
-                    } else if (action == GLFW_PRESS || action == GLFW_RELEASE) {
+                    if (action == GLFW_PRESS || action == GLFW_RELEASE) {
                         keys[key] = action == GLFW_PRESS;
                     }
                 }
