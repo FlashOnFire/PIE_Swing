@@ -1,6 +1,7 @@
 package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Consts;
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.twoD.CurrentPiece2D;
 import fr.polytech.pie.model.Grid;
@@ -19,8 +20,6 @@ public class Renderer2D implements Renderer {
     final JFrame frame = new JFrame("Tetris");
 
     private static final Color EMPTY_CELL_COLOR = Color.WHITE;
-    private static final Color CURRENT_PIECE_COLOR = Color.RED;
-    private static final Color FROZEN_PIECE_COLOR = Color.BLUE;
 
     private final JPanel[][] panels;
     private final JLabel scoreLabel;
@@ -179,30 +178,26 @@ public class Renderer2D implements Renderer {
 
     private void drawCell(int x, int y, Color color) {
         if (isWithinBounds(x, y)) {
-            panels[panels.length - y -1 ][x].setBackground(color);
+            panels[panels.length - y - 1][x].setBackground(color);
         }
     }
 
     private void drawFrozenPieces(Grid grid) {
         for (int i = 0; i < grid.getWidth(); i++) {
             for (int j = 0; j < grid.getHeight(); j++) {
-                if (grid.getValue(i, j)) {
-                    drawCell(i, j, FROZEN_PIECE_COLOR);
+                if (grid.getValue(i, j) != Piece.Empty) {
+                    drawCell(i, j, grid.getValue(i, j).getColor());
                 }
             }
         }
     }
 
     private void drawCurrentPiece(CurrentPiece2D currentPiece) {
-        boolean[][] piece = currentPiece.getPiece2d();
+        Piece[][] piece = currentPiece.getPiece2d();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[j][i]) {
-                    drawCell(
-                            currentPiece.getX() + i,
-                            currentPiece.getY() + j,
-                            CURRENT_PIECE_COLOR
-                    );
+                if (piece[j][i] != Piece.Empty) {
+                    drawCell(currentPiece.getX() + i, currentPiece.getY() + j, piece[j][i].getColor());
                 }
             }
         }

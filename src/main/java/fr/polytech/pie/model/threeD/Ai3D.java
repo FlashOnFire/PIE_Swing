@@ -1,6 +1,7 @@
 package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.model.Ai;
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.RotationAxis;
 
@@ -15,10 +16,11 @@ public class Ai3D extends Ai {
         this.grid = grid;
     }
 
-    public Ai3D(Grid3D grid, double[] parameters) {
-        super(parameters);
-        this.grid = grid;
-    }
+// maybe needed later for training
+//    public Ai3D(Grid3D grid, double[] parameters) {
+//        super(parameters);
+//        this.grid = grid;
+//    }
 
     @Override
         public void makeMove(CurrentPiece currentPiece) {
@@ -56,10 +58,10 @@ public class Ai3D extends Ai {
                             boolean isPieceBlock = localX >= 0 && localX < possibility.getWidth()
                                     && localY >= 0 && localY < possibility.getWidth()
                                     && localZ >= 0 && localZ < possibility.getDepth()
-                                    && grid.getValue(x, y, z);
+                                    && grid.getValue(x, y, z) != Piece.Empty;
                             if (isPieceBlock) {
                                 foundBlock = true;
-                            } else if (foundBlock && !grid.getValue(x, y, z)) {
+                            } else if (foundBlock && grid.getValue(x, y, z) == Piece.Empty) {
                                 holes++;
                             }
                         }

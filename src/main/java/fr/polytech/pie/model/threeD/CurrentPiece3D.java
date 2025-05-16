@@ -1,21 +1,39 @@
 package fr.polytech.pie.model.threeD;
 
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.RotationAxis;
 
 import java.util.function.Predicate;
 
 public class CurrentPiece3D extends CurrentPiece {
-    private boolean[][][] piece;
+    private Piece[][][] piece;
     private int z;
 
     public CurrentPiece3D(boolean[][][] piece, int x, int y, int z) {
         super(x, y);
-        this.piece = piece;
+        this.z = z;
+        this.piece = new Piece[piece.length][piece[0].length][piece[0][0].length];
+        for (int i = 0; i < piece.length; i++) {
+            for (int j = 0; j < piece[i].length; j++) {
+                for (int k = 0; k < piece[i][j].length; k++) {
+                    if (piece[i][j][k]) {
+                        this.piece[i][j][k] = color;
+                    } else {
+                        this.piece[i][j][k] = Piece.Empty;
+                    }
+                }
+            }
+        }
+    }
+
+    public CurrentPiece3D(Piece[][][] newGrid, int x, int y, int z, Piece color) {
+        super(x, y, color);
+        this.piece = newGrid;
         this.z = z;
     }
 
-    public boolean[][][] getPiece3d() {
+    public Piece[][][] getPiece3d() {
         return piece;
     }
 
@@ -62,14 +80,14 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     private void rotate(TriFunction<Integer, Integer, Integer, int[]> transform, int newD, int newH, int newW) {
-        boolean[][][] rotated = new boolean[newD][newH][newW];
+        Piece[][][] rotated = new Piece[newD][newH][newW];
 
         for (int d = 0; d < getDepth(); d++) {
             for (int h = 0; h < getHeight(); h++) {
                 for (int w = 0; w < getWidth(); w++) {
-                    if (piece[d][h][w]) {
+                    if (piece[d][h][w] != Piece.Empty) {
                         int[] coords = transform.apply(d, h, w);
-                        rotated[coords[0]][coords[1]][coords[2]] = true;
+                        rotated[coords[0]][coords[1]][coords[2]] = color;
                     }
                 }
             }
@@ -79,19 +97,14 @@ public class CurrentPiece3D extends CurrentPiece {
     }
 
     public CurrentPiece3D copy() {
-        boolean[][][] newGrid = new boolean[piece.length][][];
+        Piece[][][] newGrid = new Piece[piece.length][][];
         for (int i = 0; i < piece.length; i++) {
-            newGrid[i] = new boolean[piece[i].length][];
+            newGrid[i] = new Piece[piece[i].length][];
             for (int j = 0; j < piece[i].length; j++) {
                 newGrid[i][j] = piece[i][j].clone();
             }
         }
-        return new CurrentPiece3D(newGrid, x, y, z);
-    }
-
-    @Override
-    public boolean checkCollision(Predicate<CurrentPiece> collisionChecker) {
-        return collisionChecker.test(this);
+        return new CurrentPiece3D(newGrid, x, y, z, color);
     }
 
     @FunctionalInterface

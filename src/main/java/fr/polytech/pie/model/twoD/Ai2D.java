@@ -1,6 +1,7 @@
 package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.model.Ai;
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 
 import java.util.HashSet;
@@ -46,7 +47,7 @@ public class Ai2D extends Ai {
             for (int i = 0; i < grid.getWidth(); i++) {
                 boolean foundBlock = false;
                 for (int j = grid.getHeight() - 1; j >= 0; j--) {
-                    if (grid.getValue(i, j)) {
+                    if (grid.getValue(i, j) != Piece.Empty) {
                         foundBlock = true;
                     } else if (foundBlock) {
                         holes++;

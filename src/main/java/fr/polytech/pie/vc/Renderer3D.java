@@ -1,5 +1,6 @@
 package fr.polytech.pie.vc;
 
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
 import fr.polytech.pie.model.Model;
@@ -205,7 +206,7 @@ public class Renderer3D implements Renderer {
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
-                    if (grid3D.getValue(x, y, z)) {
+                    if (grid3D.getValue(x, y, z) != Piece.Empty) {
                         Vector3f pos = new Vector3f(x, y, z);
                         Vector3f color = new Vector3f(0.0F, 0.0F, 1.0F);
 
@@ -217,14 +218,14 @@ public class Renderer3D implements Renderer {
         }
 
         CurrentPiece3D currentPiece3D = (CurrentPiece3D) currentPiece;
-        boolean[][][] positions = currentPiece3D.getPiece3d();
+        Piece[][][] positions = currentPiece3D.getPiece3d();
 
         Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
 
         for (int x = 0; x < positions[0][0].length; x++) {
             for (int y = 0; y < positions[0].length; y++) {
                 for (int z = 0; z < positions.length; z++) {
-                    if (positions[z][y][x]) {
+                    if (positions[z][y][x] != Piece.Empty) {
                         cubesPos.add(new Vector3f(x, y, z).add(piecePos));
                         colors.add(new Vector3f(1.0F, 0.0F, 0.0F));
                     }

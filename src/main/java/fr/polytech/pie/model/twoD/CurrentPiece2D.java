@@ -1,18 +1,34 @@
 package fr.polytech.pie.model.twoD;
 
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 
 import java.util.function.Predicate;
 
 public class CurrentPiece2D extends CurrentPiece {
-    private boolean[][] piece;
+    private Piece[][] piece;
 
     public CurrentPiece2D(boolean[][] piece, int x, int y) {
         super(x, y);
-        this.piece = piece;
+        this.piece = new Piece[piece.length][piece[0].length];
+        for (int i = 0; i < piece.length; i++) {
+            for (int j = 0; j < piece[i].length; j++) {
+                if (piece[i][j]) {
+                    this.piece[i][j] = color;
+                } else {
+                    this.piece[i][j] = Piece.Empty;
+                }
+            }
+        }
     }
 
-    public boolean[][] getPiece2d() {
+    public CurrentPiece2D(Piece[][] newPiece, int x, int y, Piece color) {
+        super(x, y, color);
+        this.piece = newPiece;
+    }
+
+
+    public Piece[][] getPiece2d() {
         return piece;
     }
 
@@ -36,7 +52,7 @@ public class CurrentPiece2D extends CurrentPiece {
         var original = copy();
 
         // Rotate the piece 90 degrees clockwise
-        boolean[][] rotatedPiece = new boolean[getWidth()][getHeight()];
+        Piece[][] rotatedPiece = new Piece[getWidth()][getHeight()];
 
         for (int i = 0; i < getWidth(); i++) {
             for (int j = 0; j < getHeight(); j++) {
@@ -55,15 +71,11 @@ public class CurrentPiece2D extends CurrentPiece {
     }
 
     public CurrentPiece2D copy() {
-        boolean[][] newPiece = new boolean[piece.length][];
+        Piece[][] newPiece = new Piece[piece.length][];
         for (int i = 0; i < piece.length; i++) {
             newPiece[i] = piece[i].clone();
         }
-        return new CurrentPiece2D(newPiece, x, y);
+        return new CurrentPiece2D(newPiece, x, y, color);
     }
 
-    @Override
-    public boolean checkCollision(Predicate<CurrentPiece> collisionChecker) {
-        return collisionChecker.test(this);
-    }
 }

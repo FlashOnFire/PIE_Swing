@@ -20,8 +20,8 @@ public abstract class Grid {
         return height;
     }
 
-    public abstract boolean getValue(int x, int y);
-    public abstract void setValue(int x, int y, boolean value);
+    public abstract Piece getValue(int x, int y);
+    public abstract void setValue(int x, int y, Piece value);
     public abstract void freezePiece(CurrentPiece currentPiece);
     public abstract void removePiece(CurrentPiece possibility);
     public abstract boolean checkCollision(CurrentPiece currentPiece);

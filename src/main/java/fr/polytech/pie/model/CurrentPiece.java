@@ -1,14 +1,26 @@
 package fr.polytech.pie.model;
 
-import java.util.function.Predicate;
-
 public abstract class CurrentPiece {
     protected int x;
     protected int y;
 
+    public CurrentPiece(int x, int y, Piece color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+    }
+
+    public Piece getColor() {
+        return color;
+    }
+
+    protected Piece color;
+
     public CurrentPiece(int x, int y) {
         this.x = x;
         this.y = y;
+        this.color = Piece.values()[(int) (Math.random() * Piece.values().length)];
+        color = color == Piece.Empty ? Piece.Blue : color;
     }
 
     public int getX() {
@@ -29,5 +41,4 @@ public abstract class CurrentPiece {
 
     public abstract int getWidth();
     public abstract int getHeight();
-    public abstract boolean checkCollision(Predicate<CurrentPiece> collisionChecker);
 }
