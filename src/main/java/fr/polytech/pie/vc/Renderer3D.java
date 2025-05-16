@@ -208,7 +208,7 @@ public class Renderer3D implements Renderer {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
                     if (grid3D.getValue(x, y, z) != Piece.Empty) {
                         Vector3f pos = new Vector3f(x, y, z);
-                        Vector3f color = new Vector3f(0.0F, 0.0F, 1.0F);
+                        Vector3f color = grid3D.getValue(x, y, z).getVector();
 
                         cubesPos.add(pos);
                         colors.add(color);
@@ -227,7 +227,7 @@ public class Renderer3D implements Renderer {
                 for (int z = 0; z < positions.length; z++) {
                     if (positions[z][y][x] != Piece.Empty) {
                         cubesPos.add(new Vector3f(x, y, z).add(piecePos));
-                        colors.add(new Vector3f(1.0F, 0.0F, 0.0F));
+                        colors.add(currentPiece3D.getColor().getVector());
                     }
                 }
             }

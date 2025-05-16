@@ -1,5 +1,7 @@
 package fr.polytech.pie.model;
 
+import org.joml.Vector3f;
+
 import java.awt.Color;
 
 public enum Piece {
@@ -25,5 +27,9 @@ public enum Piece {
             case Orange -> Color.ORANGE;
             case Purple -> Color.PINK;
         };
+    }
+
+    public Vector3f getVector() {
+        return new Vector3f(getColor().getRed() / 255f, getColor().getGreen() / 255f, getColor().getBlue() / 255f);
     }
 }
