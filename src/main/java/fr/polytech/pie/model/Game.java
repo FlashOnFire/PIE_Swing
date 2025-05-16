@@ -108,7 +108,7 @@ public class Game {
             piece3D.setX(grid.getWidth() - piece3D.getWidth());
         }
 
-        if (piece3D.getZ() > 0) {
+        if (piece3D.getZ() < 0) {
             piece3D.setZ(0);
         }
 
