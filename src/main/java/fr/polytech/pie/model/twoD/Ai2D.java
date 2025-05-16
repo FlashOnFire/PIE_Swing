@@ -30,10 +30,6 @@ public class Ai2D extends Ai {
         // Rate each possibility
         double best = Double.NEGATIVE_INFINITY;
         CurrentPiece bestPiece = null;
-        int bestHeight = 0;
-        int bestLines = 0;
-        int bestHoles = 0;
-        int bestBumpiness = 0;
         for (var possibility : availablePossiblities) {
             // Sum each height of the columns
             grid.freezePiece(possibility);
@@ -72,18 +68,9 @@ public class Ai2D extends Ai {
             if (finalScore > best) {
                 best = finalScore;
                 bestPiece = possibility;
-                bestHeight = heights;
-                bestLines = completedLines;
-                bestHoles = holes;
-                bestBumpiness = bumpiness;
             }
             grid.removePiece(possibility);
         }
-//        System.out.println("Best height: " + bestHeight +
-//                ", lines: " + bestLines +
-//                ", holes: " + bestHoles +
-//                ", bumpiness: " + bestBumpiness +
-//                ", score: " + best);
         grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
     }
 
