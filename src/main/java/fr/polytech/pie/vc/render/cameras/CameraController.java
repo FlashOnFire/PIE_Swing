@@ -133,7 +133,6 @@ public class CameraController {
                 directedCamera.addVerticalAngle(speed * 0.15F * deltaTime);
             }
         }
-        System.out.println("Left shift: " + keys[GLFW_KEY_LEFT_SHIFT] + "last keys: " + lastKeys[GLFW_KEY_LEFT_SHIFT]);
 
         if (keys[GLFW_KEY_RIGHT_SHIFT] && !lastKeys[GLFW_KEY_RIGHT_SHIFT]) {
             System.out.println("Switching camera");
