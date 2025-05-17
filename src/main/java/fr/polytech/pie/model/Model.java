@@ -18,7 +18,8 @@ public class Model extends Observable {
     private boolean is3D;
     private ScheduledExecutorService executor;
 
-    private int highscore = 0;
+    private int highscore2D = 0;
+    private int highscore3D = 0;
 
     /**
      * Constructor for the model with 2D mode as the default
@@ -104,7 +105,7 @@ public class Model extends Observable {
 
     public void stopGame() {
         stopScheduler();
-        if (game.getScore() > highscore) {
+        if (game.getScore() > (is3D ? highscore3D : highscore2D)) {
             setHighscore(game.getScore());
         }
         game.resetGame();
@@ -157,11 +158,16 @@ public class Model extends Observable {
         try {
             Path path = Paths.get("highscore.txt");
             if (Files.exists(path)) {
-                String score = Files.readString(path).trim();
-                this.highscore = Integer.parseInt(score);
+                String content = Files.readString(path).trim();
+                String[] scores = content.split(",");
+                if (scores.length == 2) {
+                    this.highscore2D = Integer.parseInt(scores[0]);
+                    this.highscore3D = Integer.parseInt(scores[1]);
+                } else {
+                    saveHighscore();
+                }
             } else {
-                Files.writeString(path, "0");
-                this.highscore = 0;
+                saveHighscore();
             }
         } catch (Exception e) {
             System.err.println("Failed to load highscore: " + e.getMessage());
@@ -171,18 +177,27 @@ public class Model extends Observable {
     public void saveHighscore() {
         try {
             Path path = Paths.get("highscore.txt");
-            Files.writeString(path, String.valueOf(highscore));
+            String content = highscore2D + "," + highscore3D;
+            Files.writeString(path, content);
         } catch (Exception e) {
             System.err.println("Failed to save highscore: " + e.getMessage());
         }
     }
 
     public int getHighscore() {
-        return highscore;
+        return is3D ? highscore3D : highscore2D;
     }
 
-    public void setHighscore(int highscore) {
-        this.highscore = highscore;
+    public int getHighscore(boolean is3D) {
+        return is3D ? highscore3D : highscore2D;
+    }
+
+    public void setHighscore(int score) {
+        if (is3D) {
+            this.highscore3D = score;
+        } else {
+            this.highscore2D = score;
+        }
         saveHighscore();
     }
 }
