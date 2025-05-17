@@ -124,9 +124,6 @@ public class Renderer3D implements Renderer {
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
-//        glEnable(GL_POLYGON_OFFSET_FILL);
-//        glPolygonOffset(1.0f, 2.0f);
-
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
         glFrontFace(GL_CCW);
