@@ -99,7 +99,7 @@ public class MenuRenderer implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, CurrentPiece currentPiece, int score) {
+    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score) {
     }
 
     @Override

@@ -1,6 +1,7 @@
 package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Main;
+import fr.polytech.pie.model.Game;
 import fr.polytech.pie.model.Model;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
@@ -109,16 +110,13 @@ public class VueController implements Observer {
                     return;
                 }
 
+                Game game = model.getGame();
+
                 currentRenderer.update(
-                        model.getGame().getGrid(),
-                        model.getGame().getCurrentPiece(),
-                        model.getGame().getScore()
-                );
-                currentRenderer.update(
-                        model.getGame().getGrid(),
-                        model.getGame().getCurrentPiece(),
-                        model.getGame().getScore()
-                );
+                        game.getGrid(),
+                        game.getCurrentPiece(),
+                        game.getNextPiece(),
+                        game.getScore());
             }
         } catch (Exception e) {
             Logger.getLogger(VueController.class.getName()).log(Level.SEVERE, "Error updating VueController", e);

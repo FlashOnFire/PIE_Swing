@@ -15,6 +15,7 @@ public class Game {
     private Grid grid;
     private Ai ai;
     private CurrentPiece currentPiece;
+    private CurrentPiece nextPiece;
     private int score;
     private boolean is3D;
 
@@ -33,6 +34,10 @@ public class Game {
 
     public CurrentPiece getCurrentPiece() {
         return currentPiece;
+    }
+
+    public CurrentPiece getNextPiece() {
+        return nextPiece;
     }
 
     public int getScore() {
@@ -135,15 +140,26 @@ public class Game {
         } else {
             ai = new Ai2D((Grid2D) grid);
         }
+        currentPiece = null;
+        nextPiece = null;
         generateNewPiece();
         score = 0;
     }
 
     private void generateNewPiece() {
+        if (nextPiece == null) {
+            if (is3D) {
+                nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+            } else {
+                nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+            }
+        }
+
+        currentPiece = nextPiece;
         if (is3D) {
-            currentPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+            nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
         } else {
-            currentPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+            nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         }
     }
 
