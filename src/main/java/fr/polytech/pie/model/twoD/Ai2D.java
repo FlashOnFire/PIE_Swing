@@ -79,18 +79,18 @@ public class Ai2D extends Ai {
         Set<CurrentPiece2D> possibilities = new HashSet<>();
 
         // generate rotations
-        CurrentPiece2D workingPiece = currentPiece.copy();
+        CurrentPiece2D workingPiece = currentPiece.clone();
         for (int i = 0; i < 4; i++) {
             workingPiece.rotate2d(_ -> false);
             workingPiece.setY(grid.getHeight() - workingPiece.getHeight());
-            possibilities.add(workingPiece.copy());
+            possibilities.add(workingPiece.clone());
         }
 
         // generate translations
         Set<CurrentPiece2D> newTranslations = new HashSet<>();
         for (var piece : possibilities) {
             for (int i = 0; i < grid.getWidth(); i++) {
-                CurrentPiece2D translatedPiece = piece.copy();
+                CurrentPiece2D translatedPiece = piece.clone();
                 translatedPiece.setX(i);
                 if (!grid.checkCollision(translatedPiece)) {
                     newTranslations.add(translatedPiece);

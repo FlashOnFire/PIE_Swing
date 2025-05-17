@@ -119,16 +119,21 @@ public class Model extends Observable {
         );
     }
 
-    public int  getDroppedYCurrentPiece(){
-        int originalY = game.getCurrentPiece().getY();
-        int droppedY = originalY;
-        do {
-            droppedY--;
-            game.getCurrentPiece().setY(droppedY);
-        } while (!game.getGrid().checkCollision(game.getCurrentPiece()));
-        game.getCurrentPiece().setY(originalY);
-        return droppedY + 1;
-    }
+   public int getDroppedYCurrentPiece(){
+       CurrentPiece currentPiece = game.getCurrentPiece();
+       int originalY = currentPiece.getY();
+
+       // Create a temporary piece copy to avoid modifying the actual game state
+       CurrentPiece tempPiece = currentPiece.clone();
+       int droppedY = originalY;
+
+       do {
+           droppedY--;
+           tempPiece.setY(droppedY);
+       } while (!game.getGrid().checkCollision(tempPiece));
+
+       return droppedY + 1;
+   }
 
     public void dropCurrentPiece() {
         game.getCurrentPiece().setY(getDroppedYCurrentPiece());

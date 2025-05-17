@@ -49,7 +49,7 @@ public class CurrentPiece2D extends CurrentPiece {
 
     public void rotate2d(Predicate<CurrentPiece> collisionChecker) {
         // Save the original piece in case rotation causes a collision
-        var original = copy();
+        var original = clone();
 
         // Rotate the piece 90 degrees clockwise
         Piece[][] rotatedPiece = new Piece[getWidth()][getHeight()];
@@ -70,12 +70,15 @@ public class CurrentPiece2D extends CurrentPiece {
         }
     }
 
-    public CurrentPiece2D copy() {
-        Piece[][] newPiece = new Piece[piece.length][];
-        for (int i = 0; i < piece.length; i++) {
-            newPiece[i] = piece[i].clone();
-        }
-        return new CurrentPiece2D(newPiece, x, y, color);
-    }
+    @Override
+    public CurrentPiece2D clone() {
+        CurrentPiece2D clone = (CurrentPiece2D) super.clone();
 
+        clone.piece = new Piece[piece.length][];
+        for (int i = 0; i < piece.length; i++) {
+            clone.piece[i] = piece[i].clone();
+        }
+
+        return clone;
+    }
 }

@@ -111,4 +111,20 @@ public class CurrentPiece3D extends CurrentPiece {
     private interface TriFunction<A, B, C, R> {
         R apply(A a, B b, C c);
     }
+
+    @Override
+    public CurrentPiece3D clone() {
+        CurrentPiece3D clone = (CurrentPiece3D) super.clone();
+
+        clone.piece = new Piece[piece.length][][];
+        for (int i = 0; i < piece.length; i++) {
+            clone.piece[i] = new Piece[piece[i].length][];
+            for (int j = 0; j < piece[i].length; j++) {
+                clone.piece[i][j] = piece[i][j].clone();
+            }
+        }
+        clone.z = this.z;
+        // other properties are already cloned by super.clone()
+        return clone;
+    }
 }

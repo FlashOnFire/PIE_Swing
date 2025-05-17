@@ -1,6 +1,6 @@
 package fr.polytech.pie.model;
 
-public abstract class CurrentPiece {
+public abstract class CurrentPiece implements Cloneable {
     protected int x;
     protected int y;
 
@@ -41,4 +41,17 @@ public abstract class CurrentPiece {
 
     public abstract int getWidth();
     public abstract int getHeight();
+
+    @Override
+    public CurrentPiece clone() {
+        try {
+            CurrentPiece clone = (CurrentPiece) super.clone();
+            clone.x = this.x;
+            clone.y = this.y;
+            clone.color = this.color;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }
