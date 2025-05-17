@@ -3,7 +3,7 @@ package fr.polytech.pie.vc.render.shader;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class BaseShader extends ShaderProgram {
+public class CubeShader extends ShaderProgram {
 
     private static final String vertexShader = """
             #version 330
@@ -15,7 +15,7 @@ public class BaseShader extends ShaderProgram {
             uniform mat4 projectionMatrix;
             uniform mat4 viewMatrix;
             
-            uniform vec3 lightPosition = vec3(2, 6, 4);  // Adjusted light position for better angles
+            uniform vec3 lightPosition = vec3(0, 0, 0);  // Adjusted light position for better angles
             
             out vec3 toLightVector;
             out vec3 toCameraVector;
@@ -80,10 +80,7 @@ public class BaseShader extends ShaderProgram {
     private int location_viewMatrix;
     private int location_pos;
     private int location_color;
-
-    public BaseShader() {
-
-    }
+    private int location_lightPosition;
 
     @Override
     public void load() {
@@ -96,6 +93,7 @@ public class BaseShader extends ShaderProgram {
         location_viewMatrix = getUniformLocation("viewMatrix");
         location_pos = getUniformLocation("pos");
         location_color = getUniformLocation("color");
+        location_lightPosition = getUniformLocation("lightPosition");
     }
 
     public void setProjectionMatrix(Matrix4f mat) {
@@ -112,5 +110,9 @@ public class BaseShader extends ShaderProgram {
 
     public void setColor(Vector3f color) {
         loadVector(location_color, color);
+    }
+
+    public void setLightPosition(Vector3f lightPos) {
+        loadVector(location_lightPosition, lightPos);
     }
 }

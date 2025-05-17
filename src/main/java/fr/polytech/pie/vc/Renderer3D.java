@@ -324,7 +324,7 @@ public class Renderer3D implements Renderer {
         }
 
 
-        renderer.update(cubes);
+        renderer.updateCubes(cubes);
     }
 
     @Override
