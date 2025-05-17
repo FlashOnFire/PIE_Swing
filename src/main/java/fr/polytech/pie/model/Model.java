@@ -119,10 +119,18 @@ public class Model extends Observable {
         );
     }
 
-    public void dropCurrentPiece() {
+    public int  getDroppedYCurrentPiece(){
+        int originalY = game.getCurrentPiece().getY();
+        int droppedY = originalY;
         do {
-            game.getCurrentPiece().setY(game.getCurrentPiece().getY() - 1);
+            droppedY--;
+            game.getCurrentPiece().setY(droppedY);
         } while (!game.getGrid().checkCollision(game.getCurrentPiece()));
-        game.getCurrentPiece().setY(game.getCurrentPiece().getY() + 1);
+        game.getCurrentPiece().setY(originalY);
+        return droppedY + 1;
+    }
+
+    public void dropCurrentPiece() {
+        game.getCurrentPiece().setY(getDroppedYCurrentPiece());
     }
 }
