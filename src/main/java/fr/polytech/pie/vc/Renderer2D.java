@@ -364,12 +364,11 @@ public class Renderer2D implements Renderer {
         }
 
         int droppedY = vueController.getModel().getDroppedYCurrentPiece();
-        Color ghostColor = currentPiece.getColor().getColor().brighter();
 
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
                 if (piece[j][i] != Piece.Empty) {
-                    drawGridCell(currentPiece.getX() + i, droppedY + j, ghostColor);
+                    drawGridCell(currentPiece.getX() + i, droppedY + j, Color.gray);
                 }
             }
         }
