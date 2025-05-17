@@ -8,12 +8,11 @@ import org.lwjgl.opengl.GL30;
 public class VertexArray {
     private final int id;
     private final ElementBuffer elementBuffer;
-    private final List<VertexBuffer> vertexBuffers;
+    private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
 
     public VertexArray(ElementBuffer elementBuffer) {
         this.id = GL30.glGenVertexArrays();
         this.elementBuffer = elementBuffer;
-        this.vertexBuffers = new ArrayList<>();
         bind();
         bindElementArrayBuffer();
         unbind();
@@ -21,9 +20,11 @@ public class VertexArray {
 
     public void destroy() {
         GL30.glDeleteVertexArrays(this.id);
+        
         for (VertexBuffer vertexBuffer : vertexBuffers) {
             vertexBuffer.destroy();
         }
+
         elementBuffer.destroy();
     }
 

@@ -323,7 +323,6 @@ public class Renderer3D implements Renderer {
             }
         }
 
-
         renderer.updateCubes(cubes);
     }
 

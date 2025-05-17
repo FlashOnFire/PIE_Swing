@@ -36,11 +36,10 @@ public class CameraController {
     public void switchToFreeCam() {
         isFreeCam = true;
         freeCam = new FreeCamCamera();
+
         if (directedCamera != null) {
             freeCam.setAspectRatio(directedCamera.getAspectRatio());
-            freeCam.setX(directedCamera.getPos().x);
-            freeCam.setY(directedCamera.getPos().y);
-            freeCam.setZ(directedCamera.getPos().z);
+            freeCam.setPos(directedCamera.computePos());
             freeCam.lookAt(directedCamTarget);
             directedCamera = null;
         }
@@ -48,7 +47,8 @@ public class CameraController {
 
     public void switchToDirectedCam() {
         isFreeCam = false;
-        directedCamera = new DirectedCamera();
+        directedCamera = new DirectedCamera(directedCamTarget);
+
         if (freeCam != null) {
             directedCamera.setAspectRatio(freeCam.getAspectRatio());
             directedCamera.setTarget(directedCamTarget);

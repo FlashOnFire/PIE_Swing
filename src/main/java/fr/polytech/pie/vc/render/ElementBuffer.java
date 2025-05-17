@@ -1,6 +1,5 @@
 package fr.polytech.pie.vc.render;
 
-
 import org.lwjgl.opengl.GL30;
 
 public class ElementBuffer {
@@ -10,6 +9,7 @@ public class ElementBuffer {
     public ElementBuffer(int[] indices) {
         this.indicesCount = indices.length;
         this.id = GL30.glGenBuffers();
+
         bind();
         GL30.glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indices.length * 4L, GL30.GL_STATIC_DRAW);
         GL30.glBufferSubData(GL30.GL_ELEMENT_ARRAY_BUFFER, 0, indices);
