@@ -208,6 +208,22 @@ public class Renderer3D implements Renderer {
         pieceForwardRotationTimeCounter += deltaTime;
         pieceRightRotationTimeCounter += deltaTime;
 
+        if (keys[GLFW_KEY_SPACE] && !lastKeys[GLFW_KEY_SPACE]) {
+            model.dropCurrentPiece();
+        }
+
+        if (keys[GLFW_KEY_R] && !lastKeys[GLFW_KEY_R]) {
+            model.resetGame();
+        }
+
+        if (keys[GLFW_KEY_LEFT_ALT] && !lastKeys[GLFW_KEY_LEFT_ALT]) {
+            if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            } else {
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+
         if (!camController.isFreeCam()) {
             float horizontalAngle = camController.getDirectedCam().getHorizontalAngle();
 
