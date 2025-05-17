@@ -118,4 +118,11 @@ public class Model extends Observable {
                 }, 0, 200, TimeUnit.MILLISECONDS
         );
     }
+
+    public void dropCurrentPiece() {
+        do {
+            game.getCurrentPiece().setY(game.getCurrentPiece().getY() - 1);
+        } while (!game.getGrid().checkCollision(game.getCurrentPiece()));
+        game.getCurrentPiece().setY(game.getCurrentPiece().getY() + 1);
+    }
 }

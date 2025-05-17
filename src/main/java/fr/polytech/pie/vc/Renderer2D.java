@@ -28,6 +28,31 @@ public class Renderer2D implements Renderer {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final boolean[] keys = new boolean[6];
+    private final boolean[] keyProcessed = new boolean[6];
+    private final long[] keyLastProcessedTime = new long[6];
+    private static final long KEY_REPEAT_DELAY = 150;
+
+    // Définition d'une enum pour représenter les actions des touches
+    private enum KeyAction {
+        MOVE_DOWN(0, KeyEvent.VK_Z, true), DROP(1, KeyEvent.VK_SPACE, false), MOVE_LEFT(2, KeyEvent.VK_Q, true), MOVE_RIGHT(3, KeyEvent.VK_D, true), ROTATE(4, KeyEvent.VK_A, true, 2.0), // facteur 2 pour le délai
+        RUN_AI(5, KeyEvent.VK_I, true);
+
+        final int index;
+        final int keyCode;
+        final boolean repeatable;
+        final double delayFactor;
+
+        KeyAction(int index, int keyCode, boolean repeatable) {
+            this(index, keyCode, repeatable, 1.0);
+        }
+
+        KeyAction(int index, int keyCode, boolean repeatable, double delayFactor) {
+            this.index = index;
+            this.keyCode = keyCode;
+            this.repeatable = repeatable;
+            this.delayFactor = delayFactor;
+        }
+    }
 
     public Renderer2D(VueController vueController) {
         this.vueController = vueController;
@@ -70,62 +95,57 @@ public class Renderer2D implements Renderer {
         }
 
         gridPanel.setPreferredSize(new Dimension(400, 800));
-        gridPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.BLACK, 3),
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
-                        BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
-                )
-        ));
+        gridPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 3), BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 8), BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3))));
 
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .addKeyEventDispatcher(e -> {
-                    if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
-                        return false;
-                    }
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+            if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
+                return false;
+            }
 
-                    boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
+            boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
 
+            for (KeyAction action : KeyAction.values()) {
+                if (e.getKeyCode() == action.keyCode) {
+                    keys[action.index] = isKeyPressed;
+                    if (isKeyPressed) {
+                        keyProcessed[action.index] = false;
+                    }
+                    break;
+                }
+            }
 
-                    // 2D mode controls
-                    switch (e.getKeyCode()) {
-                        case KeyEvent.VK_Z -> keys[0] = isKeyPressed; // Up
-                        case KeyEvent.VK_S -> keys[1] = isKeyPressed; // Down
-                        case KeyEvent.VK_Q -> keys[2] = isKeyPressed; // Left
-                        case KeyEvent.VK_D -> keys[3] = isKeyPressed; // Right
-                        case KeyEvent.VK_A -> keys[4] = isKeyPressed; // Rotate
-                        case KeyEvent.VK_I -> keys[5] = isKeyPressed;
-                        case KeyEvent.VK_ESCAPE -> {
-                            if (isKeyPressed) {
-                                frame.dispose();
-                            }
-                        }
-                    }
-                    return false;
-                });
+            return false;
+        });
 
-        scheduler.scheduleAtFixedRate(
-                () -> {
-                    if (keys[0]) {
-                        vueController.getModel().translateCurrentPiece2D(0, 1);
+        scheduler.scheduleAtFixedRate(() -> {
+            long currentTime = System.currentTimeMillis();
+
+            // Traitement des actions avec l'enum
+            for (KeyAction action : KeyAction.values()) {
+                int i = action.index;
+
+                if (keys[i]) {
+                    boolean shouldProcess = !keyProcessed[i] || (action.repeatable && currentTime - keyLastProcessedTime[i] > KEY_REPEAT_DELAY * action.delayFactor);
+
+                    if (shouldProcess) {
+                        performAction(action);
+                        keyLastProcessedTime[i] = currentTime;
+                        keyProcessed[i] = true;
                     }
-                    if (keys[1]) {
-                        vueController.getModel().translateCurrentPiece2D(0, -1);
-                    }
-                    if (keys[2]) {
-                        vueController.getModel().translateCurrentPiece2D(-1, 0);
-                    }
-                    if (keys[3]) {
-                        vueController.getModel().translateCurrentPiece2D(1, 0);
-                    }
-                    if (keys[4]) {
-                        vueController.getModel().rotateCurrentPiece2D();
-                    }
-                    if (keys[5]) {
-                        vueController.getModel().runAi();
-                    }
-                }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS
-        );
+                }
+            }
+        }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    private void performAction(KeyAction action) {
+        switch (action) {
+            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece2D(0, 1);
+            case DROP -> vueController.getModel().dropCurrentPiece();
+            case MOVE_LEFT -> vueController.getModel().translateCurrentPiece2D(-1, 0);
+            case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece2D(1, 0);
+            case ROTATE -> vueController.getModel().rotateCurrentPiece2D();
+            case RUN_AI -> vueController.getModel().runAi();
+        }
     }
 
     public LoopStatus loop() {
