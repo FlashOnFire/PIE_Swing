@@ -1,5 +1,6 @@
 package fr.polytech.pie.vc.render.cameras;
 
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -14,6 +15,11 @@ public class DirectedCamera {
     private float horizontalAngle = 0.0F;
     private float verticalAngle = 0.0F;
     private float distanceFromTarget = 30.0F;
+
+    @Nullable
+    private Matrix4f projectionMatrix = null;
+    @Nullable
+    private Matrix4f viewMatrix = null;
 
     public DirectedCamera() {
     }
@@ -41,6 +47,10 @@ public class DirectedCamera {
     }
 
     public void setAspectRatio(float aspectRatio) {
+        if (this.aspectRatio != aspectRatio) {
+            projectionMatrix = null;
+        }
+
         this.aspectRatio = aspectRatio;
     }
 
@@ -50,6 +60,10 @@ public class DirectedCamera {
     }
 
     public void setTarget(Vector3f target) {
+        if (!this.target.equals(target)) {
+            viewMatrix = null;
+        }
+
         this.target = target;
     }
 
@@ -59,10 +73,13 @@ public class DirectedCamera {
     }
 
     public void setDistanceFromTarget(float distanceFromTarget) {
-        this.distanceFromTarget = distanceFromTarget;
-        if (distanceFromTarget < 0.0F) {
-            this.distanceFromTarget = 0.1F;
+        distanceFromTarget = Math.max(distanceFromTarget, 0.1F);
+
+        if (this.distanceFromTarget != distanceFromTarget) {
+            viewMatrix = null;
         }
+
+        this.distanceFromTarget = distanceFromTarget;
     }
 
     public void addDistanceFromTarget(float distance) {
@@ -79,6 +96,11 @@ public class DirectedCamera {
         } else if (horizontalAngle < 0.0F) {
             horizontalAngle += (float) (2 * Math.PI);
         }
+
+        if (this.horizontalAngle != horizontalAngle) {
+            viewMatrix = null;
+        }
+
         this.horizontalAngle = horizontalAngle;
     }
 
@@ -93,7 +115,14 @@ public class DirectedCamera {
 
     public void setVerticalAngle(float angle) {
         final float MAX_ANGLE = (float) (Math.PI / 2 - 0.01f); // Slightly less than 90° to prevent exact perpendicular viewing
-        this.verticalAngle = Math.clamp(angle, -MAX_ANGLE, MAX_ANGLE);
+
+        float verticalAngle = Math.clamp(angle, -MAX_ANGLE, MAX_ANGLE);
+
+        if (this.verticalAngle != verticalAngle) {
+            viewMatrix = null;
+        }
+
+        this.verticalAngle = verticalAngle;
     }
 
     public void addVerticalAngle(float v) {
@@ -101,11 +130,18 @@ public class DirectedCamera {
     }
 
     public Matrix4f getProjectionMatrix() {
-        return new Matrix4f().perspective((float) (Math.toRadians(fov)), aspectRatio, zNear, zFar);
+        if (projectionMatrix == null) {
+            projectionMatrix = new Matrix4f().perspective((float) (Math.toRadians(fov)), aspectRatio, zNear, zFar);
+        }
+
+        return projectionMatrix;
     }
 
     public Matrix4f getViewMatrix() {
-        Vector3f pos = computePos();
-        return new Matrix4f().lookAt(pos, target, new Vector3f(0.0F, 1.0F, 0.0F));
+        if (viewMatrix == null) {
+            viewMatrix = new Matrix4f().lookAt(computePos(), target, new Vector3f(0.0F, 1.0F, 0.0F));
+        }
+
+        return viewMatrix;
     }
 }

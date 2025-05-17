@@ -1,5 +1,6 @@
 package fr.polytech.pie.vc.render.cameras;
 
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -16,6 +17,11 @@ public class FreeCamCamera {
     private float yaw;
     private float pitch;
 
+    @Nullable
+    private Matrix4f projectionMatrix;
+    @Nullable
+    private Matrix4f viewMatrix;
+
     public FreeCamCamera() {
         this.pos = new Vector3f(0, 2.0F, 0);
         this.yaw = 0.0F;
@@ -29,20 +35,33 @@ public class FreeCamCamera {
 
     public void setPos(Vector3f pos) {
         this.pos = pos;
+        this.viewMatrix = null;
     }
 
     public void setYaw(float yaw) {
+        if (yaw > 2 * Math.PI) {
+            yaw -= (float) (2 * Math.PI);
+        } else if (yaw < 0.0F) {
+            yaw += (float) (2 * Math.PI);
+        }
         this.yaw = yaw;
+
+        this.viewMatrix = null;
     }
 
     public void setPitch(float pitch) {
         // Limit pitch to avoid flipping
         this.pitch = Math.clamp(pitch, -pitchLimit, pitchLimit);
+        this.viewMatrix = null;
     }
 
     public void moveForward(float distance) {
         pos.x += distance * (float) Math.cos(yaw);
         pos.z += distance * (float) Math.sin(yaw);
+
+        if (distance != 0.0F) {
+            this.viewMatrix = null;
+        }
     }
 
     public void moveBackwards(float distance) {
@@ -52,6 +71,10 @@ public class FreeCamCamera {
     public void moveRight(float distance) {
         pos.x += distance * (float) Math.cos(yaw + Math.PI / 2);
         pos.z += distance * (float) Math.sin(yaw + Math.PI / 2);
+
+        if (distance != 0.0F) {
+            this.viewMatrix = null;
+        }
     }
 
     public void moveLeft(float distance) {
@@ -59,15 +82,23 @@ public class FreeCamCamera {
     }
 
     public void setAspectRatio(float aspectRatio) {
+        if (this.aspectRatio != aspectRatio) {
+            this.projectionMatrix = null;
+        }
+
         this.aspectRatio = aspectRatio;
     }
 
     public void moveUp(float distance) {
         pos.y += distance;
+
+        if (distance != 0.0F) {
+            this.viewMatrix = null;
+        }
     }
 
     public void moveDown(float distance) {
-        pos.y -= distance;
+        moveUp(-distance);
     }
 
     public void addYaw(float angle) {
@@ -84,23 +115,34 @@ public class FreeCamCamera {
 
     public void lookAt(Vector3f target) {
         Vector3f direction = new Vector3f(target).sub(pos).normalize();
-        this.yaw = (float) Math.atan2(direction.z, direction.x);
-        this.pitch = (float) Math.asin(direction.y);
+
+        setYaw((float) Math.atan2(direction.z, direction.x));
+        setPitch((float) Math.asin(direction.y));
+
+        this.viewMatrix = null;
     }
 
     public Matrix4f getProjectionMatrix() {
-        return new Matrix4f().perspective((float) (Math.toRadians(fov)), aspectRatio, zNear, zFar);
+        if (projectionMatrix == null) {
+            projectionMatrix = new Matrix4f().perspective((float) (Math.toRadians(fov)), aspectRatio, zNear, zFar);
+        }
+
+        return projectionMatrix;
     }
 
     public Matrix4f getViewMatrix() {
-        Vector3f forward = new Vector3f(
-                (float) (Math.cos(yaw) * Math.cos(pitch)),
-                (float) (Math.sin(pitch)),
-                (float) (Math.sin(yaw) * Math.cos(pitch))
-        );
-        Vector3f target = new Vector3f(pos).add(forward);
+        if (viewMatrix == null) {
+            Vector3f forward = new Vector3f(
+                    (float) (Math.cos(yaw) * Math.cos(pitch)),
+                    (float) (Math.sin(pitch)),
+                    (float) (Math.sin(yaw) * Math.cos(pitch))
+            );
+            Vector3f target = new Vector3f(pos).add(forward);
 
-        return new Matrix4f().lookAt(pos, target, new Vector3f(0.0F, 1.0F, 0.0F));
+            viewMatrix = new Matrix4f().lookAt(pos, target, new Vector3f(0.0F, 1.0F, 0.0F));
+        }
+
+        return viewMatrix;
     }
 
 }
