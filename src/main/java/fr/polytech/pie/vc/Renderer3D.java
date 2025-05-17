@@ -235,7 +235,6 @@ public class Renderer3D implements Renderer {
             RotationAxis forwardRotationAxis = forwardX > forwardZ ? RotationAxis.Z : RotationAxis.X;
 
             if (keys[GLFW_KEY_LEFT_SHIFT]) {
-                // Rotations
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
                     model.rotateCurrentPiece3D(forwardRotationAxis);
                     pieceForwardTimeCounter = 0;
