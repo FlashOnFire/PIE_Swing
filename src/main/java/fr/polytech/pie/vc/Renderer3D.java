@@ -1,9 +1,6 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
-import fr.polytech.pie.model.Model;
-import fr.polytech.pie.model.Piece;
+import fr.polytech.pie.model.*;
 import fr.polytech.pie.model.threeD.CurrentPiece3D;
 import fr.polytech.pie.model.threeD.Grid3D;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
@@ -39,8 +36,11 @@ public class Renderer3D implements Renderer {
 
     private float pieceForwardTimeCounter = 0;
     private float pieceBackwardTimeCounter = 0;
-    private float pPieceLeftTimeCounter = 0;
+    private float pieceLeftTimeCounter = 0;
     private float pieceRightTimeCounter = 0;
+
+    private float pieceXRotationTimeCounter = 0;
+    private float pieceZRotationTimeCounter = 0;
 
     private final Model model;
     private double lastLoopTime;
@@ -184,7 +184,7 @@ public class Renderer3D implements Renderer {
         }
 
         camController.handleKeyboardInput(deltaTime, keys, lastKeys);
-        handleKeyboardInput(deltaTime, keys, lastKeys);
+        handleKeyboardInput(deltaTime, keys);
         System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
 
         renderer.render(camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
@@ -196,15 +196,18 @@ public class Renderer3D implements Renderer {
         return LoopStatus.CONTINUE;
     }
 
-    private void handleKeyboardInput(float deltaTime, boolean[] keys, boolean[] lastKeys) {
+    private void handleKeyboardInput(float deltaTime, boolean[] keys) {
         pieceForwardTimeCounter += deltaTime;
         pieceBackwardTimeCounter += deltaTime;
-        pPieceLeftTimeCounter += deltaTime;
+        pieceLeftTimeCounter += deltaTime;
         pieceRightTimeCounter += deltaTime;
+
+        pieceXRotationTimeCounter += deltaTime;
+        pieceZRotationTimeCounter += deltaTime;
 
         System.out.println(pieceForwardTimeCounter);
         System.out.println(pieceBackwardTimeCounter);
-        System.out.println(pPieceLeftTimeCounter);
+        System.out.println(pieceLeftTimeCounter);
         System.out.println(pieceRightTimeCounter);
 
         if (!camController.isFreeCam()) {
@@ -212,8 +215,8 @@ public class Renderer3D implements Renderer {
 
             float forwardX = (float) Math.sin(horizontalAngle);
             float forwardZ = (float) Math.cos(horizontalAngle);
-            float rightX = (float) Math.sin(horizontalAngle + Math.PI/2);
-            float rightZ = (float) Math.cos(horizontalAngle + Math.PI/2);
+            float rightX = (float) Math.sin(horizontalAngle + Math.PI / 2);
+            float rightZ = (float) Math.cos(horizontalAngle + Math.PI / 2);
 
             // Normalize direction vectors
             float forwardLength = (float) Math.sqrt(forwardX * forwardX + forwardZ * forwardZ);
@@ -229,21 +232,35 @@ public class Renderer3D implements Renderer {
                 rightZ /= rightLength;
             }
 
-            if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
-                model.translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));
-                pieceForwardTimeCounter = 0;
-            }
-            if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
-                model.translateCurrentPiece3D(Math.round(forwardX), 0, Math.round(forwardZ));
-                pieceBackwardTimeCounter = 0;
-            }
-            if (keys[GLFW_KEY_A] && pPieceLeftTimeCounter > 0.1F) {
-                model.translateCurrentPiece3D(Math.round(-rightX), 0, Math.round(-rightZ));
-                pPieceLeftTimeCounter = 0;
-            }
-            if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
-                model.translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
-                pieceRightTimeCounter = 0;
+            RotationAxis forwardRotationAxis = forwardX > forwardZ ? RotationAxis.Z : RotationAxis.X;
+
+            if (keys[GLFW_KEY_LEFT_SHIFT]) {
+                // Rotations
+                if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
+                    model.rotateCurrentPiece3D(forwardRotationAxis);
+                    pieceForwardTimeCounter = 0;
+                }
+                if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
+                    model.rotateCurrentPiece3D(RotationAxis.Y);
+                    pieceLeftTimeCounter = 0;
+                }
+            } else {
+                if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
+                    model.translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));
+                    pieceForwardTimeCounter = 0;
+                }
+                if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
+                    model.translateCurrentPiece3D(Math.round(forwardX), 0, Math.round(forwardZ));
+                    pieceBackwardTimeCounter = 0;
+                }
+                if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
+                    model.translateCurrentPiece3D(Math.round(-rightX), 0, Math.round(-rightZ));
+                    pieceLeftTimeCounter = 0;
+                }
+                if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
+                    model.translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
+                    pieceRightTimeCounter = 0;
+                }
             }
         }
     }

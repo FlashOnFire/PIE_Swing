@@ -122,13 +122,6 @@ public class CameraController {
             if (keys[GLFW_KEY_SPACE]) {
                 freeCam.moveUp(speed * deltaTime);
             }
-        } else {
-            if (keys[GLFW_KEY_LEFT_SHIFT]) {
-                directedCamera.addVerticalAngle(-speed * 0.15F * deltaTime);
-            }
-            if (keys[GLFW_KEY_SPACE]) {
-                directedCamera.addVerticalAngle(speed * 0.15F * deltaTime);
-            }
         }
 
         if (keys[GLFW_KEY_RIGHT_SHIFT] && !lastKeys[GLFW_KEY_RIGHT_SHIFT]) {
