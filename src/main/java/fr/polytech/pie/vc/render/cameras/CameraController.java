@@ -20,8 +20,6 @@ public class CameraController {
 
     private Vector3f directedCamTarget = new Vector3f(0, 0, 0);
 
-    private final boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
-
     public CameraController(boolean isFreeCam, float aspectRatio) {
         this.isFreeCam = isFreeCam;
         if (isFreeCam) {
@@ -104,7 +102,7 @@ public class CameraController {
         }
     }
 
-    public void handleKeyboardInput(float deltaTime, boolean[] keys) {
+    public void handleKeyboardInput(float deltaTime, boolean[] keys, boolean[] lastKeys) {
         if (isFreeCam) {
             if (keys[GLFW_KEY_W]) {
                 freeCam.moveForward(speed * deltaTime);
@@ -140,8 +138,6 @@ public class CameraController {
                 switchToFreeCam();
             }
         }
-
-        System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
     }
 
     public Matrix4f getCurrentProjectionMatrix() {
@@ -158,5 +154,9 @@ public class CameraController {
         } else {
             return directedCamera.getViewMatrix();
         }
+    }
+
+    public DirectedCamera getDirectedCam() {
+        return directedCamera;
     }
 }

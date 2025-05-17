@@ -35,9 +35,15 @@ public class Renderer3D implements Renderer {
     private CameraController camController;
 
     private final boolean[] keys = new boolean[GLFW_KEY_LAST];
+    private final boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
+
+    private float pieceForwardTimeCounter = 0;
+    private float pieceBackwardTimeCounter = 0;
+    private float pPieceLeftTimeCounter = 0;
+    private float pieceRightTimeCounter = 0;
 
     private final Model model;
-    private double lastTime;
+    private double lastLoopTime;
 
     public Renderer3D(Model m) {
         this.model = m;
@@ -132,7 +138,7 @@ public class Renderer3D implements Renderer {
             int width = pWidth.get();
             int height = pHeight.get();
 
-            camController = new CameraController(true, ((float) width) / ((float) height));
+            camController = new CameraController(false, ((float) width) / ((float) height));
         }
 
         float gridWidth = model.getGame().getGrid().getWidth();
@@ -143,7 +149,7 @@ public class Renderer3D implements Renderer {
 
         camController.setDirectedCamTarget(center);
 
-        lastTime = glfwGetTime();
+        lastLoopTime = glfwGetTime();
     }
 
     public LoopStatus loop() {
@@ -152,8 +158,8 @@ public class Renderer3D implements Renderer {
         }
 
         double currentTime = glfwGetTime();
-        float deltaTime = (float) (currentTime - lastTime);
-        lastTime = currentTime;
+        float deltaTime = (float) (currentTime - lastLoopTime);
+        lastLoopTime = currentTime;
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
@@ -177,7 +183,9 @@ public class Renderer3D implements Renderer {
             glfwSetWindowShouldClose(window, true);
         }
 
-        camController.handleKeyboardInput(deltaTime, keys);
+        camController.handleKeyboardInput(deltaTime, keys, lastKeys);
+        handleKeyboardInput(deltaTime, keys, lastKeys);
+        System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
 
         renderer.render(camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
 
@@ -186,6 +194,58 @@ public class Renderer3D implements Renderer {
         glfwPollEvents();
 
         return LoopStatus.CONTINUE;
+    }
+
+    private void handleKeyboardInput(float deltaTime, boolean[] keys, boolean[] lastKeys) {
+        pieceForwardTimeCounter += deltaTime;
+        pieceBackwardTimeCounter += deltaTime;
+        pPieceLeftTimeCounter += deltaTime;
+        pieceRightTimeCounter += deltaTime;
+
+        System.out.println(pieceForwardTimeCounter);
+        System.out.println(pieceBackwardTimeCounter);
+        System.out.println(pPieceLeftTimeCounter);
+        System.out.println(pieceRightTimeCounter);
+
+        if (!camController.isFreeCam()) {
+            float horizontalAngle = camController.getDirectedCam().getHorizontalAngle();
+
+            float forwardX = (float) Math.sin(horizontalAngle);
+            float forwardZ = (float) Math.cos(horizontalAngle);
+            float rightX = (float) Math.sin(horizontalAngle + Math.PI/2);
+            float rightZ = (float) Math.cos(horizontalAngle + Math.PI/2);
+
+            // Normalize direction vectors
+            float forwardLength = (float) Math.sqrt(forwardX * forwardX + forwardZ * forwardZ);
+            float rightLength = (float) Math.sqrt(rightX * rightX + rightZ * rightZ);
+
+            if (forwardLength > 0) {
+                forwardX /= forwardLength;
+                forwardZ /= forwardLength;
+            }
+
+            if (rightLength > 0) {
+                rightX /= rightLength;
+                rightZ /= rightLength;
+            }
+
+            if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
+                model.translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));
+                pieceForwardTimeCounter = 0;
+            }
+            if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
+                model.translateCurrentPiece3D(Math.round(forwardX), 0, Math.round(forwardZ));
+                pieceBackwardTimeCounter = 0;
+            }
+            if (keys[GLFW_KEY_A] && pPieceLeftTimeCounter > 0.1F) {
+                model.translateCurrentPiece3D(Math.round(-rightX), 0, Math.round(-rightZ));
+                pPieceLeftTimeCounter = 0;
+            }
+            if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
+                model.translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
+                pieceRightTimeCounter = 0;
+            }
+        }
     }
 
 
