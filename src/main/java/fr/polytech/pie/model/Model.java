@@ -1,5 +1,8 @@
 package fr.polytech.pie.model;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Observable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,11 +18,14 @@ public class Model extends Observable {
     private boolean is3D;
     private ScheduledExecutorService executor;
 
+    private int highscore = 0;
+
     /**
      * Constructor for the model with 2D mode as the default
      */
     public Model() {
         this(false);
+        loadHighscore();
     }
 
     /**
@@ -96,6 +102,14 @@ public class Model extends Observable {
         game.resetGame();
     }
 
+    public void stopGame() {
+        stopScheduler();
+        if (game.getScore() > highscore) {
+            setHighscore(game.getScore());
+        }
+        game.resetGame();
+    }
+
     public void stopScheduler() {
         if (executor != null && !executor.isShutdown()) {
             this.executor.shutdown();
@@ -137,5 +151,38 @@ public class Model extends Observable {
 
     public void dropCurrentPiece() {
         game.getCurrentPiece().setY(getDroppedYCurrentPiece());
+    }
+
+    private void loadHighscore() {
+        try {
+            Path path = Paths.get("highscore.txt");
+            if (Files.exists(path)) {
+                String score = Files.readString(path).trim();
+                this.highscore = Integer.parseInt(score);
+            } else {
+                Files.writeString(path, "0");
+                this.highscore = 0;
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load highscore: " + e.getMessage());
+        }
+    }
+
+    public void saveHighscore() {
+        try {
+            Path path = Paths.get("highscore.txt");
+            Files.writeString(path, String.valueOf(highscore));
+        } catch (Exception e) {
+            System.err.println("Failed to save highscore: " + e.getMessage());
+        }
+    }
+
+    public int getHighscore() {
+        return highscore;
+    }
+
+    public void setHighscore(int highscore) {
+        this.highscore = highscore;
+        saveHighscore();
     }
 }

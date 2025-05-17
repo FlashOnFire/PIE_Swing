@@ -62,8 +62,7 @@ public class VueController implements Observer {
     }
 
     void stopGame() {
-        model.stopScheduler();
-        model.resetGame();
+        model.stopGame();
         switchRenderer(RendererType.MENU);
     }
 
