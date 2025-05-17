@@ -71,6 +71,7 @@ public class Renderer3D implements Renderer {
             throw new RuntimeException("Failed to create the GLFW window");
         }
 
+        //noinspection resource (first key callback setup so previous must be null)
         glfwSetKeyCallback(
                 window, (_ /*window*/, key, _ /*scancode*/, action, _ /*mods*/) -> {
                     if (action == GLFW_PRESS || action == GLFW_RELEASE) {
@@ -79,10 +80,12 @@ public class Renderer3D implements Renderer {
                 }
         );
 
+        //noinspection resource (first key callback setup so previous must be null)
         glfwSetScrollCallback(
                 window, (_ /*window*/, _ /*w*/, y) -> camController.handleMouseWheel(1.0F, y)
         );
 
+        //noinspection resource (first key callback setup so previous must be null)
         glfwSetCursorPosCallback(
                 window, (_, xpos, ypos) -> camController.handleMouseInput(xpos, ypos)
         );
