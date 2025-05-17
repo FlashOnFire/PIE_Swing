@@ -51,6 +51,9 @@ public class Model extends Observable {
      */
     public void translateCurrentPiece2D(int dx, int dy) {
         game.translateCurrentPiece2D(dx, dy);
+        if (game.isGameOver()){
+            stopScheduler();
+        }
         setChanged();
         notifyObservers();
     }
@@ -152,6 +155,10 @@ public class Model extends Observable {
 
     public void dropCurrentPiece() {
         game.getCurrentPiece().setY(getDroppedYCurrentPiece());
+    }
+
+    public boolean isGameOver() {
+        return game.isGameOver();
     }
 
     private void loadHighscore() {

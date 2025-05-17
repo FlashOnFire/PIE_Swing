@@ -18,6 +18,7 @@ public class Game {
     private CurrentPiece nextPiece;
     private int score;
     private boolean is3D;
+    private boolean gameOver;
 
     public Game(boolean is3D) {
         this.is3D = is3D;
@@ -44,6 +45,10 @@ public class Game {
         return score;
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
     public void setRenderingMode(boolean is3D) {
         if (this.is3D != is3D) {
             this.is3D = is3D;
@@ -56,6 +61,7 @@ public class Game {
     }
 
     public void translateCurrentPiece2D(int dx, int dy) {
+        if (gameOver) return;
         assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
         int originalX = currentPiece.getX();
         int originalY = currentPiece.getY();
@@ -81,6 +87,7 @@ public class Game {
     }
 
     private void freeze() {
+        if (gameOver) return;
         grid.freezePiece(currentPiece);
 
         int linesCleared = grid.clearFullLines();
@@ -90,11 +97,12 @@ public class Game {
 
         if (grid.checkCollision(currentPiece)) {
             Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
-            resetGame();
+            gameOver = true;
         }
     }
 
     public void translateCurrentPiece3D(int dx, int dy, int dz) {
+        if (gameOver) return;
         if (!is3D || !(currentPiece instanceof CurrentPiece3D piece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
         }
@@ -144,9 +152,11 @@ public class Game {
         nextPiece = null;
         generateNewPiece();
         score = 0;
+        gameOver = false;
     }
 
     private void generateNewPiece() {
+        if (gameOver) return;
         if (nextPiece == null) {
             if (is3D) {
                 nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
@@ -164,18 +174,22 @@ public class Game {
     }
 
     public void rotateCurrentPiece() {
+        if (gameOver) return;
         assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
         ((CurrentPiece2D) currentPiece).rotate2d(piece -> grid.checkCollision(piece));
     }
 
     public void rotateCurrentPiece3D(RotationAxis axis) {
+        if (gameOver) return;
         assert currentPiece instanceof CurrentPiece3D : "Current piece is not a 3D piece";
         ((CurrentPiece3D) currentPiece).rotate3D(axis, (piece) -> grid.checkCollision(piece));
     }
 
     public void runAi() {
+        if (gameOver) return;
         ai.makeMove(currentPiece);
         updateScore(grid.clearFullLines());
         generateNewPiece();
     }
+
 }
