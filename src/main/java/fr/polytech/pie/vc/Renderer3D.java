@@ -3,6 +3,7 @@ package fr.polytech.pie.vc;
 import fr.polytech.pie.model.*;
 import fr.polytech.pie.model.threeD.CurrentPiece3D;
 import fr.polytech.pie.model.threeD.Grid3D;
+import fr.polytech.pie.vc.render.Cube;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
 import fr.polytech.pie.vc.render.cameras.CameraController;
 import org.joml.Vector3f;
@@ -269,18 +270,15 @@ public class Renderer3D implements Renderer {
 
         Grid3D grid3D = (Grid3D) grid;
 
-        List<Vector3f> cubesPos = new ArrayList<>();
-        List<Vector3f> colors = new ArrayList<>();
+        List<Cube> cubes = new ArrayList<>();
 
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
-                    if (grid3D.getValue(x, y, z) != Piece.Empty) {
-                        Vector3f pos = new Vector3f(x, y, z);
-                        Vector3f color = grid3D.getValue(x, y, z).getVector();
-
-                        cubesPos.add(pos);
-                        colors.add(color);
+                    Piece value = grid3D.getValue(x, y, z);
+                    if (value != Piece.Empty) {
+                        Cube cube = new Cube(new Vector3f(x, y, z), value.getVector());
+                        cubes.add(cube);
                     }
                 }
             }
@@ -296,13 +294,12 @@ public class Renderer3D implements Renderer {
         for (int x = 0; x < positions[0][0].length; x++) {
             for (int y = 0; y < positions[0].length; y++) {
                 for (int z = 0; z < positions.length; z++) {
-                    if (positions[z][y][x] != Piece.Empty) {
-                        cubesPos.add(new Vector3f(x, y, z).add(piecePos));
-                        colors.add(currentPiece3D.getColor().getVector());
+                    Piece value = positions[z][y][x];
+                    if (value != Piece.Empty) {
+                        cubes.add(new Cube(new Vector3f(x, y, z).add(piecePos), value.getVector()));
 
                         if (fallenPieceY != currentPiece3D.getY()) {
-                            cubesPos.add(new Vector3f(x, y, z).add(fallenPiecePos));
-                            colors.add(new Vector3f(0.5F, 0.5F, 0.5F));
+                            cubes.add(new Cube(new Vector3f(x, y, z).add(fallenPiecePos), new Vector3f(0.5F, 0.5F, 0.5F)));
                         }
                     }
                 }
@@ -318,16 +315,16 @@ public class Renderer3D implements Renderer {
         for (int x = 0; x < nextPositions[0][0].length; x++) {
             for (int y = 0; y < nextPositions[0].length; y++) {
                 for (int z = 0; z < nextPositions.length; z++) {
-                    if (nextPositions[z][y][x] != Piece.Empty) {
-                        cubesPos.add(new Vector3f(x, y, z).add(nextPos));
-                        colors.add(nextPieceColor);
+                    Piece value = nextPositions[z][y][x];
+                    if (value != Piece.Empty) {
+                        cubes.add(new Cube(new Vector3f(x, y, z).add(nextPos), nextPieceColor));
                     }
                 }
             }
         }
 
 
-        renderer.update(cubesPos.toArray(new Vector3f[0]), colors.toArray(new Vector3f[0]));
+        renderer.update(cubes);
     }
 
     @Override

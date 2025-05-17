@@ -5,14 +5,16 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL30;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 
 public class OpenGLRenderer {
     private final BaseShader shader;
     private VertexArray cubeVao;
 
-    Vector3f[] cubesPos = new Vector3f[]{};
-    Vector3f[] colors = new Vector3f[]{};
+    List<Cube> cubes = new ArrayList<>();
 
     public OpenGLRenderer() {
         this.shader = new BaseShader();
@@ -155,35 +157,20 @@ public class OpenGLRenderer {
     }
 
     public void render(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
-        Vector3f[] cubes = {
-                new Vector3f(0.0F, 0.0F, 0.0F),
-                new Vector3f(1.0F, 0.0F, 0.0F),
-                new Vector3f(0.0F, 1.0F, 0.0F),
-                new Vector3f(0.0F, 0.0F, 1.0F)
-        };
-
-        Vector3f[] colors = {
-                new Vector3f(0.0F, 0.0F, 0.0F),
-                new Vector3f(1.0F, 0.0F, 0.0F),
-                new Vector3f(0.0F, 1.0F, 0.0F),
-                new Vector3f(0.0F, 0.0F, 1.0F)
-        };
-
         this.shader.start();
         this.shader.setProjectionMatrix(projectionMatrix);
         this.shader.setViewMatrix(viewMatrix);
 
-        drawCubes(this.cubesPos, this.colors);
+        drawCubes(cubes);
 
         this.shader.stop();
     }
 
-    public void drawCubes(Vector3f[] pos, Vector3f[] colors) {
+    public void drawCubes(List<Cube> cubes) {
         cubeVao.bind();
-        for (int i = 0; i < pos.length; i++) {
-            Vector3f p = pos[i];
-            this.shader.setPos(p);
-            this.shader.setColor(colors[i]);
+        for (Cube cube : cubes) {
+            this.shader.setPos(cube.getPosition());
+            this.shader.setColor(cube.getColor());
             GL30.glDrawElements(GL30.GL_TRIANGLES, cubeVao.getVertexCount(), GL_UNSIGNED_INT, 0);
         }
         cubeVao.unbind();
@@ -219,8 +206,7 @@ public class OpenGLRenderer {
         GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, currentMode[0]);
     }
 
-    public void update(Vector3f[] cubesPos, Vector3f[] colors) {
-        this.cubesPos = cubesPos;
-        this.colors = colors;
+    public void update(List<Cube> cubes) {
+        this.cubes = cubes;
     }
 }
