@@ -90,6 +90,11 @@ public class Grid2D extends Grid {
 
     @Override
     public int clearFullLines() {
+        return clearFullLines(false);
+    }
+
+    @Override
+    public int clearFullLines(boolean dry) {
         int linesCleared = 0;
 
         for (int y = 0; y < height; y++) {
@@ -103,40 +108,20 @@ public class Grid2D extends Grid {
 
             if (fullLine) {
                 linesCleared++;
-                // Shift all lines above down
-                for (int i = y; i < height - 1; i++) {
-                    System.arraycopy(grid[i + 1], 0, grid[i], 0, width);
-                }
-                y--; // Check the same line again after shifting
-                for (int x = 0; x < width; x++) {
-                    grid[height - 1][x] = Piece.Empty; // Clear the last line
+                if (!dry) {
+                    // Shift all lines above down
+                    for (int i = y; i < height - 1; i++) {
+                        System.arraycopy(grid[i + 1], 0, grid[i], 0, width);
+                    }
+                    y--; // Check the same line again after shifting
+                    for (int x = 0; x < width; x++) {
+                        grid[height - 1][x] = Piece.Empty; // Clear the last line
+                    }
                 }
             }
         }
 
         return linesCleared;
-    }
-
-    @Override
-    public int countFullLines() {
-        int linesCounted = 0;
-
-        for (int i = 0; i < height; i++) {
-            boolean fullLine = true;
-            for (int j = 0; j < width; j++) {
-                assert grid != null;
-                if (grid[i][j] == Piece.Empty) {
-                    fullLine = false;
-                    break;
-                }
-            }
-
-            if (fullLine) {
-                linesCounted++;
-            }
-        }
-
-        return linesCounted;
     }
 
     public int getHeightOfColumn2D(int x) {

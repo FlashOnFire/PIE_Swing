@@ -13,8 +13,8 @@ public class FreeCamCamera {
     public float aspectRatio = 1.0F;
     private Vector3f pos;
 
-    private float yaw = 0.0F;
-    private float pitch = 0.0F;
+    private float yaw;
+    private float pitch;
 
     public FreeCamCamera() {
         this.pos = new Vector3f(0, 2.0F, 0);

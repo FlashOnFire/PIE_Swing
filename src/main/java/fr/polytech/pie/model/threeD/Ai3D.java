@@ -44,7 +44,7 @@ public class Ai3D extends Ai {
                 }
 
                 // Count completed planes
-                int completedPlanes = grid.countFullLines();
+                int completedPlanes = grid.clearFullLines(true);
 
                 // Count holes
                 int holes = 0;

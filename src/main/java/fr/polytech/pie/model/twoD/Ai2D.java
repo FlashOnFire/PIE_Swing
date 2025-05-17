@@ -26,12 +26,12 @@ public class Ai2D extends Ai {
             throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
         }
 
-        final var availablePossiblities = getPiecesPossibilities((CurrentPiece2D) currentPiece);
+        final var availablePossibilities = getPiecesPossibilities((CurrentPiece2D) currentPiece);
 
         // Rate each possibility
         double best = Double.NEGATIVE_INFINITY;
         CurrentPiece bestPiece = null;
-        for (var possibility : availablePossiblities) {
+        for (var possibility : availablePossibilities) {
             // Sum each height of the columns
             grid.freezePiece(possibility);
             int heights = 0;
@@ -40,7 +40,7 @@ public class Ai2D extends Ai {
             }
 
             // Count completed lines
-            int completedLines = grid.countFullLines();
+            int completedLines = grid.clearFullLines(true);
 
             // Count holes
             int holes = 0;

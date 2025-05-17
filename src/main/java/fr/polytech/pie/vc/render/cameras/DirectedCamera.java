@@ -1,7 +1,6 @@
 package fr.polytech.pie.vc.render.cameras;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class DirectedCamera {

@@ -57,18 +57,18 @@ public class Grid3D extends Grid {
 
     @Override
     public void freezePiece(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece3D piece3D)) {
+        if (!(currentPiece instanceof CurrentPiece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
         }
 
-        Piece[][][] voxelGrid = piece3D.getPiece3d();
-        int pieceX = piece3D.getX();
-        int pieceY = piece3D.getY();
-        int pieceZ = piece3D.getZ();
+        Piece[][][] voxelGrid = ((CurrentPiece3D) currentPiece).getPiece3d();
+        int pieceX = currentPiece.getX();
+        int pieceY = currentPiece.getY();
+        int pieceZ = ((CurrentPiece3D) currentPiece).getZ();
 
-        for (int i = 0; i < piece3D.getWidth(); i++) {
-            for (int j = 0; j < piece3D.getHeight(); j++) {
-                for (int k = 0; k < piece3D.getDepth(); k++) {
+        for (int i = 0; i < currentPiece.getWidth(); i++) {
+            for (int j = 0; j < currentPiece.getHeight(); j++) {
+                for (int k = 0; k < ((CurrentPiece3D) currentPiece).getDepth(); k++) {
                     if (voxelGrid[k][j][i] != Piece.Empty) {
                         int x = pieceX + i;
                         int y = pieceY + j;
@@ -81,23 +81,14 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public void removePiece(CurrentPiece possibility) {
-        if (!(possibility instanceof CurrentPiece3D piece3D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + possibility.getClass().getName());
-        }
-
-        Piece[][][] voxelGrid = piece3D.getPiece3d();
-        int pieceX = piece3D.getX();
-        int pieceY = piece3D.getY();
-        int pieceZ = piece3D.getZ();
-
-        for (int i = 0; i < piece3D.getWidth(); i++) {
-            for (int j = 0; j < piece3D.getHeight(); j++) {
-                for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (voxelGrid[k][j][i] != Piece.Empty) {
-                        int x = pieceX + i;
-                        int y = pieceY + j;
-                        int z = pieceZ + k;
+    public void removePiece(CurrentPiece currentPiece) {
+        for (int i = 0; i < currentPiece.getWidth(); i++) {
+            for (int j = 0; j < currentPiece.getHeight(); j++) {
+                for (int k = 0; k < ((CurrentPiece3D)currentPiece).getDepth(); k++) {
+                    if (((CurrentPiece3D)currentPiece).getPiece3d()[k][j][i] != Piece.Empty) {
+                        int x = currentPiece.getX() + i;
+                        int y = currentPiece.getY() + j;
+                        int z = ((CurrentPiece3D)currentPiece).getZ() + k;
                         setValue(x, y, z, Piece.Empty);
                     }
                 }
@@ -139,7 +130,7 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public int clearFullLines() {
+    public int clearFullLines(boolean dry) {
         int linesCleared = 0;
 
         // Check for full horizontal planes (XZ planes)
@@ -159,23 +150,25 @@ public class Grid3D extends Grid {
             if (fullPlane) {
                 linesCleared++;
 
-                // Shift all planes above down
-                for (int i = y; i < height - 1; i++) {
-                    for (int x = 0; x < width; x++) {
-                        for (int z = 0; z < depth; z++) {
-                            grid[z][i][x] = grid[z][i + 1][x];
+                if (!dry) {
+                    // Shift all planes above down
+                    for (int i = y; i < height - 1; i++) {
+                        for (int x = 0; x < width; x++) {
+                            for (int z = 0; z < depth; z++) {
+                                grid[z][i][x] = grid[z][i + 1][x];
+                            }
                         }
                     }
-                }
 
-                // Clear the top plane
-                for (int x = 0; x < width; x++) {
-                    for (int z = 0; z < depth; z++) {
-                        grid[z][height - 1][x] = Piece.Empty;
+                    // Clear the top plane
+                    for (int x = 0; x < width; x++) {
+                        for (int z = 0; z < depth; z++) {
+                            grid[z][height - 1][x] = Piece.Empty;
+                        }
                     }
-                }
 
-                y--; // Check the same line again after shifting
+                    y--; // Check the same line again after shifting
+                }
             }
         }
 
@@ -183,29 +176,8 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public int countFullLines() {
-        int linesCleared = 0;
-
-        // Check for full horizontal planes (XZ planes)
-        for (int y = 0; y < height; y++) {
-            boolean fullPlane = true;
-
-            // Check if the plane is full
-            for (int x = 0; x < width && fullPlane; x++) {
-                for (int z = 0; z < depth; z++) {
-                    if (grid[z][y][x] == Piece.Empty) {
-                        fullPlane = false;
-                        break;
-                    }
-                }
-            }
-
-            if (fullPlane) {
-                linesCleared++;
-            }
-        }
-
-        return linesCleared;
+    public int clearFullLines() {
+        return clearFullLines(false);
     }
 
     public int getHeightOfColumn3D(int x, int z) {

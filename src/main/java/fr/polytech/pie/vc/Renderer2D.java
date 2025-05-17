@@ -120,7 +120,6 @@ public class Renderer2D implements Renderer {
         scheduler.scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
 
-            // Traitement des actions avec l'enum
             for (KeyAction action : KeyAction.values()) {
                 int i = action.index;
 
@@ -224,11 +223,6 @@ public class Renderer2D implements Renderer {
 
         int droppedY = vueController.getModel().getDroppedYCurrentPiece();
         Color ghostColor = currentPiece.getColor().getColor().brighter();
-//                new Color(
-//                currentPiece.getColor().getColor().getRed(),
-//                currentPiece.getColor().getColor().getGreen(),
-//                currentPiece.getColor().getColor().getBlue(),
-//                128);
 
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {

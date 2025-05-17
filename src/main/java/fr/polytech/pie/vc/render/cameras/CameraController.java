@@ -12,7 +12,7 @@ public class CameraController {
 
     private DirectedCamera directedCamera;
     private FreeCamCamera freeCam;
-    private boolean isFreeCam = false;
+    private boolean isFreeCam;
 
     private double lastX = 0.0;
     private double lastY = 0.0;
@@ -20,7 +20,7 @@ public class CameraController {
 
     private Vector3f directedCamTarget = new Vector3f(0, 0, 0);
 
-    private boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
+    private final boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
 
     public CameraController(boolean isFreeCam, float aspectRatio) {
         this.isFreeCam = isFreeCam;
