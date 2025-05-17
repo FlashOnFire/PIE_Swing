@@ -39,8 +39,8 @@ public class Renderer3D implements Renderer {
     private float pieceLeftTimeCounter = 0;
     private float pieceRightTimeCounter = 0;
 
-    private float pieceXRotationTimeCounter = 0;
-    private float pieceZRotationTimeCounter = 0;
+    private float pieceForwardRotationTimeCounter = 0;
+    private float pieceRightRotationTimeCounter = 0;
 
     private final Model model;
     private double lastLoopTime;
@@ -82,7 +82,7 @@ public class Renderer3D implements Renderer {
         );
 
         glfwSetCursorPosCallback(
-                window, (_, xpos, ypos) -> camController.handleMouseInput(0, xpos, ypos)
+                window, (_, xpos, ypos) -> camController.handleMouseInput(xpos, ypos)
         );
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -202,13 +202,8 @@ public class Renderer3D implements Renderer {
         pieceLeftTimeCounter += deltaTime;
         pieceRightTimeCounter += deltaTime;
 
-        pieceXRotationTimeCounter += deltaTime;
-        pieceZRotationTimeCounter += deltaTime;
-
-        System.out.println(pieceForwardTimeCounter);
-        System.out.println(pieceBackwardTimeCounter);
-        System.out.println(pieceLeftTimeCounter);
-        System.out.println(pieceRightTimeCounter);
+        pieceForwardRotationTimeCounter += deltaTime;
+        pieceRightRotationTimeCounter += deltaTime;
 
         if (!camController.isFreeCam()) {
             float horizontalAngle = camController.getDirectedCam().getHorizontalAngle();
@@ -235,13 +230,13 @@ public class Renderer3D implements Renderer {
             RotationAxis forwardRotationAxis = forwardX > forwardZ ? RotationAxis.Z : RotationAxis.X;
 
             if (keys[GLFW_KEY_LEFT_SHIFT]) {
-                if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
+                if (keys[GLFW_KEY_W] && pieceForwardRotationTimeCounter > 0.1F) {
                     model.rotateCurrentPiece3D(forwardRotationAxis);
-                    pieceForwardTimeCounter = 0;
+                    pieceForwardRotationTimeCounter = 0;
                 }
-                if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
+                if (keys[GLFW_KEY_A] && pieceRightRotationTimeCounter > 0.1F) {
                     model.rotateCurrentPiece3D(RotationAxis.Y);
-                    pieceLeftTimeCounter = 0;
+                    pieceRightRotationTimeCounter = 0;
                 }
             } else {
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {

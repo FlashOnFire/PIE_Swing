@@ -71,7 +71,7 @@ public class CameraController {
         }
     }
 
-    public void handleMouseInput(float deltaTime, double mouseX, double mouseY) {
+    public void handleMouseInput(double mouseX, double mouseY) {
         if (firstMouse) {
             lastX = mouseX;
             lastY = mouseY;
