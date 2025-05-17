@@ -15,12 +15,11 @@ public class CubeShader extends ShaderProgram {
             uniform mat4 projectionMatrix;
             uniform mat4 viewMatrix;
             
-            uniform vec3 lightPosition = vec3(0, 0, 0);  // Adjusted light position for better angles
+            uniform vec3 lightPosition = vec3(0, 0, 0);
             
             out vec3 toLightVector;
             out vec3 toCameraVector;
             out vec3 surfaceNormal;
-            out vec3 fragPosition;  // To create position-based effects
             
             void main(void){
                 vec3 worldPosition = position + pos;
@@ -31,8 +30,6 @@ public class CubeShader extends ShaderProgram {
             
                 toCameraVector = camPos - worldPosition;
                 surfaceNormal = normal;
-            
-                fragPosition = worldPosition;
             }
             """;
     private static final String fragmentShader = """
@@ -41,7 +38,6 @@ public class CubeShader extends ShaderProgram {
             in vec3 toLightVector;
             in vec3 toCameraVector;
             in vec3 surfaceNormal;
-            in vec3 fragPosition;
             
             uniform vec3 color;
             

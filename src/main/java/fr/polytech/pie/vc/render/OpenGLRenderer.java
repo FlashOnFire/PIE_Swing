@@ -1,6 +1,7 @@
 package fr.polytech.pie.vc.render;
 
 import fr.polytech.pie.Consts;
+import fr.polytech.pie.vc.render.shader.SimpleShader;
 import fr.polytech.pie.vc.render.shader.CubeShader;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -13,13 +14,18 @@ import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 
 public class OpenGLRenderer {
     private final CubeShader cubeShader = new CubeShader();
+    private final SimpleShader simpleShader = new SimpleShader();
+
     private VertexArray cubeVao;
+    private VertexArray boxVAO;
 
     List<Cube> cubes = new ArrayList<>();
 
     public void init() {
         cubeShader.load();
+        simpleShader.load();
         cubeVao = RenderUtils.initCubeVAO();
+        boxVAO = RenderUtils.initWireframeBoxVAO(new Vector3f(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH));
     }
 
     public void destroy() {
@@ -29,10 +35,12 @@ public class OpenGLRenderer {
 
     public void render(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
         drawCubes(projectionMatrix, viewMatrix, cubes);
+        renderPlayingBox(projectionMatrix, viewMatrix, new Vector3f(0.0F, 0.0F, 0.0F), new Vector3f(0.0F, 0.0F, 0.0F));
     }
 
     public void drawCubes(Matrix4f projectionMatrix, Matrix4f viewMatrix, List<Cube> cubes) {
         this.cubeShader.start();
+
         this.cubeShader.setProjectionMatrix(projectionMatrix);
         this.cubeShader.setViewMatrix(viewMatrix);
         this.cubeShader.setLightPosition(new Vector3f(Consts.GRID_WIDTH / 2.0F, Consts.GRID_HEIGHT + 15.0F, Consts.GRID_DEPTH / 2.0F));
@@ -48,34 +56,19 @@ public class OpenGLRenderer {
         this.cubeShader.stop();
     }
 
-    public void renderPlayingBox(Vector3f pos, Vector3f color) {
-        float width = 180.0f;
-        float depth = 180.0f;
-        float height = 200.0f;
-        float lineThickness = 1.0f;
+    public void renderPlayingBox(Matrix4f projectionMatrix, Matrix4f viewMatrix, Vector3f pos, Vector3f color) {
+        this.simpleShader.start();
 
-        // Save the current polygon mode
-        int[] currentMode = new int[1];
-        GL30.glGetIntegerv(GL30.GL_POLYGON_MODE, currentMode);
+        this.simpleShader.setProjectionMatrix(projectionMatrix);
+        this.simpleShader.setViewMatrix(viewMatrix);
+        this.simpleShader.setPos(pos);
+        this.simpleShader.setColor(color);
 
-        // Set wireframe mode
-        GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, GL30.GL_LINE);
+        boxVAO.bind();
+        GL30.glDrawElements(GL30.GL_LINES, boxVAO.getVertexCount(), GL_UNSIGNED_INT, 0);
+        boxVAO.unbind();
 
-        this.cubeShader.start();
-        this.cubeShader.setPos(pos);
-        this.cubeShader.setColor(color);
-
-        cubeVao.bind();
-        // this.shader.setModelTransform(new Vector3f(width, height, depth));
-
-        GL30.glDrawElements(GL30.GL_TRIANGLES, cubeVao.getVertexCount(), GL_UNSIGNED_INT, 0);
-        cubeVao.unbind();
-
-        // Reset model matrix
-        //this.shader.setModelTransform(new Vector3f(1.0f, 1.0f, 1.0f));
-
-        // Restore the original polygon mode
-        GL30.glPolygonMode(GL30.GL_FRONT_AND_BACK, currentMode[0]);
+        this.simpleShader.stop();
     }
 
     public void updateCubes(List<Cube> cubes) {

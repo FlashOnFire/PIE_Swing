@@ -282,7 +282,6 @@ public class Renderer3D implements Renderer {
         }
     }
 
-
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score) {
         assert currentPiece != null : "Current piece is null";

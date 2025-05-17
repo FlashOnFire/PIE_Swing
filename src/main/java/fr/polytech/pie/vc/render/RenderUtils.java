@@ -4,10 +4,10 @@ import org.joml.Vector3f;
 
 public class RenderUtils {
     public static VertexArray initCubeVAO() {
-        ElementBuffer eBuffer = new ElementBuffer(getCubeIndices());
-        VertexArray cubeVao = new VertexArray(eBuffer);
+        ElementBuffer elementBuffer = new ElementBuffer(getCubeIndices());
+        VertexArray cubeVao = new VertexArray(elementBuffer);
 
-        VertexBuffer positionBuffer = new VertexBuffer(getCubePositions(), 3);
+        VertexBuffer positionBuffer = new VertexBuffer(getBoxPositions(new Vector3f(1.0F, 1.0F, 1.0F)), 3);
         positionBuffer.addVertexAttribPointer(0, 3, 0);
         VertexBuffer normalsBuffer = new VertexBuffer(getCubeNormals(), 3);
         normalsBuffer.addVertexAttribPointer(1, 3, 0);
@@ -20,12 +20,23 @@ public class RenderUtils {
         return cubeVao;
     }
 
-    private static float[] getCubePositions() {
+    public static VertexArray initWireframeBoxVAO(Vector3f size) {
+        ElementBuffer elementBuffer = new ElementBuffer(getBoxWireframeIndices());
+        VertexArray boxVAO = new VertexArray(elementBuffer);
+
+        VertexBuffer positionBuffer = new VertexBuffer(getBoxPositions(size), 3);
+        positionBuffer.addVertexAttribPointer(0, 3, 0);
+
+        boxVAO.bind();
+        boxVAO.bindVertexBuffer(positionBuffer);
+        boxVAO.unbind();
+
+        return boxVAO;
+    }
+
+    private static float[] getBoxPositions(Vector3f size) {
         // A cube has 8 vertices
         float[] positions = new float[8 * 3]; // 8 vertices, 3 coordinates each
-
-        // Use fixed size
-        Vector3f size = new Vector3f(1.0F, 1.0F, 1.0F);
 
         // Calculate the corner positions directly
         float minX = 0.0F;
@@ -129,5 +140,22 @@ public class RenderUtils {
         }
 
         return normals;
+    }
+
+    public static int[] getBoxWireframeIndices() {
+        return new int[]{
+                0, 1,
+                1, 3,
+                3, 2,
+                2, 0,
+                4, 5,
+                5, 7,
+                7, 6,
+                6, 4,
+                0, 4,
+                1, 5,
+                2, 6,
+                3, 7
+        };
     }
 }
