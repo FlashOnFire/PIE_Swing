@@ -6,7 +6,7 @@ import org.joml.Vector3f;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class CameraController {
-    private static final float speed = 5.0F;
+    private static float speed = 15.0F;
     private static final float mouseSensitivity = 0.1F;
     private static final float mouseScrollSensitivity = 1.2F;
 
@@ -97,7 +97,9 @@ public class CameraController {
     }
 
     public void handleMouseWheel(float deltaTime, double yOffset) {
-        if (!isFreeCam) {
+        if (isFreeCam) {
+            speed = Math.max(speed + ((float) yOffset) * mouseScrollSensitivity * deltaTime, 0.0F);
+        } else {
             directedCamera.addDistanceFromTarget((float) yOffset * mouseScrollSensitivity * deltaTime * -1.0F); // Reversed for more intuitive control
         }
     }
