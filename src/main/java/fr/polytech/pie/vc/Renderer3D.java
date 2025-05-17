@@ -221,6 +221,9 @@ public class Renderer3D implements Renderer {
         Piece[][][] positions = currentPiece3D.getPiece3d();
 
         Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
+        int fallenPieceY = model.getDroppedYCurrentPiece();
+        Vector3f fallenPiecePos = new Vector3f(currentPiece3D.getX(), fallenPieceY, currentPiece3D.getZ());
+
 
         for (int x = 0; x < positions[0][0].length; x++) {
             for (int y = 0; y < positions[0].length; y++) {
@@ -228,6 +231,11 @@ public class Renderer3D implements Renderer {
                     if (positions[z][y][x] != Piece.Empty) {
                         cubesPos.add(new Vector3f(x, y, z).add(piecePos));
                         colors.add(currentPiece3D.getColor().getVector());
+
+                        if (fallenPieceY != currentPiece3D.getY()) {
+                            cubesPos.add(new Vector3f(x, y, z).add(fallenPiecePos));
+                            colors.add(new Vector3f(0.5F, 0.5F, 0.5F));
+                        }
                     }
                 }
             }
