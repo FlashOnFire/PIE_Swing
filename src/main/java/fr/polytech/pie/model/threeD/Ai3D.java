@@ -17,10 +17,10 @@ public class Ai3D extends Ai {
     }
 
 // maybe needed later for training
-//    public Ai3D(Grid3D grid, double[] parameters) {
-//        super(parameters);
-//        this.grid = grid;
-//    }
+    public Ai3D(Grid3D grid, double[] parameters) {
+        super(parameters);
+        this.grid = grid;
+    }
 
     @Override
     public void makeMove(CurrentPiece currentPiece) {

@@ -1,15 +1,15 @@
-package fr.polytech.pie.model;
+package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.twoD.Ai2D;
-import fr.polytech.pie.model.twoD.Grid2D;
+import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.PieceGenerator;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class GeneticTrainer {
+public class GeneticTrainer2D {
     private static final int POPULATION_SIZE = 1000;
     private static final int TOURNAMENT_SIZE = 100;
     private static final int OFFSPRING_COUNT = 300;
@@ -64,7 +64,7 @@ public class GeneticTrainer {
         }
     }
 
-    public GeneticTrainer(int populationSize, int gamesPerEvaluation) {
+    public GeneticTrainer2D(int populationSize, int gamesPerEvaluation) {
         this.populationSize = populationSize;
         this.gamesPerEvaluation = gamesPerEvaluation;
         initializePopulation();
@@ -342,7 +342,7 @@ public class GeneticTrainer {
         System.out.println("  Population size: " + populationSize);
         System.out.println("  Games per evaluation: " + gamesPerEvaluation);
 
-        GeneticTrainer trainer = new GeneticTrainer(populationSize, gamesPerEvaluation);
+        GeneticTrainer2D trainer = new GeneticTrainer2D(populationSize, gamesPerEvaluation);
         double[] bestParameters = trainer.train(generations);
 
         System.out.println("Optimal parameters found:");
