@@ -39,6 +39,7 @@ public class Renderer3D implements Renderer {
     private float pieceBackwardTimeCounter = 0;
     private float pieceLeftTimeCounter = 0;
     private float pieceRightTimeCounter = 0;
+    private float pieceAiTimeCounter = 0;
 
     private float pieceForwardRotationTimeCounter = 0;
     private float pieceRightRotationTimeCounter = 0;
@@ -202,6 +203,7 @@ public class Renderer3D implements Renderer {
         pieceBackwardTimeCounter += deltaTime;
         pieceLeftTimeCounter += deltaTime;
         pieceRightTimeCounter += deltaTime;
+        pieceAiTimeCounter += deltaTime;
 
         pieceForwardRotationTimeCounter += deltaTime;
         pieceRightRotationTimeCounter += deltaTime;
@@ -255,6 +257,10 @@ public class Renderer3D implements Renderer {
                 if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
                     model.translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
                     pieceRightTimeCounter = 0;
+                }
+                if (keys[GLFW_KEY_I] && pieceAiTimeCounter > 0.1F) {
+                    model.runAi();
+                    pieceAiTimeCounter = 0;
                 }
             }
         }

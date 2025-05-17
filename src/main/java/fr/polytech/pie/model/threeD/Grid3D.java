@@ -182,9 +182,9 @@ public class Grid3D extends Grid {
 
     public int getHeightOfColumn3D(int x, int z) {
         int height = 0;
-        for (int y = 0; y < depth; y++) {
+        for (int y = this.height - 1; y >= 0; y--) {
             if (grid[z][y][x] != Piece.Empty) {
-                height = depth - y;
+                height = y + 1;
                 break;
             }
         }
