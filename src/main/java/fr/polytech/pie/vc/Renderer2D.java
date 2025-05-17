@@ -37,8 +37,9 @@ public class Renderer2D implements Renderer {
     private boolean isGameOver = false;
     private long gameOverStartTime = 0;
     private JPanel gameOverPanel;
+    private int remainingSeconds = 5;
+    private JLabel countdownLabel;
 
-    // Définition d'une enum pour représenter les actions des touches
     private enum KeyAction {
         MOVE_DOWN(0, KeyEvent.VK_Z, true),
         DROP(1, KeyEvent.VK_SPACE, false),
@@ -176,26 +177,38 @@ public class Renderer2D implements Renderer {
             }
         }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS);
 
-        // Ajouter un panneau pour l'affichage du Game Over
-        gameOverPanel = new JPanel();
+        gameOverPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(new Color(0, 0, 0, 150));
+                g.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+
+        gameOverPanel.setOpaque(false);
         gameOverPanel.setLayout(new BorderLayout());
-        gameOverPanel.setBackground(new Color(0, 0, 0, 150));
-        gameOverPanel.setVisible(false);
 
         JLabel gameOverLabel = new JLabel("GAME OVER");
         gameOverLabel.setFont(new Font("Arial", Font.BOLD, 48));
         gameOverLabel.setForeground(Color.RED);
         gameOverLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel returnToMenuLabel = new JLabel("Retour au menu dans 5s...");
-        returnToMenuLabel.setFont(new Font("Arial", Font.PLAIN, 24));
-        returnToMenuLabel.setForeground(Color.WHITE);
-        returnToMenuLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        countdownLabel = new JLabel();
+        countdownLabel.setFont(new Font("Arial", Font.PLAIN, 24));
+        countdownLabel.setForeground(Color.WHITE);
+        countdownLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        countdownLabel.setOpaque(false);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(countdownLabel, BorderLayout.CENTER);
 
         gameOverPanel.add(gameOverLabel, BorderLayout.CENTER);
-        gameOverPanel.add(returnToMenuLabel, BorderLayout.SOUTH);
+        gameOverPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         frame.setGlassPane(gameOverPanel);
+        gameOverPanel.setVisible(false);
     }
 
     private void performAction(KeyAction action) {
@@ -222,13 +235,22 @@ public class Renderer2D implements Renderer {
 
         if (isGameOver) {
             long currentTime = System.currentTimeMillis();
-            if (currentTime - gameOverStartTime > 5000) { // 5 secondes écoulées
+            long elapsedTime = currentTime - gameOverStartTime;
+
+            int newRemainingSeconds = 5 - (int) (elapsedTime / 1000);
+
+            if (newRemainingSeconds != remainingSeconds && newRemainingSeconds >= 0) {
+                remainingSeconds = newRemainingSeconds;
+                SwingUtilities.invokeLater(this::updateCountdownLabel);
+            }
+
+            if (elapsedTime > 5000) {
+                resetGameOver();
                 return LoopStatus.SHOW_MENU;
             }
             return LoopStatus.GAME_OVER;
         }
 
-        // Vérifiez si le jeu est terminé
         if (vueController.getModel().isGameOver() && !isGameOver) {
             showGameOver();
             return LoopStatus.GAME_OVER;
@@ -237,10 +259,34 @@ public class Renderer2D implements Renderer {
         return LoopStatus.CONTINUE;
     }
 
+    private void updateCountdownLabel() {
+        if (countdownLabel != null) {
+            countdownLabel.setText("Retour au menu dans " + remainingSeconds + "s...");
+            gameOverPanel.validate();
+            gameOverPanel.repaint();
+        }
+    }
+
     private void showGameOver() {
         isGameOver = true;
         gameOverStartTime = System.currentTimeMillis();
-        gameOverPanel.setVisible(true);
+        remainingSeconds = 5;
+        updateCountdownLabel();
+
+        SwingUtilities.invokeLater(() -> {
+            gameOverPanel.setVisible(true);
+            frame.validate();
+            frame.repaint();
+        });
+    }
+
+    private void resetGameOver() {
+        isGameOver = false;
+        SwingUtilities.invokeLater(() -> {
+            gameOverPanel.setVisible(false);
+            frame.validate();
+            frame.repaint();
+        });
     }
 
     @Override
@@ -268,6 +314,7 @@ public class Renderer2D implements Renderer {
         if (frame.isDisplayable()) {
             frame.dispose();
         }
+        resetGameOver();
     }
 
     private void clearGrid() {
