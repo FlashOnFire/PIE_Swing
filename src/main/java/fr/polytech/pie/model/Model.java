@@ -108,6 +108,7 @@ public class Model extends Observable {
 
     public void stopGame() {
         stopScheduler();
+        System.out.println("Game stopped");
         if (game.getScore() > (is3D ? highscore3D : highscore2D)) {
             setHighscore(game.getScore());
         }

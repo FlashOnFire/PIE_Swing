@@ -12,8 +12,13 @@ public class MenuRenderer implements Renderer {
     private final JFrame frame = new JFrame();
 
     private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
+    private final int highscore2D;
+    private final int highscore3D;
 
-    public MenuRenderer() {
+    public MenuRenderer(int highscore2D, int highscore3D) {
+        this.highscore2D = highscore2D;
+        this.highscore3D = highscore3D;
+
         frame.setTitle("Tetris");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(400, 300);
@@ -40,16 +45,29 @@ public class MenuRenderer implements Renderer {
         menuPanel.add(titleLabel, BorderLayout.NORTH);
         menuPanel.add(centerPanel, BorderLayout.CENTER);
 
-        JTextArea controlsText = getJTextArea();
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        JTextArea controlsText = getControlsTextArea();
+        bottomPanel.add(controlsText, BorderLayout.CENTER);
 
-        menuPanel.add(controlsText, BorderLayout.SOUTH);
+        var highscoreText = new JTextArea();
+        highscoreText.setEditable(false);
+        highscoreText.setFont(new Font("Arial", Font.PLAIN, 12));
+        highscoreText.setText(
+                """
+                    Highscore 2D: %d
+                    Highscore 3D: %d""".formatted(highscore2D, highscore3D)
+        );
+
+        bottomPanel.add(highscoreText, BorderLayout.SOUTH);
+
+        menuPanel.add(bottomPanel, BorderLayout.SOUTH);
         frame.add(menuPanel, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
     }
 
     @NotNull
-    private static JTextArea getJTextArea() {
+    private static JTextArea getControlsTextArea() {
         JTextArea controlsText = new JTextArea();
         controlsText.setEditable(false);
         controlsText.setFont(new Font("Arial", Font.PLAIN, 12));
