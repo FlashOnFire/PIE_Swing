@@ -134,7 +134,7 @@ public class Model extends Observable {
                     } else {
                         translateCurrentPiece2D(0, -1);
                     }
-                }, 0, 200, TimeUnit.MILLISECONDS
+                }, 0, 200 / game.getDifficulty(), TimeUnit.MILLISECONDS
         );
     }
 

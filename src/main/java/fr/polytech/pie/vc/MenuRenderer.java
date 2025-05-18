@@ -14,10 +14,13 @@ public class MenuRenderer implements Renderer {
     private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
     private final int highscore2D;
     private final int highscore3D;
+    private JComboBox<String> levelSelector;
+    VueController vueController;
 
-    public MenuRenderer(int highscore2D, int highscore3D) {
+    public MenuRenderer(int highscore2D, int highscore3D, VueController vueController) {
         this.highscore2D = highscore2D;
         this.highscore3D = highscore3D;
+        this.vueController = vueController;
 
         frame.setTitle("Tetris");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -36,6 +39,22 @@ public class MenuRenderer implements Renderer {
 
         JPanel buttonPanel = getJPanel();
 
+        JPanel levelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel levelLabel = new JLabel("Difficulté : ");
+        levelLabel.setFont(new Font("Arial", Font.BOLD, 14));
+
+        String[] levels = {"Facile", "Moyen", "Difficile"};
+        levelSelector = new JComboBox<>(levels);
+        levelSelector.setSelectedIndex(vueController.getDifficulty()-1);
+        levelSelector.addActionListener(_ -> vueController.setDifficulty(levelSelector.getSelectedIndex()+1));
+
+        levelPanel.add(levelLabel);
+        levelPanel.add(levelSelector);
+
+        JPanel gameControlsPanel = new JPanel(new BorderLayout());
+        gameControlsPanel.add(buttonPanel, BorderLayout.CENTER);
+        gameControlsPanel.add(levelPanel, BorderLayout.SOUTH);
+
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(Box.createVerticalStrut(100), BorderLayout.NORTH);
         centerPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -45,6 +64,16 @@ public class MenuRenderer implements Renderer {
         menuPanel.add(titleLabel, BorderLayout.NORTH);
         menuPanel.add(centerPanel, BorderLayout.CENTER);
 
+        JPanel bottomPanel = getPanel();
+
+        menuPanel.add(bottomPanel, BorderLayout.SOUTH);
+        frame.add(menuPanel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    @NotNull
+    private JPanel getPanel() {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         JTextArea controlsText = getControlsTextArea();
         bottomPanel.add(controlsText, BorderLayout.CENTER);
@@ -59,11 +88,7 @@ public class MenuRenderer implements Renderer {
         );
 
         bottomPanel.add(highscoreText, BorderLayout.SOUTH);
-
-        menuPanel.add(bottomPanel, BorderLayout.SOUTH);
-        frame.add(menuPanel, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
+        return bottomPanel;
     }
 
     @NotNull

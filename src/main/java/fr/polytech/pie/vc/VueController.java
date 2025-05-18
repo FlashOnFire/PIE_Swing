@@ -72,7 +72,7 @@ public class VueController implements Observer {
         }
 
         switch (type) {
-            case MENU -> currentRenderer = new MenuRenderer(model.getHighscore(false), model.getHighscore(true));
+            case MENU -> currentRenderer = new MenuRenderer(model.getHighscore(false), model.getHighscore(true),this);
             case GAME_2D -> currentRenderer = new Renderer2D(this);
             case GAME_3D -> currentRenderer = new Renderer3D(model);
         }
@@ -136,5 +136,13 @@ public class VueController implements Observer {
         // Cleanup GLFW
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).close();
+    }
+
+    public void setDifficulty(int difficulty) {
+        model.getGame().setDifficulty(difficulty);
+    }
+
+    public int getDifficulty() {
+        return model.getGame().getDifficulty();
     }
 }

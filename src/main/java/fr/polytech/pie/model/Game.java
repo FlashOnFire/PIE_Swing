@@ -19,6 +19,7 @@ public class Game {
     private int score;
     private boolean is3D;
     private boolean gameOver;
+    private int difficulty = 1;
 
     public Game(boolean is3D) {
         this.is3D = is3D;
@@ -192,4 +193,11 @@ public class Game {
         generateNewPiece();
     }
 
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public int getDifficulty() {
+        return difficulty;
+    }
 }
