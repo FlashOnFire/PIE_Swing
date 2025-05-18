@@ -46,6 +46,18 @@ public class Renderer3D implements Renderer {
 
     private final Model model;
     private double lastLoopTime;
+    private boolean isGameOver = false;
+    private double gameOverStartTime = 0;
+    private int remainingSeconds = 5;
+    private final Piece[][] gameOverPieces = {
+            {Piece.Red, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red},
+            {Piece.Red, Piece.Empty, Piece.Empty, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Empty, Piece.Red},
+            {Piece.Red, Piece.Empty, Piece.Empty, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Empty, Piece.Red},
+            {Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red},
+            {Piece.Red, Piece.Empty, Piece.Empty, Piece.Red, Piece.Red, Piece.Empty, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Empty},
+            {Piece.Red, Piece.Empty, Piece.Empty, Piece.Red, Piece.Red, Piece.Empty, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Empty},
+            {Piece.Red, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red, Piece.Empty, Piece.Red, Piece.Empty, Piece.Empty, Piece.Red, Piece.Empty, Piece.Red, Piece.Red, Piece.Red}
+    };
 
     public Renderer3D(Model m) {
         this.model = m;
@@ -195,7 +207,59 @@ public class Renderer3D implements Renderer {
 
         glfwPollEvents();
 
+        if (isGameOver) {
+            double elapsedTime = currentTime - gameOverStartTime;
+
+            int newRemainingSeconds = 5 - (int) elapsedTime;
+
+            if (newRemainingSeconds != remainingSeconds && newRemainingSeconds >= 0) {
+                remainingSeconds = newRemainingSeconds;
+                System.out.println("Remaining seconds: " + remainingSeconds);
+            }
+
+            if (elapsedTime > 5) {
+                resetGameOver();
+                return LoopStatus.SHOW_MENU;
+            }
+            return LoopStatus.GAME_OVER;
+        }
+
+        if (model.isGameOver() && !isGameOver) {
+            showGameOver();
+            return LoopStatus.GAME_OVER;
+        }
+
         return LoopStatus.CONTINUE;
+    }
+
+    private void showGameOver() {
+        isGameOver = true;
+        gameOverStartTime = glfwGetTime();
+        remainingSeconds = 5;
+
+        List<Cube> cubes = new ArrayList<>();
+        Grid3D grid3D = (Grid3D) model.getGame().getGrid();
+
+        float offsetX = (grid3D.getWidth() - gameOverPieces[0].length) / 2.0f;
+        float offsetY = grid3D.getHeight() / 2.0f;
+        float offsetZ = (grid3D.getDepth() - gameOverPieces.length) / 2.0f;
+
+        for (int z = 0; z < gameOverPieces.length; z++) {
+            for (int x = 0; x < gameOverPieces[0].length; x++) {
+                Piece piece = gameOverPieces[z][x];
+                if (piece != Piece.Empty) {
+                    cubes.add(new Cube(new Vector3f(x + offsetX, offsetY, z + offsetZ), piece.getVector()));
+                }
+            }
+        }
+
+        renderer.updateCubes(cubes);
+    }
+
+    private void resetGameOver() {
+        isGameOver = false;
+
+        update(model.getGame().getGrid(), model.getGame().getCurrentPiece(), model.getGame().getNextPiece(), model.getGame().getScore());
     }
 
     private void handleKeyboardInput(float deltaTime, boolean[] keys) {
@@ -284,67 +348,70 @@ public class Renderer3D implements Renderer {
 
     @Override
     public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score) {
-        assert currentPiece != null : "Current piece is null";
-        assert grid != null : "Grid is null";
+        if (!isGameOver) {
 
-        assert grid instanceof Grid3D;
+            assert currentPiece != null : "Current piece is null";
+            assert grid != null : "Grid is null";
 
-        Grid3D grid3D = (Grid3D) grid;
+            assert grid instanceof Grid3D;
 
-        List<Cube> cubes = new ArrayList<>();
+            Grid3D grid3D = (Grid3D) grid;
 
-        for (int x = 0; x < grid.getWidth(); x++) {
-            for (int y = 0; y < grid.getHeight(); y++) {
-                for (int z = 0; z < grid3D.getDepth(); z++) {
-                    Piece value = grid3D.getValue(x, y, z);
-                    if (value != Piece.Empty) {
-                        Cube cube = new Cube(new Vector3f(x, y, z), value.getVector());
-                        cubes.add(cube);
-                    }
-                }
-            }
-        }
+            List<Cube> cubes = new ArrayList<>();
 
-        CurrentPiece3D currentPiece3D = (CurrentPiece3D) currentPiece;
-        Piece[][][] positions = currentPiece3D.getPiece3d();
-
-        Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
-        int fallenPieceY = model.getDroppedYCurrentPiece();
-        Vector3f fallenPiecePos = new Vector3f(currentPiece3D.getX(), fallenPieceY, currentPiece3D.getZ());
-
-        for (int x = 0; x < positions[0][0].length; x++) {
-            for (int y = 0; y < positions[0].length; y++) {
-                for (int z = 0; z < positions.length; z++) {
-                    Piece value = positions[z][y][x];
-                    if (value != Piece.Empty) {
-                        cubes.add(new Cube(new Vector3f(x, y, z).add(piecePos), value.getVector()));
-
-                        if (fallenPieceY != currentPiece3D.getY()) {
-                            cubes.add(new Cube(new Vector3f(x, y, z).add(fallenPiecePos), new Vector3f(0.5F, 0.5F, 0.5F)));
+            for (int x = 0; x < grid.getWidth(); x++) {
+                for (int y = 0; y < grid.getHeight(); y++) {
+                    for (int z = 0; z < grid3D.getDepth(); z++) {
+                        Piece value = grid3D.getValue(x, y, z);
+                        if (value != Piece.Empty) {
+                            Cube cube = new Cube(new Vector3f(x, y, z), value.getVector());
+                            cubes.add(cube);
                         }
                     }
                 }
             }
-        }
 
-        CurrentPiece3D nextPiece3D = (CurrentPiece3D) nextPiece;
-        Piece[][][] nextPositions = nextPiece3D.getPiece3d();
+            CurrentPiece3D currentPiece3D = (CurrentPiece3D) currentPiece;
+            Piece[][][] positions = currentPiece3D.getPiece3d();
 
-        Vector3f nextPos = new Vector3f(grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F, grid.getHeight() - nextPiece.getHeight() / 2.0F + 10.0F, grid3D.getDepth() / 2.0F - nextPiece3D.getDepth() / 2.0F);
-        Vector3f nextPieceColor = new Vector3f(0.0F, 1.0F, 0.0F);
+            Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
+            int fallenPieceY = model.getDroppedYCurrentPiece();
+            Vector3f fallenPiecePos = new Vector3f(currentPiece3D.getX(), fallenPieceY, currentPiece3D.getZ());
 
-        for (int x = 0; x < nextPositions[0][0].length; x++) {
-            for (int y = 0; y < nextPositions[0].length; y++) {
-                for (int z = 0; z < nextPositions.length; z++) {
-                    Piece value = nextPositions[z][y][x];
-                    if (value != Piece.Empty) {
-                        cubes.add(new Cube(new Vector3f(x, y, z).add(nextPos), nextPieceColor));
+            for (int x = 0; x < positions[0][0].length; x++) {
+                for (int y = 0; y < positions[0].length; y++) {
+                    for (int z = 0; z < positions.length; z++) {
+                        Piece value = positions[z][y][x];
+                        if (value != Piece.Empty) {
+                            cubes.add(new Cube(new Vector3f(x, y, z).add(piecePos), value.getVector()));
+
+                            if (fallenPieceY != currentPiece3D.getY()) {
+                                cubes.add(new Cube(new Vector3f(x, y, z).add(fallenPiecePos), new Vector3f(0.5F, 0.5F, 0.5F)));
+                            }
+                        }
                     }
                 }
             }
-        }
 
-        renderer.updateCubes(cubes);
+            CurrentPiece3D nextPiece3D = (CurrentPiece3D) nextPiece;
+            Piece[][][] nextPositions = nextPiece3D.getPiece3d();
+
+            Vector3f nextPos = new Vector3f(grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F, grid.getHeight() - nextPiece.getHeight() / 2.0F + 10.0F, grid3D.getDepth() / 2.0F - nextPiece3D.getDepth() / 2.0F);
+            Vector3f nextPieceColor = new Vector3f(0.0F, 1.0F, 0.0F);
+
+            for (int x = 0; x < nextPositions[0][0].length; x++) {
+                for (int y = 0; y < nextPositions[0].length; y++) {
+                    for (int z = 0; z < nextPositions.length; z++) {
+                        Piece value = nextPositions[z][y][x];
+                        if (value != Piece.Empty) {
+                            cubes.add(new Cube(new Vector3f(x, y, z).add(nextPos), nextPieceColor));
+                        }
+                    }
+                }
+            }
+
+            renderer.updateCubes(cubes);
+        }
     }
 
     @Override
