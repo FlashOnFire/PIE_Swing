@@ -85,10 +85,8 @@ public class CurrentPiece3D extends CurrentPiece {
         for (int d = 0; d < getDepth(); d++) {
             for (int h = 0; h < getHeight(); h++) {
                 for (int w = 0; w < getWidth(); w++) {
-                    if (piece[d][h][w] != Piece.Empty) {
-                        int[] coords = transform.apply(d, h, w);
-                        rotated[coords[0]][coords[1]][coords[2]] = color;
-                    }
+                    int[] coords = transform.apply(d, h, w);
+                    rotated[coords[0]][coords[1]][coords[2]] = piece[d][h][w];
                 }
             }
         }
