@@ -25,6 +25,7 @@ public class OpenGLRenderer {
     private int fontID;
 
     List<Cube> cubes = new ArrayList<>();
+    private int score;
 
     public void init() {
         cubeShader.load();
@@ -48,8 +49,7 @@ public class OpenGLRenderer {
         drawCubes(projectionMatrix, viewMatrix, cubes);
         renderPlayingBox(projectionMatrix, viewMatrix, new Vector3f(0.0F, 0.0F, 0.0F), new Vector3f(0.0F, 0.0F, 0.0F));
 
-        // Render text
-        textRenderer.renderText(fontID, new Vector2i(400, 400), screenSize, 1.0F, new Vector3f(0.0F, 0.0F, 0.0F), "Hello World");
+        renderScore(screenSize);
     }
 
     public void drawCubes(Matrix4f projectionMatrix, Matrix4f viewMatrix, List<Cube> cubes) {
@@ -85,7 +85,15 @@ public class OpenGLRenderer {
         this.simpleShader.stop();
     }
 
+    public void renderScore(Vector2i screenSize) {
+        textRenderer.renderText(fontID, new Vector2i(10, screenSize.y - 30), screenSize, 0.5F, new Vector3f(0.0F, 0.0F, 0.0F), "Score: " + score);
+    }
+
     public void updateCubes(List<Cube> cubes) {
         this.cubes = cubes;
+    }
+
+    public void updateScore(int score) {
+        this.score = score;
     }
 }
