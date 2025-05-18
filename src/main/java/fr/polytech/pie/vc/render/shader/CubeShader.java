@@ -40,6 +40,7 @@ public class CubeShader extends ShaderProgram {
             in vec3 surfaceNormal;
             
             uniform vec3 color;
+            uniform float brightness;
             
             out vec4 out_color;
             
@@ -65,7 +66,7 @@ public class CubeShader extends ShaderProgram {
                 float specularFactor = pow(max(dot(unitNormal, halfwayDir), 0.0), shininess);
                 float specular = specularFactor * specularStrength;
             
-                float lighting = (ambient + (diffuse + specular) * attenuation);
+                float lighting = (ambient + (diffuse + specular) * attenuation) * brightness;
             
                 vec3 result = color * lighting;
                 out_color = vec4(result, 1.0);
@@ -77,6 +78,7 @@ public class CubeShader extends ShaderProgram {
     private int location_pos;
     private int location_color;
     private int location_lightPosition;
+    private int location_brightness;
 
     @Override
     public void load() {
@@ -90,6 +92,7 @@ public class CubeShader extends ShaderProgram {
         location_pos = getUniformLocation("pos");
         location_color = getUniformLocation("color");
         location_lightPosition = getUniformLocation("lightPosition");
+        location_brightness = getUniformLocation("brightness");
     }
 
     public void setProjectionMatrix(Matrix4f mat) {
@@ -106,6 +109,10 @@ public class CubeShader extends ShaderProgram {
 
     public void setColor(Vector3f color) {
         loadVector(location_color, color);
+    }
+
+    public void setBrightness(float brightness) {
+        loadFloat(location_brightness, brightness);
     }
 
     public void setLightPosition(Vector3f lightPos) {

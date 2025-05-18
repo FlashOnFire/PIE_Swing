@@ -6,6 +6,6 @@ import fr.polytech.pie.model.Grid;
 public interface Renderer {
     void initialize();
     LoopStatus loop();
-    void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score);
+    void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver);
     void cleanup();
 }

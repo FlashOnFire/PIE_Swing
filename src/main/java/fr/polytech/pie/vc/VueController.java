@@ -72,7 +72,7 @@ public class VueController implements Observer {
         }
 
         switch (type) {
-            case MENU -> currentRenderer = new MenuRenderer(model.getHighscore(false), model.getHighscore(true),this);
+            case MENU -> currentRenderer = new MenuRenderer(model.getHighscore(false), model.getHighscore(true), this);
             case GAME_2D -> currentRenderer = new Renderer2D(this);
             case GAME_3D -> currentRenderer = new Renderer3D(model);
         }
@@ -115,7 +115,9 @@ public class VueController implements Observer {
                         game.getGrid(),
                         game.getCurrentPiece(),
                         game.getNextPiece(),
-                        game.getScore());
+                        game.getScore(),
+                        game.isGameOver()
+                );
             }
         } catch (Exception e) {
             Logger.getLogger(VueController.class.getName()).log(Level.SEVERE, "Error updating VueController", e);

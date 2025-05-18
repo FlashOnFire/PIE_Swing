@@ -48,6 +48,11 @@ public class Renderer3D implements Renderer {
     private final Model model;
     private double lastLoopTime;
 
+    private int score = 0;
+
+    private boolean isGameOver = false;
+    private float elapsedTimeSinceGameOver = 0;
+
     public Renderer3D(Model m) {
         this.model = m;
     }
@@ -164,6 +169,13 @@ public class Renderer3D implements Renderer {
         float deltaTime = (float) (currentTime - lastLoopTime);
         lastLoopTime = currentTime;
 
+        if (isGameOver) {
+            elapsedTimeSinceGameOver += deltaTime;
+            if (elapsedTimeSinceGameOver > 5.0F) {
+                return LoopStatus.SHOW_MENU;
+            }
+        }
+
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -179,20 +191,16 @@ public class Renderer3D implements Renderer {
             height = pHeight.get();
             camController.setAspectRatio(((float) width) / ((float) height));
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
             if (keys[GLFW_KEY_ESCAPE]) {
                 glfwSetWindowShouldClose(window, true);
             }
 
-            camController.handleKeyboardInput(deltaTime, keys, lastKeys);
-            handleKeyboardInput(deltaTime, keys);
-            System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
-
-            renderer.render(new Vector2i(width, height), camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
+            renderer.render(window, new Vector2i(width, height), camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix(), score, isGameOver, elapsedTimeSinceGameOver);
         } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
 
-        glfwSwapBuffers(window);
+        camController.handleKeyboardInput(deltaTime, keys, lastKeys);
+        handleKeyboardInput(deltaTime, keys);
+        System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
 
         glfwPollEvents();
 
@@ -284,7 +292,7 @@ public class Renderer3D implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score) {
+    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver) {
         assert currentPiece != null : "Current piece is null";
         assert grid != null : "Grid is null";
 
@@ -299,7 +307,7 @@ public class Renderer3D implements Renderer {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
                     Piece value = grid3D.getValue(x, y, z);
                     if (value != Piece.Empty) {
-                        Cube cube = new Cube(new Vector3f(x, y, z), value.getVector());
+                        Cube cube = new Cube(new Vector3f(x, y, z), isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector());
                         cubes.add(cube);
                     }
                 }
@@ -318,35 +326,38 @@ public class Renderer3D implements Renderer {
                 for (int z = 0; z < positions.length; z++) {
                     Piece value = positions[z][y][x];
                     if (value != Piece.Empty) {
-                        cubes.add(new Cube(new Vector3f(x, y, z).add(piecePos), value.getVector()));
+                        cubes.add(new Cube(new Vector3f(x, y, z).add(piecePos), isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector()));
 
                         if (fallenPieceY != currentPiece3D.getY()) {
-                            cubes.add(new Cube(new Vector3f(x, y, z).add(fallenPiecePos), new Vector3f(0.5F, 0.5F, 0.5F)));
+                            cubes.add(new Cube(new Vector3f(x, y, z).add(fallenPiecePos), isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : new Vector3f(0.5F, 0.5F, 0.5F)));
                         }
                     }
                 }
             }
         }
 
-        CurrentPiece3D nextPiece3D = (CurrentPiece3D) nextPiece;
-        Piece[][][] nextPositions = nextPiece3D.getPiece3d();
+        if (!isGameOver) {
+            CurrentPiece3D nextPiece3D = (CurrentPiece3D) nextPiece;
+            Piece[][][] nextPositions = nextPiece3D.getPiece3d();
 
-        Vector3f nextPos = new Vector3f(grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F, grid.getHeight() - nextPiece.getHeight() / 2.0F + 10.0F, grid3D.getDepth() / 2.0F - nextPiece3D.getDepth() / 2.0F);
-        Vector3f nextPieceColor = new Vector3f(0.0F, 1.0F, 0.0F);
+            Vector3f nextPos = new Vector3f(grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F, grid.getHeight() - nextPiece.getHeight() / 2.0F + 10.0F, grid3D.getDepth() / 2.0F - nextPiece3D.getDepth() / 2.0F);
+            Vector3f nextPieceColor = new Vector3f(0.0F, 1.0F, 0.0F);
 
-        for (int x = 0; x < nextPositions[0][0].length; x++) {
-            for (int y = 0; y < nextPositions[0].length; y++) {
-                for (int z = 0; z < nextPositions.length; z++) {
-                    Piece value = nextPositions[z][y][x];
-                    if (value != Piece.Empty) {
-                        cubes.add(new Cube(new Vector3f(x, y, z).add(nextPos), nextPieceColor));
+            for (int x = 0; x < nextPositions[0][0].length; x++) {
+                for (int y = 0; y < nextPositions[0].length; y++) {
+                    for (int z = 0; z < nextPositions.length; z++) {
+                        Piece value = nextPositions[z][y][x];
+                        if (value != Piece.Empty) {
+                            cubes.add(new Cube(new Vector3f(x, y, z).add(nextPos), nextPieceColor));
+                        }
                     }
                 }
             }
         }
 
         renderer.updateCubes(cubes);
-        renderer.updateScore(score);
+        this.score = score;
+        this.isGameOver = isGameOver;
     }
 
     @Override

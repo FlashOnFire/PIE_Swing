@@ -142,7 +142,8 @@ public class MenuRenderer implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score) {
+    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver) {
+        // No update needed for the menu
     }
 
     @Override
