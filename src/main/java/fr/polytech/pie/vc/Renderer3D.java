@@ -45,17 +45,16 @@ public class Renderer3D implements Renderer {
     private float pieceForwardRotationTimeCounter = 0;
     private float pieceRightRotationTimeCounter = 0;
 
-    private final Model model;
+    private final VueController vueController;
     private double lastLoopTime;
-
     private int score = 0;
 
     private boolean isGameOver = false;
     private float elapsedTimeSinceGameOver = 0;
 
-    public Renderer3D(Model m) {
-        this.model = m;
-    }
+    public Renderer3D(VueController vueController) {
+        this.vueController = vueController;
+     }
 
     @Override
     public void initialize() {
@@ -149,9 +148,9 @@ public class Renderer3D implements Renderer {
             camController = new CameraController(false, ((float) width) / ((float) height));
         }
 
-        float gridWidth = model.getGame().getGrid().getWidth();
-        float gridHeight = model.getGame().getGrid().getHeight();
-        float gridDepth = ((Grid3D) model.getGame().getGrid()).getDepth();
+        float gridWidth = vueController.getModel().getGame().getGrid().getWidth();
+        float gridHeight = vueController.getModel().getGame().getGrid().getHeight();
+        float gridDepth = ((Grid3D) vueController.getModel().getGame().getGrid()).getDepth();
 
         Vector3f center = new Vector3f(gridWidth / 2.0F, gridHeight / 2.0F, gridDepth / 2.0F);
 
@@ -218,11 +217,11 @@ public class Renderer3D implements Renderer {
         pieceRightRotationTimeCounter += deltaTime;
 
         if (keys[GLFW_KEY_SPACE] && !lastKeys[GLFW_KEY_SPACE]) {
-            model.dropCurrentPiece();
+            vueController.getModel().dropCurrentPiece();
         }
 
         if (keys[GLFW_KEY_R] && !lastKeys[GLFW_KEY_R]) {
-            model.resetGame();
+            vueController.getModel().resetGame();
         }
 
         if (keys[GLFW_KEY_LEFT_ALT] && !lastKeys[GLFW_KEY_LEFT_ALT]) {
@@ -259,32 +258,32 @@ public class Renderer3D implements Renderer {
 
             if (keys[GLFW_KEY_LEFT_SHIFT]) {
                 if (keys[GLFW_KEY_W] && pieceForwardRotationTimeCounter > 0.1F) {
-                    model.rotateCurrentPiece3D(forwardRotationAxis);
+                    vueController.getModel().rotateCurrentPiece3D(forwardRotationAxis);
                     pieceForwardRotationTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_A] && pieceRightRotationTimeCounter > 0.1F) {
-                    model.rotateCurrentPiece3D(RotationAxis.Y);
+                    vueController.getModel().rotateCurrentPiece3D(RotationAxis.Y);
                     pieceRightRotationTimeCounter = 0;
                 }
             } else {
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
-                    model.translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));
                     pieceForwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
-                    model.translateCurrentPiece3D(Math.round(forwardX), 0, Math.round(forwardZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(forwardX), 0, Math.round(forwardZ));
                     pieceBackwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
-                    model.translateCurrentPiece3D(Math.round(-rightX), 0, Math.round(-rightZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(-rightX), 0, Math.round(-rightZ));
                     pieceLeftTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
-                    model.translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
                     pieceRightTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_I] && pieceAiTimeCounter > 0.1F) {
-                    model.runAi();
+                    vueController.getModel().runAi();
                     pieceAiTimeCounter = 0;
                 }
             }
@@ -318,7 +317,7 @@ public class Renderer3D implements Renderer {
         Piece[][][] positions = currentPiece3D.getPiece3d();
 
         Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
-        int fallenPieceY = model.getDroppedYCurrentPiece();
+        int fallenPieceY = vueController.getModel().getDroppedYCurrentPiece();
         Vector3f fallenPiecePos = new Vector3f(currentPiece3D.getX(), fallenPieceY, currentPiece3D.getZ());
 
         for (int x = 0; x < positions[0][0].length; x++) {
