@@ -21,7 +21,7 @@ public class CubeShader extends ShaderProgram {
             out vec3 toCameraVector;
             out vec3 surfaceNormal;
             
-            void main(void){
+            void main(void) {
                 vec3 worldPosition = position + pos;
                 gl_Position = projectionMatrix * viewMatrix * vec4(worldPosition, 1.0);
             

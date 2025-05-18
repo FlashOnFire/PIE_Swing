@@ -5,18 +5,31 @@ import org.lwjgl.opengl.GL30;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-
 public class VertexBuffer {
     private final int id;
-    private final int dataStride;
     private final List<VertexAttribPointer> vertexAttribs = new ArrayList<>();
 
-    public VertexBuffer(float[] data, int stride) {
+    private VertexBuffer() {
         this.id = GL30.glGenBuffers();
-        this.dataStride = stride;
+    }
+
+    public VertexBuffer(int dataLength, int usage) {
+        this();
         bind();
-        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, data.length * 4L, GL30.GL_STATIC_DRAW);
+        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, dataLength, usage);
+        unbind();
+    }
+
+    public VertexBuffer(float[] data, int usage) {
+        this();
+        bind();
+        GL30.glBufferData(GL30.GL_ARRAY_BUFFER, data.length * 4L, usage);
+        GL30.glBufferSubData(GL30.GL_ARRAY_BUFFER, 0, data);
+        unbind();
+    }
+
+    public void storeData(float[] data) {
+        bind();
         GL30.glBufferSubData(GL30.GL_ARRAY_BUFFER, 0, data);
         unbind();
     }
@@ -33,8 +46,8 @@ public class VertexBuffer {
         GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, 0);
     }
 
-    public void addVertexAttribPointer(int index, int coordinateSize, int offset) {
-        VertexAttribPointer pointer = new VertexAttribPointer(index, coordinateSize, offset);
+    public void addVertexAttribPointer(int index, int size, int type, int stride, int offset) {
+        VertexAttribPointer pointer = new VertexAttribPointer(index, size, type, stride, offset);
         this.vertexAttribs.add(pointer);
     }
 
@@ -42,8 +55,8 @@ public class VertexBuffer {
         for (VertexAttribPointer vertexAttribPointer : vertexAttribs) {
             GL30.glEnableVertexAttribArray(vertexAttribPointer.index());
             GL30.glVertexAttribPointer(
-                    vertexAttribPointer.index(), vertexAttribPointer.size(), GL_FLOAT, false,
-                    this.dataStride * 4, vertexAttribPointer.offset()
+                    vertexAttribPointer.index(), vertexAttribPointer.size(), vertexAttribPointer.type(), false,
+                    vertexAttribPointer.stride() * 4, vertexAttribPointer.offset()
             );
         }
     }

@@ -6,6 +6,7 @@ import fr.polytech.pie.model.threeD.Grid3D;
 import fr.polytech.pie.vc.render.Cube;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
 import fr.polytech.pie.vc.render.cameras.CameraController;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
@@ -177,19 +178,19 @@ public class Renderer3D implements Renderer {
             width = pWidth.get();
             height = pHeight.get();
             camController.setAspectRatio(((float) width) / ((float) height));
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            if (keys[GLFW_KEY_ESCAPE]) {
+                glfwSetWindowShouldClose(window, true);
+            }
+
+            camController.handleKeyboardInput(deltaTime, keys, lastKeys);
+            handleKeyboardInput(deltaTime, keys);
+            System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
+
+            renderer.render(new Vector2i(width, height), camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
         } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if (keys[GLFW_KEY_ESCAPE]) {
-            glfwSetWindowShouldClose(window, true);
-        }
-
-        camController.handleKeyboardInput(deltaTime, keys, lastKeys);
-        handleKeyboardInput(deltaTime, keys);
-        System.arraycopy(keys, 0, lastKeys, 0, lastKeys.length);
-
-        renderer.render(camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix());
 
         glfwSwapBuffers(window);
 

@@ -1,18 +1,25 @@
 package fr.polytech.pie.vc.render;
 
+import org.lwjgl.opengl.GL30;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL30;
-
 public class VertexArray {
     private final int id;
-    private final ElementBuffer elementBuffer;
+    private ElementBuffer elementBuffer;
     private final List<VertexBuffer> vertexBuffers = new ArrayList<>();
 
-    public VertexArray(ElementBuffer elementBuffer) {
+    public VertexArray() {
         this.id = GL30.glGenVertexArrays();
+        this.elementBuffer = null;
+    }
+
+    public VertexArray(ElementBuffer elementBuffer) {
+        this();
+
         this.elementBuffer = elementBuffer;
+
         bind();
         bindElementArrayBuffer();
         unbind();
@@ -20,12 +27,14 @@ public class VertexArray {
 
     public void destroy() {
         GL30.glDeleteVertexArrays(this.id);
-        
+
         for (VertexBuffer vertexBuffer : vertexBuffers) {
             vertexBuffer.destroy();
         }
 
-        elementBuffer.destroy();
+        if (this.elementBuffer != null) {
+            elementBuffer.destroy();
+        }
     }
 
     public int getVertexCount() {
@@ -48,5 +57,12 @@ public class VertexArray {
 
     private void bindElementArrayBuffer() {
         this.elementBuffer.bind();
+    }
+
+    public VertexBuffer getVertexBuffer(int i) {
+        if (i < 0 || i >= vertexBuffers.size()) {
+            throw new IndexOutOfBoundsException("VertexBuffer index out of bounds: " + i);
+        }
+        return vertexBuffers.get(i);
     }
 }

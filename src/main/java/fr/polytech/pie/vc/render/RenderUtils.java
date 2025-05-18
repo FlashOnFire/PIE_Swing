@@ -1,16 +1,19 @@
 package fr.polytech.pie.vc.render;
 
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL30;
+
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
 
 public class RenderUtils {
     public static VertexArray initCubeVAO() {
         ElementBuffer elementBuffer = new ElementBuffer(getCubeIndices());
         VertexArray cubeVao = new VertexArray(elementBuffer);
 
-        VertexBuffer positionBuffer = new VertexBuffer(getBoxPositions(new Vector3f(1.0F, 1.0F, 1.0F)), 3);
-        positionBuffer.addVertexAttribPointer(0, 3, 0);
-        VertexBuffer normalsBuffer = new VertexBuffer(getCubeNormals(), 3);
-        normalsBuffer.addVertexAttribPointer(1, 3, 0);
+        VertexBuffer positionBuffer = new VertexBuffer(getBoxPositions(new Vector3f(1.0F, 1.0F, 1.0F)), GL30.GL_STATIC_DRAW);
+        positionBuffer.addVertexAttribPointer(0, 3, GL_FLOAT, 3, 0);
+        VertexBuffer normalsBuffer = new VertexBuffer(getCubeNormals(), GL30.GL_STATIC_DRAW);
+        normalsBuffer.addVertexAttribPointer(1, 3, GL_FLOAT, 3, 0);
 
         cubeVao.bind();
         cubeVao.bindVertexBuffer(positionBuffer);
@@ -24,8 +27,8 @@ public class RenderUtils {
         ElementBuffer elementBuffer = new ElementBuffer(getBoxWireframeIndices());
         VertexArray boxVAO = new VertexArray(elementBuffer);
 
-        VertexBuffer positionBuffer = new VertexBuffer(getBoxPositions(size), 3);
-        positionBuffer.addVertexAttribPointer(0, 3, 0);
+        VertexBuffer positionBuffer = new VertexBuffer(getBoxPositions(size), GL30.GL_STATIC_DRAW);
+        positionBuffer.addVertexAttribPointer(0, 3, GL_FLOAT, 3, 0);
 
         boxVAO.bind();
         boxVAO.bindVertexBuffer(positionBuffer);
@@ -104,28 +107,44 @@ public class RenderUtils {
         float[] normals = new float[8 * 3]; // 8 vertices, 3 coordinates each
 
         // vertex 0 (bottom-left-front): average of -x, -y, -z normals
-        normals[0] = -1.0f; normals[1] = -1.0f; normals[2] = -1.0f;
+        normals[0] = -1.0f;
+        normals[1] = -1.0f;
+        normals[2] = -1.0f;
 
         // vertex 1 (bottom-right-front): average of +x, -y, -z normals
-        normals[3] = 1.0f; normals[4] = -1.0f; normals[5] = -1.0f;
+        normals[3] = 1.0f;
+        normals[4] = -1.0f;
+        normals[5] = -1.0f;
 
         // vertex 2 (top-left-front): average of -x, +y, -z normals
-        normals[6] = -1.0f; normals[7] = 1.0f; normals[8] = -1.0f;
+        normals[6] = -1.0f;
+        normals[7] = 1.0f;
+        normals[8] = -1.0f;
 
         // vertex 3 (top-right-front): average of +x, +y, -z normals
-        normals[9] = 1.0f; normals[10] = 1.0f; normals[11] = -1.0f;
+        normals[9] = 1.0f;
+        normals[10] = 1.0f;
+        normals[11] = -1.0f;
 
         // vertex 4 (bottom-left-back): average of -x, -y, +z normals
-        normals[12] = -1.0f; normals[13] = -1.0f; normals[14] = 1.0f;
+        normals[12] = -1.0f;
+        normals[13] = -1.0f;
+        normals[14] = 1.0f;
 
         // vertex 5 (bottom-right-back): average of +x, -y, +z normals
-        normals[15] = 1.0f; normals[16] = -1.0f; normals[17] = 1.0f;
+        normals[15] = 1.0f;
+        normals[16] = -1.0f;
+        normals[17] = 1.0f;
 
         // vertex 6 (top-left-back): average of -x, +y, +z normals
-        normals[18] = -1.0f; normals[19] = 1.0f; normals[20] = 1.0f;
+        normals[18] = -1.0f;
+        normals[19] = 1.0f;
+        normals[20] = 1.0f;
 
         // vertex 7 (top-right-back): average of +x, +y, +z normals
-        normals[21] = 1.0f; normals[22] = 1.0f; normals[23] = 1.0f;
+        normals[21] = 1.0f;
+        normals[22] = 1.0f;
+        normals[23] = 1.0f;
 
         // Normalize the normals
         for (int i = 0; i < 8; i++) {

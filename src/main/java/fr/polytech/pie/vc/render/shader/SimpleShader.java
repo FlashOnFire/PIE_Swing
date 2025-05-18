@@ -14,7 +14,7 @@ public class SimpleShader extends ShaderProgram {
             uniform mat4 projectionMatrix;
             uniform mat4 viewMatrix;
             
-            void main(void){
+            void main(void) {
                 vec3 worldPosition = position + pos;
                 gl_Position = projectionMatrix * viewMatrix * vec4(worldPosition, 1.0);
             }

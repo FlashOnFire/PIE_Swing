@@ -3,7 +3,9 @@ package fr.polytech.pie.vc.render;
 import fr.polytech.pie.Consts;
 import fr.polytech.pie.vc.render.shader.SimpleShader;
 import fr.polytech.pie.vc.render.shader.CubeShader;
+import fr.polytech.pie.vc.render.text.TextRenderer;
 import org.joml.Matrix4f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL30;
 
@@ -15,9 +17,12 @@ import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 public class OpenGLRenderer {
     private final CubeShader cubeShader = new CubeShader();
     private final SimpleShader simpleShader = new SimpleShader();
+    private final TextRenderer textRenderer = new TextRenderer();
 
     private VertexArray cubeVao;
     private VertexArray boxVAO;
+
+    private int fontID;
 
     List<Cube> cubes = new ArrayList<>();
 
@@ -26,16 +31,25 @@ public class OpenGLRenderer {
         simpleShader.load();
         cubeVao = RenderUtils.initCubeVAO();
         boxVAO = RenderUtils.initWireframeBoxVAO(new Vector3f(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH));
+        textRenderer.init();
+
+        fontID = textRenderer.loadFont(TextRenderer.getResourceFontPath("arial.ttf"), 48);
     }
 
     public void destroy() {
         this.cubeShader.destroy();
         this.cubeVao.destroy();
+        this.simpleShader.destroy();
+        this.boxVAO.destroy();
+        this.textRenderer.destroy();
     }
 
-    public void render(Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+    public void render(Vector2i screenSize, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
         drawCubes(projectionMatrix, viewMatrix, cubes);
         renderPlayingBox(projectionMatrix, viewMatrix, new Vector3f(0.0F, 0.0F, 0.0F), new Vector3f(0.0F, 0.0F, 0.0F));
+
+        // Render text
+        textRenderer.renderText(fontID, new Vector2i(400, 400), screenSize, 1.0F, new Vector3f(0.0F, 0.0F, 0.0F), "Hello World");
     }
 
     public void drawCubes(Matrix4f projectionMatrix, Matrix4f viewMatrix, List<Cube> cubes) {
