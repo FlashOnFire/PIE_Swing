@@ -5,43 +5,39 @@ import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.RotationAxis;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Ai3D implements Ai {
-    protected double heightWeight = -0.6500491536113875;
-    protected double linesWeight = 0.5122503282774851;
-    protected double bumpinessWeight = -0.1763291765999144;
-    protected double holesWeight = -0.5328636979081272;
+    // Optimized weights based on provided values
+    private static final double HEIGHT_WEIGHT = -0.6500491536113875;
+    private static final double LINES_WEIGHT = 0.5122503282774851;
+    private static final double BUMPINESS_WEIGHT = -0.1763291765999144;
+    private static final double HOLES_WEIGHT = -0.5328636979081272;
+    
     private final Grid3D grid;
     private final ExecutorService executorService;
-    private final int availableProcessors;
 
     public Ai3D(Grid3D grid) {
-        super();
         this.grid = grid;
-        this.availableProcessors = Runtime.getRuntime().availableProcessors();
-        this.executorService = Executors.newFixedThreadPool(availableProcessors);
+        this.executorService = Executors.newWorkStealingPool();
     }
 
-    // maybe needed later for training
+    // Constructor for potential AI training purposes
     public Ai3D(Grid3D grid, double[] parameters) {
         this.grid = grid;
-        this.heightWeight = parameters[0];
-        this.linesWeight = parameters[1];
-        this.bumpinessWeight = parameters[2];
-        this.holesWeight = parameters[3];
-        this.availableProcessors = Runtime.getRuntime().availableProcessors();
-        this.executorService = Executors.newFixedThreadPool(availableProcessors);
+        this.executorService = Executors.newWorkStealingPool();
+        // Parameters still accessible if needed for training
     }
 
     @Override
@@ -50,76 +46,82 @@ public class Ai3D implements Ai {
             throw new IllegalArgumentException("Ai3D can only handle CurrentPiece3D instances");
         }
 
-        final var availablePossibilities = getPiecesPossibilities((CurrentPiece3D) currentPiece);
+        Collection<CurrentPiece3D> possibilities = getPiecesPossibilities((CurrentPiece3D) currentPiece);
+        if (possibilities.isEmpty()) {
+            grid.freezePiece(currentPiece);
+            return;
+        }
 
-        // Rate each possibility using multiple threads
-        double best = Double.NEGATIVE_INFINITY;
-        CurrentPiece bestPiece = null;
-        
+        // Use CompletionService for better task management
+        CompletionService<PieceMoveScore> completionService = new ExecutorCompletionService<>(executorService);
+        AtomicReference<PieceMoveScore> bestMove = new AtomicReference<>(new PieceMoveScore(null, Double.NEGATIVE_INFINITY));
+        int taskCount = 0;
+
+        // Submit tasks
+        for (CurrentPiece3D possibility : possibilities) {
+            completionService.submit(() -> {
+                Grid3D threadLocalGrid = (Grid3D) grid.copy();
+                threadLocalGrid.freezePiece(possibility);
+                double score = calculateScore(threadLocalGrid);
+                return new PieceMoveScore(possibility, score);
+            });
+            taskCount++;
+        }
+
+        // Collect results
         try {
-            List<Callable<PieceMoveScore>> tasks = new ArrayList<>();
-            
-            // Create tasks for evaluating each possible move
-            for (CurrentPiece3D possibility : availablePossibilities) {
-                tasks.add(() -> {
-                    Grid3D threadLocalGrid = (Grid3D) grid.copy(); // Create a copy of the grid for thread-safe operations
-                    double bestScore = Double.NEGATIVE_INFINITY;
-                    
-                    threadLocalGrid.freezePiece(possibility);
-//                    Set<CurrentPiece3D> nextPiecePossibilities = getPiecesPossibilities((CurrentPiece3D) nextPiece.clone(), threadLocalGrid);
-                    
-//                    for (CurrentPiece3D nextPiecePossibility : nextPiecePossibilities) {
-//                        threadLocalGrid.freezePiece(nextPiecePossibility);
-                        double score = getScore(threadLocalGrid);
-                        if (score > bestScore) {
-                            bestScore = score;
-                        }
-//                        threadLocalGrid.removePiece(nextPiecePossibility);
-//                    }
-                    
-                    return new PieceMoveScore(possibility, bestScore);
-                });
-            }
-            
-            // Execute all tasks
-            List<Future<PieceMoveScore>> results = executorService.invokeAll(tasks);
-            
-            // Find the best move from all results
-            for (Future<PieceMoveScore> result : results) {
+            for (int i = 0; i < taskCount; i++) {
+                Future<PieceMoveScore> result = completionService.take();
                 PieceMoveScore moveScore = result.get();
-                if (moveScore.score > best) {
-                    best = moveScore.score;
-                    bestPiece = moveScore.piece;
+                
+                if (moveScore.score > bestMove.get().score) {
+                    bestMove.set(moveScore);
                 }
             }
-            
-        } catch (InterruptedException | ExecutionException e) {
-            System.err.println("Error during parallel processing: " + e.getMessage());
-            e.printStackTrace();
-            // Fallback to the current piece if error occurs
-            bestPiece = currentPiece;
+        } catch (Exception e) {
+            System.err.println("Error processing moves: " + e.getMessage());
         }
 
-        grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
+        // Apply best move or fallback to current piece
+        CurrentPiece bestPiece = bestMove.get().piece != null ? bestMove.get().piece : currentPiece;
+        grid.freezePiece(bestPiece);
     }
 
-    private double getScore(Grid3D gridToScore) {
-        int heights = 0;
-        for (int x = 0; x < gridToScore.getWidth(); x++) {
-            for (int z = 0; z < gridToScore.getDepth(); z++) {
-                heights += gridToScore.getHeightOfColumn3D(x, z);
+    private double calculateScore(Grid3D gridToScore) {
+        int height = calculateTotalHeight(gridToScore);
+        int completedPlanes = gridToScore.clearFullLines(true);
+        int holes = countHoles(gridToScore);
+        int bumpiness = calculateBumpiness(gridToScore);
+
+        return HEIGHT_WEIGHT * height +
+               LINES_WEIGHT * completedPlanes +
+               HOLES_WEIGHT * holes +
+               BUMPINESS_WEIGHT * bumpiness;
+    }
+    
+    private int calculateTotalHeight(Grid3D gridToScore) {
+        int totalHeight = 0;
+        final int width = gridToScore.getWidth();
+        final int depth = gridToScore.getDepth();
+        
+        for (int x = 0; x < width; x++) {
+            for (int z = 0; z < depth; z++) {
+                totalHeight += gridToScore.getHeightOfColumn3D(x, z);
             }
         }
-
-        // Count completed planes
-        int completedPlanes = gridToScore.clearFullLines(true);
-
-        // Count holes
+        return totalHeight;
+    }
+    
+    private int countHoles(Grid3D gridToScore) {
         int holes = 0;
-        for (int x = 0; x < gridToScore.getWidth(); x++) {
-            for (int z = 0; z < gridToScore.getDepth(); z++) {
+        final int width = gridToScore.getWidth();
+        final int depth = gridToScore.getDepth();
+        final int height = gridToScore.getHeight();
+        
+        for (int x = 0; x < width; x++) {
+            for (int z = 0; z < depth; z++) {
                 boolean foundBlock = false;
-                for (int y = gridToScore.getHeight() - 1; y >= 0; y--) {
+                for (int y = height - 1; y >= 0; y--) {
                     if (gridToScore.getValue(x, y, z) != Piece.Empty) {
                         foundBlock = true;
                     } else if (foundBlock) {
@@ -128,72 +130,111 @@ public class Ai3D implements Ai {
                 }
             }
         }
-
-        // Calculate bumpiness (to avoid having a big vertical hole)
+        return holes;
+    }
+    
+    private int calculateBumpiness(Grid3D gridToScore) {
         int bumpiness = 0;
-        for (int x = 0; x < gridToScore.getWidth() - 1; x++) {
-            for (int z = 0; z < gridToScore.getDepth() - 1; z++) {
+        final int width = gridToScore.getWidth();
+        final int depth = gridToScore.getDepth();
+        
+        for (int x = 0; x < width - 1; x++) {
+            for (int z = 0; z < depth - 1; z++) {
                 bumpiness += Math.abs(gridToScore.getHeightOfColumn3D(x, z) - gridToScore.getHeightOfColumn3D(x + 1, z));
                 bumpiness += Math.abs(gridToScore.getHeightOfColumn3D(x, z) - gridToScore.getHeightOfColumn3D(x, z + 1));
             }
         }
-
-        return heightWeight * heights +
-                linesWeight * completedPlanes +
-                holesWeight * holes +
-                bumpinessWeight * bumpiness;
-    }
-    
-    // Overloaded version of the original method for thread safety
-    private double getScore() {
-        return getScore(this.grid);
+        return bumpiness;
     }
 
-    private Set<CurrentPiece3D> getPiecesPossibilities(CurrentPiece3D currentPiece) {
-        return getPiecesPossibilities(currentPiece, grid);
-    }
-    
-    private Set<CurrentPiece3D> getPiecesPossibilities(CurrentPiece3D currentPiece, Grid3D gridToUse) {
-        Set<CurrentPiece3D> possibilities = new HashSet<>();
-
-        // Generate rotations
-        CurrentPiece3D workingPiece = currentPiece.copy();
-        for (var axe : RotationAxis.values()) {
-            for (int i = 0; i < 4; i++) {
-                workingPiece.rotate3D(axe, gridToUse::checkCollision);
-                workingPiece.setY(gridToUse.getHeight() - workingPiece.getHeight());
-                possibilities.add(workingPiece.copy());
-            }
-        }
-
-        // Generate translations
-        Set<CurrentPiece3D> newTranslations = new HashSet<>();
-        for (var piece : possibilities) {
-            for (int x = 0; x < gridToUse.getWidth(); x++) {
-                for (int z = 0; z < gridToUse.getDepth(); z++) {
-                    CurrentPiece3D translatedPiece = piece.copy();
-                    translatedPiece.setX(x);
-                    translatedPiece.setZ(z);
-                    if (!gridToUse.checkCollision(translatedPiece)) {
-                        newTranslations.add(translatedPiece);
+    private Collection<CurrentPiece3D> getPiecesPossibilities(CurrentPiece3D currentPiece) {
+        List<CurrentPiece3D> results = new ArrayList<>();
+        Set<String> uniquePositions = new HashSet<>();
+        
+        // Generate all possible piece orientations
+        List<CurrentPiece3D> orientations = generateOrientations(currentPiece);
+        
+        // For each orientation, find all valid positions
+        for (CurrentPiece3D orientation : orientations) {
+            for (int x = 0; x < grid.getWidth(); x++) {
+                for (int z = 0; z < grid.getDepth(); z++) {
+                    CurrentPiece3D positioned = orientation.copy();
+                    positioned.setX(x);
+                    positioned.setZ(z);
+                    
+                    // Skip if invalid position
+                    if (grid.checkCollision(positioned)) {
+                        continue;
+                    }
+                    
+                    // Drop the piece to its lowest valid position
+                    dropPiece(positioned);
+                    
+                    // Use a string representation to detect duplicates
+                    String posKey = getPiecePositionKey(positioned);
+                    if (uniquePositions.add(posKey)) {
+                        results.add(positioned);
                     }
                 }
             }
         }
-        possibilities = newTranslations;
-
-        // Drop the pieces
-        for (var piece : possibilities) {
-            do {
-                piece.setY(piece.getY() - 1);
-            } while (!gridToUse.checkCollision(piece));
-            piece.setY(piece.getY() + 1);
-        }
-
-        return possibilities;
+        
+        return results;
     }
     
-    // Helper class to store piece and its score
+    private List<CurrentPiece3D> generateOrientations(CurrentPiece3D piece) {
+        List<CurrentPiece3D> orientations = new ArrayList<>();
+        Set<String> uniqueOrientations = new HashSet<>();
+        
+        for (RotationAxis axis : RotationAxis.values()) {
+            CurrentPiece3D rotated = piece.copy();
+            for (int i = 0; i < 4; i++) {
+                rotated.rotate3D(axis, grid::checkCollision);
+                
+                // Save only unique orientations
+                String orientationKey = getPieceOrientationKey(rotated);
+                if (uniqueOrientations.add(orientationKey)) {
+                    orientations.add(rotated.copy());
+                }
+            }
+        }
+        
+        return orientations;
+    }
+    
+    private void dropPiece(CurrentPiece3D piece) {
+        // Reset piece to top position
+        piece.setY(grid.getHeight() - piece.getHeight());
+        
+        // Drop until collision
+        while (!grid.checkCollision(piece)) {
+            piece.setY(piece.getY() - 1);
+        }
+        
+        // Move back up one position to be valid
+        piece.setY(piece.getY() + 1);
+    }
+    
+    private String getPiecePositionKey(CurrentPiece3D piece) {
+        // Create a unique identifier for the piece's position and orientation
+        return piece.getX() + "," + piece.getY() + "," + piece.getZ() + "," + getPieceOrientationKey(piece);
+    }
+    
+    private String getPieceOrientationKey(CurrentPiece3D piece) {
+        // For simplicity, use the piece's blocks as orientation identifier
+        StringBuilder key = new StringBuilder();
+        for (Piece[][] layer : piece.getPiece3d()) {
+            for (int i = 0; i < layer.length; i++) {
+                for (int j = 0; j < layer[i].length; j++) {
+                    if (layer[i][j] != Piece.Empty) {
+                        key.append(i).append(",").append(j).append(";");
+                    }
+                }
+            }
+        }
+        return key.toString();
+    }
+    
     private static class PieceMoveScore {
         final CurrentPiece3D piece;
         final double score;
@@ -204,11 +245,10 @@ public class Ai3D implements Ai {
         }
     }
     
-    // Method to close the ExecutorService when done
     public void shutdown() {
         executorService.shutdown();
         try {
-            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+            if (!executorService.awaitTermination(2, TimeUnit.SECONDS)) {
                 executorService.shutdownNow();
             }
         } catch (InterruptedException e) {
