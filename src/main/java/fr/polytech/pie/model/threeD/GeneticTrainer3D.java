@@ -193,8 +193,11 @@ public class GeneticTrainer3D {
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
+        CurrentPiece currentPiece;
+        CurrentPiece nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         for (int piece = 0; piece < maxPieces; piece++) {
-            CurrentPiece currentPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid.getDepth());
+            currentPiece = nextPiece;
+            nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
 
             if (grid.checkCollision(currentPiece)) {
                 break;

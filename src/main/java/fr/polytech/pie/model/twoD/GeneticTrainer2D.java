@@ -193,14 +193,17 @@ public class GeneticTrainer2D {
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
+        CurrentPiece nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+        CurrentPiece currentPiece;
         for (int piece = 0; piece < maxPieces; piece++) {
-            CurrentPiece currentPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+            currentPiece = nextPiece;
+            nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
 
             if (grid.checkCollision(currentPiece)) {
                 break;
             }
 
-            ai.makeMove(currentPiece, null);
+            ai.makeMove(currentPiece, nextPiece);
             int newLines = grid.clearFullLines();
             linesCleared += newLines;
 
