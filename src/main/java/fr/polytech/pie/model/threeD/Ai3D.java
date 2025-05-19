@@ -1,7 +1,6 @@
 package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.model.Ai;
-import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.RotationAxis;
 import org.jetbrains.annotations.NotNull;
@@ -17,10 +16,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
 
 public class Ai3D implements Ai {
-    protected double heightWeight = -0.6500491536113875;
-    protected double linesWeight = 0.5122503282774851;
-    protected double bumpinessWeight = -0.1763291765999144;
-    protected double holesWeight = -0.5328636979081272;
+    static protected double heightWeight = -0.6500491536113875;
+    static protected double linesWeight = 0.5122503282774851;
+    static protected double bumpinessWeight = -0.1763291765999144;
+    static protected double holesWeight = -0.5328636979081272;
     private final Grid3D grid;
     private final ExecutorService executorService;
     private final int availableProcessors;
@@ -35,10 +34,10 @@ public class Ai3D implements Ai {
     // maybe needed later for training
     public Ai3D(Grid3D grid, double[] parameters) {
         this.grid = grid;
-        this.heightWeight = parameters[0];
-        this.linesWeight = parameters[1];
-        this.bumpinessWeight = parameters[2];
-        this.holesWeight = parameters[3];
+        heightWeight = parameters[0];
+        linesWeight = parameters[1];
+        bumpinessWeight = parameters[2];
+        holesWeight = parameters[3];
         this.availableProcessors = Runtime.getRuntime().availableProcessors();
         this.executorService = Executors.newFixedThreadPool(availableProcessors);
     }

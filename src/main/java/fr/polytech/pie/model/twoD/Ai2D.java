@@ -1,17 +1,16 @@
 package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.model.Ai;
-import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class Ai2D implements Ai {
-    protected double heightWeight = -0.7303205229567257;
-    protected double linesWeight = 0.6082323862482821;
-    protected double bumpinessWeight = -0.22463833194827965;
-    protected double holesWeight = -0.21499515782089093;
+    static protected double heightWeight = -0.7303205229567257;
+    static protected double linesWeight = 0.6082323862482821;
+    static protected double bumpinessWeight = -0.22463833194827965;
+    static protected double holesWeight = -0.21499515782089093;
     private final Grid2D grid;
 
     public Ai2D(Grid2D grid) {
@@ -21,10 +20,10 @@ public class Ai2D implements Ai {
 
     public Ai2D(Grid2D grid, double[] parameters) {
         this.grid = grid;
-        this.heightWeight = parameters[0];
-        this.linesWeight = parameters[1];
-        this.bumpinessWeight = parameters[2];
-        this.holesWeight = parameters[3];
+        heightWeight = parameters[0];
+        linesWeight = parameters[1];
+        bumpinessWeight = parameters[2];
+        holesWeight = parameters[3];
     }
 
     @Override
