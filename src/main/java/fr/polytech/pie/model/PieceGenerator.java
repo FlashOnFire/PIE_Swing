@@ -34,6 +34,11 @@ public class PieceGenerator {
             },
             {
                     {
+                            {true, true, true, true}
+                    }
+            },
+            {
+                    {
                             {true}
                     },
                     {
