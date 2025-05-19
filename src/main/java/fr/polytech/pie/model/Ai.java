@@ -6,6 +6,7 @@ public interface Ai {
      * strategy
      *
      * @param currentPiece The piece to place
+     * @param nextPiece  The next piece to place
      */
-    void makeMove(CurrentPiece currentPiece);
+    void makeMove(CurrentPiece currentPiece, CurrentPiece nextPiece);
 }

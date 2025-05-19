@@ -180,6 +180,17 @@ public class Grid3D extends Grid {
         return clearFullLines(false);
     }
 
+    @Override
+    public Grid copy() {
+        Grid3D copy = new Grid3D(width, height, depth);
+        for (int z = 0; z < depth; z++) {
+            for (int y = 0; y < height; y++) {
+                System.arraycopy(grid[z][y], 0, copy.grid[z][y], 0, width);
+            }
+        }
+        return copy;
+    }
+
     public int getHeightOfColumn3D(int x, int z) {
         int height = 0;
         for (int y = this.height - 1; y >= 0; y--) {

@@ -200,7 +200,7 @@ public class GeneticTrainer3D {
                 break;
             }
 
-            ai.makeMove(currentPiece);
+            ai.makeMove(currentPiece, null);
             int newLines = grid.clearFullLines();
             linesCleared += newLines;
 

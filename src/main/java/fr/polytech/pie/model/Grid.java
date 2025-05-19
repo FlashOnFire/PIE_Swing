@@ -32,5 +32,5 @@ public abstract class Grid {
     public static Grid create(int width, int height, int depth, boolean is3D) {
         return is3D ? new Grid3D(width, height, depth) : new Grid2D(width, height);
     }
-
+    public abstract Grid copy();
 }

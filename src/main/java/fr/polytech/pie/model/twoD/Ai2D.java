@@ -28,7 +28,7 @@ public class Ai2D implements Ai {
     }
 
     @Override
-    public void makeMove(CurrentPiece currentPiece) {
+    public void makeMove(CurrentPiece currentPiece, CurrentPiece nextPiece) {
         if (!(currentPiece instanceof CurrentPiece2D)) {
             throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
         }
@@ -39,47 +39,55 @@ public class Ai2D implements Ai {
         double best = Double.NEGATIVE_INFINITY;
         CurrentPiece bestPiece = null;
         for (var possibility : availablePossibilities) {
-            // Sum each height of the columns
             grid.freezePiece(possibility);
-            int heights = 0;
-            for (int i = 0; i < grid.getWidth(); i++) {
-                heights = heights + grid.getHeightOfColumn2D(i);
-            }
-
-            // Count completed lines
-            int completedLines = grid.clearFullLines(true);
-
-            // Count holes
-            int holes = 0;
-            for (int i = 0; i < grid.getWidth(); i++) {
-                boolean foundBlock = false;
-                for (int j = grid.getHeight() - 1; j >= 0; j--) {
-                    if (grid.getValue(i, j) != Piece.Empty) {
-                        foundBlock = true;
-                    } else if (foundBlock) {
-                        holes++;
-                    }
+            final var nextPiecePossibilities = getPiecesPossibilities((CurrentPiece2D) nextPiece);
+            for (var nextPiecePossibility : nextPiecePossibilities) {
+                grid.freezePiece(nextPiecePossibility);
+                double finalScore = getRate();
+                if (finalScore > best) {
+                    best = finalScore;
+                    bestPiece = possibility;
                 }
-            }
-
-            // calculate bumpiness (to avoid having a big vertical hole)
-            int bumpiness = 0;
-            for (int i = 0; i < grid.getWidth() - 1; i++) {
-                bumpiness += Math.abs(grid.getHeightOfColumn2D(i) - grid.getHeightOfColumn2D(i + 1));
-            }
-
-            double finalScore = heightWeight * heights +
-                    linesWeight * completedLines +
-                    holesWeight * holes +
-                    bumpinessWeight * bumpiness;
-
-            if (finalScore > best) {
-                best = finalScore;
-                bestPiece = possibility;
+                grid.removePiece(nextPiecePossibility);
             }
             grid.removePiece(possibility);
         }
         grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
+    }
+
+
+    private double getRate() {
+        int heights = 0;
+        for (int i = 0; i < grid.getWidth(); i++) {
+            heights = heights + grid.getHeightOfColumn2D(i);
+        }
+
+        // Count completed lines
+        int completedLines = grid.clearFullLines(true);
+
+        // Count holes
+        int holes = 0;
+        for (int i = 0; i < grid.getWidth(); i++) {
+            boolean foundBlock = false;
+            for (int j = grid.getHeight() - 1; j >= 0; j--) {
+                if (grid.getValue(i, j) != Piece.Empty) {
+                    foundBlock = true;
+                } else if (foundBlock) {
+                    holes++;
+                }
+            }
+        }
+
+        // calculate bumpiness (to avoid having a big vertical hole)
+        int bumpiness = 0;
+        for (int i = 0; i < grid.getWidth() - 1; i++) {
+            bumpiness += Math.abs(grid.getHeightOfColumn2D(i) - grid.getHeightOfColumn2D(i + 1));
+        }
+
+        return heightWeight * heights +
+                linesWeight * completedLines +
+                holesWeight * holes +
+                bumpinessWeight * bumpiness;
     }
 
     private Set<CurrentPiece2D> getPiecesPossibilities(CurrentPiece2D currentPiece) {

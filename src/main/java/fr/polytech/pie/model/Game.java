@@ -188,7 +188,7 @@ public class Game {
 
     public void runAi() {
         if (gameOver) return;
-        ai.makeMove(currentPiece);
+        ai.makeMove(currentPiece, nextPiece);
         updateScore(grid.clearFullLines());
         generateNewPiece();
     }

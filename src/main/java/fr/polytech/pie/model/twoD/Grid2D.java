@@ -94,6 +94,15 @@ public class Grid2D extends Grid {
     }
 
     @Override
+    public Grid copy() {
+        Grid2D copy = new Grid2D(width, height);
+        for (int y = 0; y < height; y++) {
+            System.arraycopy(grid[y], 0, copy.grid[y], 0, width);
+        }
+        return copy;
+    }
+
+    @Override
     public int clearFullLines(boolean dry) {
         int linesCleared = 0;
 
