@@ -1,16 +1,15 @@
-package fr.polytech.pie.model.twoD;
+package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.Ai;
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.PieceGenerator;
+import fr.polytech.pie.model.threeD.Grid3D;
+import fr.polytech.pie.model.twoD.Grid2D;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-public class GeneticTrainer2D {
+public class GeneticTrainer {
     private static final int POPULATION_SIZE = 1000;
     private static final int TOURNAMENT_SIZE = 100;
     private static final int OFFSPRING_COUNT = 300;
@@ -31,6 +30,7 @@ public class GeneticTrainer2D {
     private int generationsWithoutImprovement = 0;
     private final int populationSize;
     private final int gamesPerEvaluation;
+    private final boolean is3D;
 
     private static class Individual implements Comparable<Individual> {
         double[] parameters;
@@ -65,9 +65,10 @@ public class GeneticTrainer2D {
         }
     }
 
-    public GeneticTrainer2D(int populationSize, int gamesPerEvaluation) {
+    public GeneticTrainer(int populationSize, int gamesPerEvaluation, boolean is3D) {
         this.populationSize = populationSize;
         this.gamesPerEvaluation = gamesPerEvaluation;
+        this.is3D = is3D;
         initializePopulation();
         currentMutationProbability = INITIAL_MUTATION_PROBABILITY;
         currentMutationRange = INITIAL_MUTATION_RANGE;
@@ -111,14 +112,8 @@ public class GeneticTrainer2D {
     private void checkImprovement() {
         int currentBestFitness = population.getFirst().fitness;
 
-        System.out.println("Best fitness: " + currentBestFitness +
-                ", Mutation rate: " + currentMutationProbability +
-                ", range: " + currentMutationRange);
-        System.out.println("Parameters: " +
-                population.getFirst().parameters[0] + ", " +
-                population.getFirst().parameters[1] + ", " +
-                population.getFirst().parameters[2] + ", " +
-                population.getFirst().parameters[3]);
+        System.out.println("Best fitness: " + currentBestFitness + ", Mutation rate: " + currentMutationProbability + ", range: " + currentMutationRange);
+        System.out.println("Parameters: " + population.getFirst().parameters[0] + ", " + population.getFirst().parameters[1] + ", " + population.getFirst().parameters[2] + ", " + population.getFirst().parameters[3]);
 
         if (currentBestFitness > previousBestFitness) {
             generationsWithoutImprovement = 0;
@@ -130,10 +125,8 @@ public class GeneticTrainer2D {
 
     private void updateAdaptiveParameters(int currentGeneration, int totalGenerations) {
         double progress = (double) currentGeneration / totalGenerations;
-        currentMutationProbability = INITIAL_MUTATION_PROBABILITY
-                - progress * (INITIAL_MUTATION_PROBABILITY - FINAL_MUTATION_PROBABILITY);
-        currentMutationRange = INITIAL_MUTATION_RANGE
-                - progress * (INITIAL_MUTATION_RANGE - FINAL_MUTATION_RANGE);
+        currentMutationProbability = INITIAL_MUTATION_PROBABILITY - progress * (INITIAL_MUTATION_PROBABILITY - FINAL_MUTATION_PROBABILITY);
+        currentMutationRange = INITIAL_MUTATION_RANGE - progress * (INITIAL_MUTATION_RANGE - FINAL_MUTATION_RANGE);
     }
 
     private void resetStagnantPopulation() {
@@ -188,17 +181,29 @@ public class GeneticTrainer2D {
     }
 
     private int runGame(double[] parameters, int maxPieces) {
-        Grid2D grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
+        Grid grid;
+        CurrentPiece nextPiece;
+        CurrentPiece currentPiece;
+        if (is3D) {
+            grid = new Grid3D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH);
+            nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+        } else {
+            grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
+            nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+        }
 
-        Ai ai = new Ai(grid, parameters, false);
+        Ai ai = new Ai(grid, parameters, is3D);
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
-        CurrentPiece nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
-        CurrentPiece currentPiece;
+
         for (int piece = 0; piece < maxPieces; piece++) {
             currentPiece = nextPiece;
-            nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+            if (is3D && grid instanceof Grid3D grid3D) {
+                nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid3D.getDepth());
+            } else {
+                nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
+            }
 
             if (grid.checkCollision(currentPiece)) {
                 break;
@@ -215,8 +220,16 @@ public class GeneticTrainer2D {
             }
 
             int maxHeight = 0;
-            for (int i = 0; i < grid.getWidth(); i++) {
-                maxHeight = Math.max(maxHeight, grid.getHeightOfColumn2D(i));
+            if (is3D && grid instanceof Grid3D grid3D) {
+                for (int i = 0; i < grid.getWidth(); i++) {
+                    for (int j = 0; j < grid3D.getDepth(); j++) {
+                        maxHeight = Math.max(maxHeight, grid3D.getHeightOfColumn3D(i, j));
+                    }
+                }
+            } else if (grid instanceof Grid2D grid2D) {
+                for (int i = 0; i < grid.getWidth(); i++) {
+                    maxHeight = Math.max(maxHeight, grid2D.getHeightOfColumn2D(i));
+                }
             }
 
             if (piecesWithoutLines > 25 && maxHeight > grid.getHeight() * 0.7) {
@@ -319,6 +332,7 @@ public class GeneticTrainer2D {
         int generations = 50;
         int populationSize = POPULATION_SIZE;
         int gamesPerEvaluation = GAMES_PER_EVALUATION;
+        boolean is3D = false;
         String outputFile = null;
 
         for (int i = 0; i < args.length; i++) {
@@ -335,6 +349,9 @@ public class GeneticTrainer2D {
                 case "--output":
                     if (i + 1 < args.length) outputFile = args[++i];
                     break;
+                case "--3D":
+                    is3D = true;
+                    break;
                 case "--help":
                     printHelp();
                     return;
@@ -346,7 +363,7 @@ public class GeneticTrainer2D {
         System.out.println("  Population size: " + populationSize);
         System.out.println("  Games per evaluation: " + gamesPerEvaluation);
 
-        GeneticTrainer2D trainer = new GeneticTrainer2D(populationSize, gamesPerEvaluation);
+        GeneticTrainer trainer = new GeneticTrainer(populationSize, gamesPerEvaluation, is3D);
         double[] bestParameters = trainer.train(generations);
 
         System.out.println("Optimal parameters found:");
@@ -377,13 +394,14 @@ public class GeneticTrainer2D {
         System.out.println("  --population <num>   Population size (default: 1000)");
         System.out.println("  --games <num>        Games per evaluation (default: 100)");
         System.out.println("  --output <filename>  Save parameters to file");
+        System.out.println("  --3D                 Train 3D Tetris");
         System.out.println("  --help               Display this help message");
     }
 
     private static void saveParametersToFile(double[] parameters, String filename) {
         try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(filename))) {
             writer.println("// Tetris AI parameters generated by GeneticTrainer");
-            writer.println("// " + new java.util.Date());
+            writer.println("// " + new Date());
             writer.println("double heightWeight = " + parameters[0] + ";");
             writer.println("double linesWeight = " + parameters[1] + ";");
             writer.println("double holesWeight = " + parameters[2] + ";");
