@@ -1,20 +1,25 @@
 package fr.polytech.pie.model.threeD;
 
-import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
+import fr.polytech.pie.model.Piece;
+
+import java.util.Arrays;
 
 public class Grid3D extends Grid {
     private final Piece[][][] grid;
     private final int depth;
+    private final int[][] heightCache;
 
     public Grid3D(int width, int height, int depth) {
         super(width, height);
         this.depth = depth;
         this.grid = new Piece[depth][height][width];
+        this.heightCache = new int[width][depth];
+
         for (int z = 0; z < depth; z++) {
             for (int y = 0; y < height; y++) {
-                java.util.Arrays.fill(grid[z][y], Piece.Empty);
+                Arrays.fill(grid[z][y], Piece.Empty);
             }
         }
     }
@@ -41,6 +46,7 @@ public class Grid3D extends Grid {
         return grid[z][y][x];
     }
 
+    // TODO: remove this nonsense
     @Override
     public void setValue(int x, int y, Piece value) {
         // Set all cells in the z-axis to the given value
@@ -51,7 +57,13 @@ public class Grid3D extends Grid {
 
     public void setValue(int x, int y, int z, Piece value) {
         if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth) {
+            Piece oldValue = grid[z][y][x];
             grid[z][y][x] = value;
+
+            if ((oldValue == Piece.Empty && value != Piece.Empty) ||
+                    (oldValue != Piece.Empty && value == Piece.Empty)) {
+                updateHeightCache(x, z);
+            }
         }
     }
 
@@ -82,13 +94,17 @@ public class Grid3D extends Grid {
 
     @Override
     public void removePiece(CurrentPiece currentPiece) {
+        if (!(currentPiece instanceof CurrentPiece3D piece3D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
+        }
+
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                for (int k = 0; k < ((CurrentPiece3D)currentPiece).getDepth(); k++) {
-                    if (((CurrentPiece3D)currentPiece).getPiece3d()[k][j][i] != Piece.Empty) {
+                for (int k = 0; k < piece3D.getDepth(); k++) {
+                    if (piece3D.getPiece3d()[k][j][i] != Piece.Empty) {
                         int x = currentPiece.getX() + i;
                         int y = currentPiece.getY() + j;
-                        int z = ((CurrentPiece3D)currentPiece).getZ() + k;
+                        int z = piece3D.getZ() + k;
                         setValue(x, y, z, Piece.Empty);
                     }
                 }
@@ -177,7 +193,11 @@ public class Grid3D extends Grid {
 
     @Override
     public int clearFullLines() {
-        return clearFullLines(false);
+        int linesCleared = clearFullLines(false);
+        if (linesCleared > 0) {
+            recalculateAllHeights();
+        }
+        return linesCleared;
     }
 
     @Override
@@ -188,17 +208,34 @@ public class Grid3D extends Grid {
                 System.arraycopy(grid[z][y], 0, copy.grid[z][y], 0, width);
             }
         }
+
+        // Copy the height cache too
+        for (int x = 0; x < width; x++) {
+            System.arraycopy(heightCache[x], 0, copy.heightCache[x], 0, depth);
+        }
+
         return copy;
     }
 
-    public int getHeightOfColumn3D(int x, int z) {
-        int height = 0;
-        for (int y = this.height - 1; y >= 0; y--) {
-            if (grid[z][y][x] != Piece.Empty) {
-                height = y + 1;
-                break;
+    private void recalculateAllHeights() {
+        for (int x = 0; x < width; x++) {
+            for (int z = 0; z < depth; z++) {
+                updateHeightCache(x, z);
             }
         }
-        return height;
+    }
+
+    public int getHeightOfColumn3D(int x, int z) {
+        return heightCache[x][z];
+    }
+
+    private void updateHeightCache(int x, int z) {
+        for (int y = this.height - 1; y >= 0; y--) {
+            if (grid[z][y][x] != Piece.Empty) {
+                heightCache[x][z] = y + 1;
+                return;
+            }
+        }
+        heightCache[x][z] = 0;
     }
 }
