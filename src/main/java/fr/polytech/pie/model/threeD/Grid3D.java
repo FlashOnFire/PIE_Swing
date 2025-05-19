@@ -217,6 +217,24 @@ public class Grid3D extends Grid {
         return copy;
     }
 
+    @Override
+    public int getHoles() {
+        int holes = 0;
+        for (int x = 0; x < width; x++) {
+            for (int z = 0; z < depth; z++) {
+                boolean foundBlock = false;
+                for (int y = height - 1; y >= 0; y--) {
+                    if (grid[z][y][x] != Piece.Empty) {
+                        foundBlock = true;
+                    } else if (foundBlock) {
+                        holes++;
+                    }
+                }
+            }
+        }
+        return holes;
+    }
+
     private void recalculateAllHeights() {
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < depth; z++) {

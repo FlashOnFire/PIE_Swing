@@ -66,17 +66,7 @@ public class Ai2D implements Ai {
         int completedLines = grid.clearFullLines(true);
 
         // Count holes
-        int holes = 0;
-        for (int i = 0; i < grid.getWidth(); i++) {
-            boolean foundBlock = false;
-            for (int j = grid.getHeight() - 1; j >= 0; j--) {
-                if (grid.getValue(i, j) != Piece.Empty) {
-                    foundBlock = true;
-                } else if (foundBlock) {
-                    holes++;
-                }
-            }
-        }
+        int holes = grid.getHoles();
 
         // calculate bumpiness (to avoid having a big vertical hole)
         int bumpiness = 0;

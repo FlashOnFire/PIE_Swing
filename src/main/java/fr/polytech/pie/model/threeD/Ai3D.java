@@ -120,19 +120,8 @@ public class Ai3D implements Ai {
         int completedPlanes = gridToScore.clearFullLines(true);
 
         // Count holes
-        int holes = 0;
-        for (int x = 0; x < gridToScore.getWidth(); x++) {
-            for (int z = 0; z < gridToScore.getDepth(); z++) {
-                boolean foundBlock = false;
-                for (int y = gridToScore.getHeight() - 1; y >= 0; y--) {
-                    if (gridToScore.getValue(x, y, z) != Piece.Empty) {
-                        foundBlock = true;
-                    } else if (foundBlock) {
-                        holes++;
-                    }
-                }
-            }
-        }
+        int holes = grid.getHoles();
+
 
         // Calculate bumpiness (to avoid having a big vertical hole)
         int bumpiness = 0;

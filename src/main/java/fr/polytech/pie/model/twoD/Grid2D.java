@@ -103,6 +103,22 @@ public class Grid2D extends Grid {
     }
 
     @Override
+    public int getHoles() {
+        int holes = 0;
+        for (int x = 0; x < width; x++) {
+            boolean foundBlock = false;
+            for (int y = height - 1; y >= 0; y--) {
+                if (grid[y][x] != Piece.Empty) {
+                    foundBlock = true;
+                } else if (foundBlock) {
+                    holes++;
+                }
+            }
+        }
+        return holes;
+    }
+
+    @Override
     public int clearFullLines(boolean dry) {
         int linesCleared = 0;
 

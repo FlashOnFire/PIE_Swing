@@ -33,4 +33,6 @@ public abstract class Grid {
         return is3D ? new Grid3D(width, height, depth) : new Grid2D(width, height);
     }
     public abstract Grid copy();
+
+    public abstract int getHoles();
 }
