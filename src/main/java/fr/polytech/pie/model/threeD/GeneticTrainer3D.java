@@ -1,6 +1,7 @@
 package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.Consts;
+import fr.polytech.pie.model.Ai;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.PieceGenerator;
 
@@ -189,7 +190,7 @@ public class GeneticTrainer3D {
     private int runGame(double[] parameters, int maxPieces) {
         Grid3D grid = new Grid3D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH);
 
-        Ai3D ai = new Ai3D(grid, parameters);
+        Ai ai = new Ai(grid, parameters, true);
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
@@ -203,7 +204,7 @@ public class GeneticTrainer3D {
                 break;
             }
 
-            ai.makeMove(currentPiece, null);
+            ai.makeMove(currentPiece, nextPiece);
             int newLines = grid.clearFullLines();
             linesCleared += newLines;
 

@@ -4,6 +4,9 @@ import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Grid2D extends Grid {
     private final Piece[][] grid;
 
@@ -159,5 +162,44 @@ public class Grid2D extends Grid {
         }
 
         return height;
+    }
+
+    @Override
+    public Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
+        if (!(currentPiece instanceof CurrentPiece2D currentPiece2D)) {
+            throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
+        }
+        Set<CurrentPiece> possibilities = new HashSet<>();
+
+        // generate rotations
+        CurrentPiece2D workingPiece = currentPiece2D.clone();
+        for (int i = 0; i < 4; i++) {
+            workingPiece.rotate2d(_ -> false);
+            workingPiece.setY(getHeight() - workingPiece.getHeight());
+            possibilities.add(workingPiece.clone());
+        }
+
+        // generate translations
+        Set<CurrentPiece> newTranslations = new HashSet<>();
+        for (var piece : possibilities) {
+            for (int i = 0; i < getWidth(); i++) {
+                CurrentPiece translatedPiece = piece.clone();
+                translatedPiece.setX(i);
+                if (!checkCollision(translatedPiece)) {
+                    newTranslations.add(translatedPiece);
+                }
+            }
+        }
+        possibilities = newTranslations;
+
+        // drops the pieces
+        for (var piece : possibilities) {
+            do {
+                piece.setY(piece.getY() - 1);
+            } while (!checkCollision(piece));
+            piece.setY(piece.getY() + 1);
+        }
+
+        return possibilities;
     }
 }

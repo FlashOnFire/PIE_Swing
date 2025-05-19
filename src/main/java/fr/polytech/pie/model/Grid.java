@@ -3,6 +3,8 @@ package fr.polytech.pie.model;
 import fr.polytech.pie.model.twoD.Grid2D;
 import fr.polytech.pie.model.threeD.Grid3D;
 
+import java.util.Set;
+
 public abstract class Grid {
     protected final int width;
     protected final int height;
@@ -35,4 +37,5 @@ public abstract class Grid {
     public abstract Grid copy();
 
     public abstract int getHoles();
+    public abstract Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece);
 }

@@ -3,8 +3,11 @@ package fr.polytech.pie.model.threeD;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
 import fr.polytech.pie.model.Piece;
+import fr.polytech.pie.model.RotationAxis;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Grid3D extends Grid {
     private final Piece[][][] grid;
@@ -266,5 +269,51 @@ public class Grid3D extends Grid {
 
         heightCache[x][z] = height;
         holesCache[x][z] = holes;
+    }
+
+    @Override
+    public Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
+        if (!(currentPiece instanceof CurrentPiece3D currentPiece3D)) {
+            throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
+        }
+
+        Set<CurrentPiece> possibilities = new HashSet<>();
+
+        // Generate rotations
+        CurrentPiece3D workingPiece = currentPiece3D.copy();
+        for (var axe : RotationAxis.values()) {
+            for (int i = 0; i < 4; i++) {
+                workingPiece.rotate3D(axe, this::checkCollision);
+                workingPiece.setY(getHeight() - workingPiece.getHeight());
+                possibilities.add(workingPiece.copy());
+            }
+        }
+
+        // Generate translations
+        Set<CurrentPiece> newTranslations = new HashSet<>();
+        for (var piece : possibilities) {
+            for (int x = 0; x < getWidth(); x++) {
+                for (int z = 0; z < getDepth(); z++) {
+                    CurrentPiece3D translatedPiece = ((CurrentPiece3D) piece).copy();
+                    translatedPiece.setX(x);
+                    translatedPiece.setZ(z);
+                    if (!checkCollision(translatedPiece)) {
+                        newTranslations.add(translatedPiece);
+                    }
+                }
+            }
+        }
+        possibilities = newTranslations;
+
+        // Drop the pieces
+        for (var piece : possibilities) {
+            piece.setY(0);
+            int y = 0;
+            do {
+                piece.setY(y++);
+            } while (checkCollision(piece));
+        }
+
+        return possibilities;
     }
 }

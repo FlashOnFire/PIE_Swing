@@ -1,10 +1,7 @@
 package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.twoD.Ai2D;
 import fr.polytech.pie.model.twoD.CurrentPiece2D;
-import fr.polytech.pie.model.twoD.Grid2D;
-import fr.polytech.pie.model.threeD.Ai3D;
 import fr.polytech.pie.model.threeD.CurrentPiece3D;
 import fr.polytech.pie.model.threeD.Grid3D;
 
@@ -144,11 +141,7 @@ public class Game {
 
     public void resetGame() {
         grid = Grid.create(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, is3D);
-        if (is3D) {
-            ai = new Ai3D((Grid3D) grid);
-        } else {
-            ai = new Ai2D((Grid2D) grid);
-        }
+        ai = new Ai(grid, is3D);
         currentPiece = null;
         nextPiece = null;
         generateNewPiece();

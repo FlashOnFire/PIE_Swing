@@ -1,6 +1,7 @@
 package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.Consts;
+import fr.polytech.pie.model.Ai;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.PieceGenerator;
 
@@ -189,7 +190,7 @@ public class GeneticTrainer2D {
     private int runGame(double[] parameters, int maxPieces) {
         Grid2D grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
 
-        Ai2D ai = new Ai2D(grid, parameters);
+        Ai ai = new Ai(grid, parameters, false);
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
