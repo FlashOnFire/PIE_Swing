@@ -4,6 +4,7 @@ import fr.polytech.pie.model.Ai;
 import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.RotationAxis;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,8 +15,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Ai3D implements Ai {
     protected double heightWeight = -0.6500491536113875;
@@ -57,30 +56,8 @@ public class Ai3D implements Ai {
         CurrentPiece bestPiece = null;
         
         try {
-            List<Callable<PieceMoveScore>> tasks = new ArrayList<>();
-            
-            // Create tasks for evaluating each possible move
-            for (CurrentPiece3D possibility : availablePossibilities) {
-                tasks.add(() -> {
-                    Grid3D threadLocalGrid = (Grid3D) grid.copy(); // Create a copy of the grid for thread-safe operations
-                    double bestScore = Double.NEGATIVE_INFINITY;
-                    
-                    threadLocalGrid.freezePiece(possibility);
-//                    Set<CurrentPiece3D> nextPiecePossibilities = getPiecesPossibilities((CurrentPiece3D) nextPiece.clone(), threadLocalGrid);
-                    
-//                    for (CurrentPiece3D nextPiecePossibility : nextPiecePossibilities) {
-//                        threadLocalGrid.freezePiece(nextPiecePossibility);
-                        double score = getScore(threadLocalGrid);
-                        if (score > bestScore) {
-                            bestScore = score;
-                        }
-//                        threadLocalGrid.removePiece(nextPiecePossibility);
-//                    }
-                    
-                    return new PieceMoveScore(possibility, bestScore);
-                });
-            }
-            
+            List<Callable<PieceMoveScore>> tasks = getCallables(nextPiece, availablePossibilities);
+
             // Execute all tasks
             List<Future<PieceMoveScore>> results = executorService.invokeAll(tasks);
             
@@ -101,6 +78,34 @@ public class Ai3D implements Ai {
         }
 
         grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
+    }
+
+    @NotNull
+    private List<Callable<PieceMoveScore>> getCallables(CurrentPiece nextPiece, Set<CurrentPiece3D> availablePossibilities) {
+        List<Callable<PieceMoveScore>> tasks = new ArrayList<>();
+
+        // Create tasks for evaluating each possible move
+        for (CurrentPiece3D possibility : availablePossibilities) {
+            tasks.add(() -> {
+                Grid3D threadLocalGrid = (Grid3D) grid.copy(); // Create a copy of the grid for thread-safe operations
+                double bestScore = Double.NEGATIVE_INFINITY;
+
+                threadLocalGrid.freezePiece(possibility);
+                Set<CurrentPiece3D> nextPiecePossibilities = getPiecesPossibilities((CurrentPiece3D) nextPiece.clone(), threadLocalGrid);
+
+                for (CurrentPiece3D nextPiecePossibility : nextPiecePossibilities) {
+                    threadLocalGrid.freezePiece(nextPiecePossibility);
+                    double score = getScore(threadLocalGrid);
+                    if (score > bestScore) {
+                        bestScore = score;
+                    }
+                    threadLocalGrid.removePiece(nextPiecePossibility);
+                }
+
+                return new PieceMoveScore(possibility, bestScore);
+            });
+        }
+        return tasks;
     }
 
     private double getScore(Grid3D gridToScore) {
@@ -142,11 +147,6 @@ public class Ai3D implements Ai {
                 linesWeight * completedPlanes +
                 holesWeight * holes +
                 bumpinessWeight * bumpiness;
-    }
-    
-    // Overloaded version of the original method for thread safety
-    private double getScore() {
-        return getScore(this.grid);
     }
 
     private Set<CurrentPiece3D> getPiecesPossibilities(CurrentPiece3D currentPiece) {
@@ -192,28 +192,9 @@ public class Ai3D implements Ai {
 
         return possibilities;
     }
-    
+
     // Helper class to store piece and its score
-    private static class PieceMoveScore {
-        final CurrentPiece3D piece;
-        final double score;
-        
-        PieceMoveScore(CurrentPiece3D piece, double score) {
-            this.piece = piece;
-            this.score = score;
-        }
+        private record PieceMoveScore(CurrentPiece3D piece, double score) {
     }
-    
-    // Method to close the ExecutorService when done
-    public void shutdown() {
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-    }
+
 }
