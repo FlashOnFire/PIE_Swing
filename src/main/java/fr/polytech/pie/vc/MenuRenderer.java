@@ -57,7 +57,7 @@ public class MenuRenderer implements Renderer {
 
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(Box.createVerticalStrut(100), BorderLayout.NORTH);
-        centerPanel.add(buttonPanel, BorderLayout.CENTER);
+        centerPanel.add(gameControlsPanel, BorderLayout.CENTER);
         centerPanel.add(Box.createVerticalStrut(100), BorderLayout.SOUTH);
 
         JPanel menuPanel = new JPanel(new BorderLayout());
