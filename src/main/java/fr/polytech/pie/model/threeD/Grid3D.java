@@ -10,12 +10,14 @@ public class Grid3D extends Grid {
     private final Piece[][][] grid;
     private final int depth;
     private final int[][] heightCache;
+    private final int[][] holesCache;
 
     public Grid3D(int width, int height, int depth) {
         super(width, height);
         this.depth = depth;
         this.grid = new Piece[depth][height][width];
         this.heightCache = new int[width][depth];
+        this.holesCache = new int[width][depth];
 
         for (int z = 0; z < depth; z++) {
             for (int y = 0; y < height; y++) {
@@ -62,7 +64,7 @@ public class Grid3D extends Grid {
 
             if ((oldValue == Piece.Empty && value != Piece.Empty) ||
                     (oldValue != Piece.Empty && value == Piece.Empty)) {
-                updateHeightCache(x, z);
+                updateCaches(x, z);
             }
         }
     }
@@ -195,7 +197,7 @@ public class Grid3D extends Grid {
     public int clearFullLines() {
         int linesCleared = clearFullLines(false);
         if (linesCleared > 0) {
-            recalculateAllHeights();
+            recalculateAllCaches();
         }
         return linesCleared;
     }
@@ -212,6 +214,7 @@ public class Grid3D extends Grid {
         // Copy the height cache too
         for (int x = 0; x < width; x++) {
             System.arraycopy(heightCache[x], 0, copy.heightCache[x], 0, depth);
+            System.arraycopy(holesCache[x], 0, copy.holesCache[x], 0, depth);
         }
 
         return copy;
@@ -219,26 +222,19 @@ public class Grid3D extends Grid {
 
     @Override
     public int getHoles() {
-        int holes = 0;
+        int totalHoles = 0;
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < depth; z++) {
-                boolean foundBlock = false;
-                for (int y = height - 1; y >= 0; y--) {
-                    if (grid[z][y][x] != Piece.Empty) {
-                        foundBlock = true;
-                    } else if (foundBlock) {
-                        holes++;
-                    }
-                }
+                totalHoles += holesCache[x][z];
             }
         }
-        return holes;
+        return totalHoles;
     }
 
-    private void recalculateAllHeights() {
+    private void recalculateAllCaches() {
         for (int x = 0; x < width; x++) {
             for (int z = 0; z < depth; z++) {
-                updateHeightCache(x, z);
+                updateCaches(x, z);
             }
         }
     }
@@ -247,13 +243,28 @@ public class Grid3D extends Grid {
         return heightCache[x][z];
     }
 
-    private void updateHeightCache(int x, int z) {
+    private void updateCaches(int x, int z) {
+        int height = 0;
+        int holes = 0;
+        boolean foundBlock = false;
+        boolean inHole = false;
+
         for (int y = this.height - 1; y >= 0; y--) {
             if (grid[z][y][x] != Piece.Empty) {
-                heightCache[x][z] = y + 1;
-                return;
+                if (!foundBlock) {
+                    height = y + 1;
+                }
+                foundBlock = true;
+                inHole = false;
+            } else if (foundBlock) {
+                if (!inHole) {
+                    holes++;
+                    inHole = true;
+                }
             }
         }
-        heightCache[x][z] = 0;
+
+        heightCache[x][z] = height;
+        holesCache[x][z] = holes;
     }
 }
