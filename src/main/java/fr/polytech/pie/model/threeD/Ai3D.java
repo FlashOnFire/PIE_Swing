@@ -184,10 +184,11 @@ public class Ai3D implements Ai {
 
         // Drop the pieces
         for (var piece : possibilities) {
+            piece.setY(0);
+            int y = 0;
             do {
-                piece.setY(piece.getY() - 1);
-            } while (!gridToUse.checkCollision(piece));
-            piece.setY(piece.getY() + 1);
+                piece.setY(y++);
+            } while (gridToUse.checkCollision(piece));
         }
 
         return possibilities;
