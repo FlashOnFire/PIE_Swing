@@ -38,6 +38,8 @@ public class Renderer3D implements Renderer {
     private final boolean[] keys = new boolean[GLFW_KEY_LAST];
     private final boolean[] lastKeys = new boolean[GLFW_KEY_LAST];
 
+    private boolean shiftModifier = false;
+
     private float pieceForwardTimeCounter = 0;
     private float pieceBackwardTimeCounter = 0;
     private float pieceLeftTimeCounter = 0;
@@ -85,10 +87,12 @@ public class Renderer3D implements Renderer {
 
         //noinspection resource (first key callback setup so previous must be null)
         glfwSetKeyCallback(
-                window, (_ /*window*/, key, _ /*scancode*/, action, _ /*mods*/) -> {
+                window, (_ /*window*/, key, _ /*scancode*/, action, mods) -> {
                     if (action == GLFW_PRESS || action == GLFW_RELEASE) {
                         keys[key] = action == GLFW_PRESS;
                     }
+
+                    shiftModifier = (mods & GLFW_MOD_SHIFT) != 0;
                 }
         );
 
@@ -285,7 +289,7 @@ public class Renderer3D implements Renderer {
                     vueController.getModel().translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
                     pieceRightTimeCounter = 0;
                 }
-                if (keys[GLFW_KEY_I] && pieceAiTimeCounter > 0.1F) {
+                if (keys[GLFW_KEY_I] && pieceAiTimeCounter > (shiftModifier ? 0.01F : 0.1F)) {
                     vueController.getModel().runAi();
                     pieceAiTimeCounter = 0;
                 }
