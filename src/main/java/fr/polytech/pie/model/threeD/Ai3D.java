@@ -8,7 +8,11 @@ import fr.polytech.pie.model.RotationAxis;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Ai3D extends Ai {
+public class Ai3D implements Ai {
+    protected double heightWeight = -0.6500491536113875;
+    protected double linesWeight = 0.5122503282774851;
+    protected double bumpinessWeight = -0.1763291765999144;
+    protected double holesWeight = -0.5328636979081272;
     private final Grid3D grid;
 
     public Ai3D(Grid3D grid) {
@@ -18,8 +22,11 @@ public class Ai3D extends Ai {
 
 // maybe needed later for training
     public Ai3D(Grid3D grid, double[] parameters) {
-        super(parameters);
         this.grid = grid;
+        this.heightWeight = parameters[0];
+        this.linesWeight = parameters[1];
+        this.bumpinessWeight = parameters[2];
+        this.holesWeight = parameters[3];
     }
 
     @Override
