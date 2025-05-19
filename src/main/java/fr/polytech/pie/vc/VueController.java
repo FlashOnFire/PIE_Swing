@@ -3,17 +3,13 @@ package fr.polytech.pie.vc;
 import fr.polytech.pie.Main;
 import fr.polytech.pie.model.Game;
 import fr.polytech.pie.model.Model;
-import org.lwjgl.glfw.GLFWErrorCallback;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.lwjgl.glfw.GLFW.*;
 
 @SuppressWarnings("deprecation")
 public class VueController implements Observer {
@@ -23,12 +19,6 @@ public class VueController implements Observer {
 
     public VueController(Model m) {
         this.model = m;
-
-        GLFWErrorCallback.createPrint(System.err).set();
-        // This is called from the main thread (since the call path is either from VueController constructor or loop() method)
-        if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
-        }
 
         // Use the Swing event-dispatching thread for the UI
         try {
@@ -133,11 +123,6 @@ public class VueController implements Observer {
             currentRenderer.cleanup();
         }
         currentRenderer = null;
-
-
-        // Cleanup GLFW
-        glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).close();
     }
 
     public void setDifficulty(int difficulty) {

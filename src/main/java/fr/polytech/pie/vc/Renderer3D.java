@@ -8,6 +8,7 @@ import fr.polytech.pie.vc.render.OpenGLRenderer;
 import fr.polytech.pie.vc.render.cameras.CameraController;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -15,6 +16,7 @@ import org.lwjgl.system.MemoryStack;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -58,6 +60,12 @@ public class Renderer3D implements Renderer {
 
     @Override
     public void initialize() {
+        GLFWErrorCallback.createPrint(System.err).set();
+        // This is called from the main thread (since the call path is either from VueController constructor or loop() method)
+        if (!glfwInit()) {
+            throw new IllegalStateException("Unable to initialize GLFW");
+        }
+
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -65,11 +73,10 @@ public class Renderer3D implements Renderer {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        // For macOS compatibility
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         glfwWindowHint(GLFW_DEPTH_BITS, 24);
         glfwWindowHint(GLFW_SAMPLES, 16);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 
         window = glfwCreateWindow(800, 800, "Tetris", NULL, NULL);
         if (window == NULL) {
@@ -160,7 +167,7 @@ public class Renderer3D implements Renderer {
     }
 
     public LoopStatus loop() {
-        if (glfwWindowShouldClose(window)) {
+        if (glfwWindowShouldClose(window) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             return LoopStatus.SHOW_MENU;
         }
 
@@ -189,10 +196,6 @@ public class Renderer3D implements Renderer {
             width = pWidth.get();
             height = pHeight.get();
             camController.setAspectRatio(((float) width) / ((float) height));
-
-            if (keys[GLFW_KEY_ESCAPE]) {
-                glfwSetWindowShouldClose(window, true);
-            }
 
             renderer.render(window, new Vector2i(width, height), camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix(), score, isGameOver, elapsedTimeSinceGameOver);
         } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
@@ -362,6 +365,7 @@ public class Renderer3D implements Renderer {
     @Override
     public void cleanup() {
         glfwMakeContextCurrent(window);
+        glfwPollEvents();
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -371,5 +375,9 @@ public class Renderer3D implements Renderer {
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);
         glfwWaitEventsTimeout(1000);
+
+        // Cleanup GLFW
+        glfwTerminate();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).close();
     }
 }
