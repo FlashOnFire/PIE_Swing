@@ -19,17 +19,6 @@ public class PieceGenerator {
     private static final boolean[][][][] PIECES_3D = {
             {
                     {
-                            {true, true, true},
-                            {false, true, false}
-                    },
-                    {
-                            {false, true, false},
-                            {false, true, false}
-                    }
-            },
-
-            {
-                    {
                             {true, true},
                             {true, true}
                     },
@@ -38,88 +27,46 @@ public class PieceGenerator {
                             {true, true}
                     }
             },
-
             {
                     {
-                            {true, true, false},
-                            {false, true, true}
-                    },
-                    {
-                            {false, true, false},
-                            {true, true, false}
-                    }
-            },
-
-            {
-                    {
-                            {false, true, true},
-                            {true, true, false}
-                    },
-                    {
-                            {true, false, false},
-                            {false, true, false}
-                    }
-            },
-
-            {
-                    {
-                            {true, true, true, true}
-                    },
-                    {
-                            {true, true, true, true}
-                    }
-            },
-
-            {
-                    {
-                            {true, false, false},
                             {true, true, true}
-                    },
-                    {
-                            {true, false, false},
-                            {false, false, false}
                     }
             },
-
             {
                     {
-                            {false, false, true},
-                            {true, true, true}
+                            {true}
                     },
                     {
-                            {false, false, true},
-                            {false, false, false}
+                            {true}
+                    },
+                    {
+                            {true}
                     }
             },
-
             {
                     {
-                            {false, true, false},
+                            {true, false},
+                            {true, true}
+                    }
+            },
+            {
+                    {
                             {true, true, true},
                             {false, true, false}
-                    },
-                    {
-                            {false, true, false},
-                            {false, true, false},
-                            {false, true, false}
                     }
             },
-
             {
                     {
-                            {false, false, false},
-                            {false, true, false},
-                            {false, false, false}
+                            {true}
                     },
                     {
-                            {false, true, false},
-                            {true, true, true},
-                            {false, true, false}
-                    },
+                            {true}
+                    }
+            },
+            {
                     {
-                            {false, false, false},
-                            {false, true, false},
-                            {false, false, false}
+                            {true, true},
+                            {true, true}
                     }
             }
     };
