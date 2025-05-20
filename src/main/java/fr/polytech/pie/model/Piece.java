@@ -39,7 +39,7 @@ public abstract class Piece implements Cloneable {
     public Piece clone() {
         try {
             Piece clone = (Piece) super.clone();
-            clone.position = this.position.clone();
+            clone.position = new Position(this.position);
             clone.color = this.color;
             return clone;
         } catch (CloneNotSupportedException e) {

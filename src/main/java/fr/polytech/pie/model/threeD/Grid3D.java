@@ -170,7 +170,7 @@ public class Grid3D extends Grid {
 
     @Override
     public Grid copy() {
-        Grid3D copy = new Grid3D(size.clone());
+        Grid3D copy = new Grid3D(new Position(size));
 
         for (int z = 0; z < size.getZ(); z++) {
             for (int y = 0; y < size.getY(); y++) {

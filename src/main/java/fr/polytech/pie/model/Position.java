@@ -5,9 +5,9 @@ import org.joml.Vector3f;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Position implements Cloneable {
-    protected int[] positions;
-    protected int size;
+public class Position {
+    private final int size;
+    private final int[] positions;
 
     public Position(int size) {
         this.size = size;
@@ -17,7 +17,15 @@ public class Position implements Cloneable {
     public Position(int[] positions) {
         this.size = positions.length;
         this.positions = new int[size];
+
         System.arraycopy(positions, 0, this.positions, 0, size);
+    }
+
+    public Position(Position position) {
+        this.size = position.size;
+        this.positions = new int[size];
+
+        System.arraycopy(position.positions, 0, this.positions, 0, size);
     }
 
     public int[] getPositions() {
@@ -70,20 +78,6 @@ public class Position implements Cloneable {
     @Override
     public int hashCode() {
         return Objects.hash(Arrays.hashCode(positions), size);
-    }
-
-    @Override
-    public Position clone() {
-        try {
-            Position cloned = (Position) super.clone();
-
-            cloned.positions = new int[size];
-            System.arraycopy(this.positions, 0, cloned.positions, 0, size);
-
-            return cloned;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
     }
 
     public void add(Position other) {
