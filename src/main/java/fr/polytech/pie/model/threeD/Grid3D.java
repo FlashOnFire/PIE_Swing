@@ -45,16 +45,16 @@ public class Grid3D extends Grid {
 
     @Override
     public void freezePiece(Piece piece) {
-        if (!(piece instanceof Piece3D)) {
+        if (!(piece instanceof Piece3D piece3D)) {
             throw new IllegalArgumentException("Expected CurrentPiece3D but got " + piece.getClass().getName());
         }
 
-        PieceColor[][][] voxelGrid = ((Piece3D) piece).getPiece3d();
+        PieceColor[][][] voxelGrid = piece3D.getPiece3d();
         Position position = piece.getPosition();
 
         for (int i = 0; i < piece.getWidth(); i++) {
             for (int j = 0; j < piece.getHeight(); j++) {
-                for (int k = 0; k < ((Piece3D) piece).getDepth(); k++) {
+                for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[k][j][i] != PieceColor.Empty) {
                         Position pos = new Position(new int[]{i, j, k});
                         pos.add(position);
