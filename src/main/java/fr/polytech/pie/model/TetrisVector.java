@@ -4,7 +4,6 @@ import org.joml.Vector3f;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public class TetrisVector {
     private final int size;
@@ -66,26 +65,6 @@ public class TetrisVector {
             return vector[2];
         } else {
             throw new IllegalArgumentException("Position does not have a Z coordinate");
-        }
-    }
-
-    public void loop(Consumer<TetrisVector> operation) {
-        TetrisVector param = new TetrisVector(size);
-        int[] indices = new int[size];
-        int currentLevel = 0;
-
-        while (currentLevel >= 0) {
-            if (currentLevel >= size) {
-                operation.accept(new TetrisVector(param));
-                currentLevel--;
-            } else if (indices[currentLevel] < vector[currentLevel]) {
-                param.getVector()[currentLevel] = indices[currentLevel];
-                indices[currentLevel]++;
-                currentLevel++;
-            } else {
-                indices[currentLevel] = 0;
-                currentLevel--;
-            }
         }
     }
 

@@ -3,11 +3,6 @@ package fr.polytech.pie.model;
 public abstract class Piece implements Cloneable {
     protected TetrisVector position;
 
-    public Piece(TetrisVector position, PieceColor color) {
-        this.position = position;
-        this.color = color;
-    }
-
     public PieceColor getColor() {
         return color;
     }
