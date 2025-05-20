@@ -55,7 +55,7 @@ public class Ai {
         // Create tasks for evaluating each possible move
         for (CurrentPiece possibility : availablePossibilities) {
             tasks.add(() -> {
-                Grid threadLocalGrid = grid.copy(); // Create a copy of the grid for thread-safe operations
+                Grid threadLocalGrid = grid.copy();
                 double bestScore = Double.NEGATIVE_INFINITY;
 
                 threadLocalGrid.freezePiece(possibility);
@@ -78,14 +78,8 @@ public class Ai {
 
     private double getScore(Grid gridToScore) {
         int heights = getHeights(gridToScore);
-
-        // Count completed lines
         int completedLines = gridToScore.clearFullLines(true);
-
-        // Count holes
         int holes = gridToScore.getHoles();
-
-        // calculate bumpiness (to avoid having a big vertical hole)
         int bumpiness = getBumpiness(gridToScore);
 
         return heightWeight * heights +
@@ -96,9 +90,7 @@ public class Ai {
 
     private int getBumpiness(Grid gridToScore) {
         int bumpiness = 0;
-        if (is3D) {
-            assert gridToScore instanceof Grid3D;
-            Grid3D grid3D = (Grid3D) gridToScore;
+        if (is3D && gridToScore instanceof Grid3D grid3D) {
             for (int x = 0; x < grid3D.getWidth(); x++) {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
                     if (x < grid3D.getWidth() - 1) {
@@ -109,9 +101,7 @@ public class Ai {
                     }
                 }
             }
-        } else {
-            assert gridToScore instanceof Grid2D;
-            Grid2D grid2D = (Grid2D) gridToScore;
+        } else if (gridToScore instanceof Grid2D grid2D) {
             for (int i = 0; i < gridToScore.getWidth() - 1; i++) {
                 bumpiness += Math.abs(grid2D.getHeightOfColumn2D(i) - grid2D.getHeightOfColumn2D(i + 1));
             }
@@ -121,17 +111,13 @@ public class Ai {
 
     private int getHeights(Grid gridToScore) {
         int heights = 0;
-        if (is3D) {
-            assert gridToScore instanceof Grid3D;
-            Grid3D grid3D = (Grid3D) gridToScore;
+        if (is3D && gridToScore instanceof Grid3D grid3D) {
             for (int i = 0; i < grid3D.getWidth(); i++) {
                 for (int j = 0; j < grid3D.getDepth(); j++) {
                     heights += grid3D.getHeightOfColumn3D(i, j);
                 }
             }
-        } else {
-            assert gridToScore instanceof Grid2D;
-            Grid2D grid2D = (Grid2D) gridToScore;
+        } else if (gridToScore instanceof Grid2D grid2D) {
             for (int i = 0; i < grid2D.getWidth(); i++) {
                 heights += grid2D.getHeightOfColumn2D(i);
             }
@@ -143,14 +129,12 @@ public class Ai {
     public void makeMove(CurrentPiece currentPiece, CurrentPiece nextPiece) {
         final var availablePossibilities = grid.getPiecesPossibilities(currentPiece);
 
-        // Rate each possibility using multiple threads
         double best = Double.NEGATIVE_INFINITY;
         CurrentPiece bestPiece = null;
 
         try {
             List<Callable<PieceMoveScore>> tasks = getCallables(nextPiece, availablePossibilities);
 
-            // Execute all tasks
             List<Future<PieceMoveScore>> results = executorService.invokeAll(tasks);
 
             // Find the best move from all results
