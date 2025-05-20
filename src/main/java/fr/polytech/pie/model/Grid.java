@@ -24,7 +24,6 @@ public abstract class Grid {
 
     public abstract Piece getValue(int x, int y);
     @SuppressWarnings("unused")
-    public abstract void setValue(int x, int y, Piece value);
     public abstract void freezePiece(CurrentPiece currentPiece);
     public abstract void removePiece(CurrentPiece possibility);
     public abstract boolean checkCollision(CurrentPiece currentPiece);

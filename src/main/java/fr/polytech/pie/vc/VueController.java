@@ -20,11 +20,9 @@ public class VueController implements Observer {
     public VueController(Model m) {
         this.model = m;
 
-        // Use the Swing event-dispatching thread for the UI
         try {
             SwingUtilities.invokeAndWait(() -> {
                 try {
-                    // Set the look and feel to the system's native look and feel
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                 } catch (Exception e) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, e);
@@ -77,9 +75,7 @@ public class VueController implements Observer {
         loop:
         while (true) {
             switch (currentRenderer.loop()) {
-                case CONTINUE -> {
-                    // Continue the game loop
-                }
+                case CONTINUE -> {}
                 case SHOW_MENU -> stopGame();
                 case START_GAME_2D -> startGame(false);
                 case START_GAME_3D -> startGame(true);

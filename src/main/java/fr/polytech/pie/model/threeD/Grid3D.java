@@ -35,7 +35,6 @@ public class Grid3D extends Grid {
 
     @Override
     public Piece getValue(int x, int y) {
-        // Return true if any cell in the z-axis is filled
         for (int z = 0; z < depth; z++) {
             if (getValue(x, y, z) != Piece.Empty) {
                 return getValue(x, y, z);
@@ -49,15 +48,6 @@ public class Grid3D extends Grid {
             return Piece.Empty;
         }
         return grid[z][y][x];
-    }
-
-    // TODO: remove this nonsense
-    @Override
-    public void setValue(int x, int y, Piece value) {
-        // Set all cells in the z-axis to the given value
-        for (int z = 0; z < depth; z++) {
-            setValue(x, y, z, value);
-        }
     }
 
     public void setValue(int x, int y, int z, Piece value) {

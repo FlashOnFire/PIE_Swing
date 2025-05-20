@@ -93,10 +93,10 @@ public class PieceGenerator {
     }
 
     private static void rotate2DPieceRandomly(CurrentPiece2D piece) {
-        int rotations = random.nextInt(4); // 0, 90, 180, or 270 degrees
+        int rotations = random.nextInt(4);
 
         if (rotations == 0) {
-            return; // No rotation
+            return;
         }
 
         for (int i = 0; i < rotations; i++) {
@@ -120,15 +120,15 @@ public class PieceGenerator {
     }
 
     private static void rotate3DPieceRandomly(CurrentPiece3D piece) {
-        int rotations = random.nextInt(4); // 0, 90, 180, or 270 degrees
+        int rotations = random.nextInt(4);
 
         if (rotations == 0) {
-            return ; // No rotation
+            return ;
         }
 
 
         for (int i = 0; i < rotations; i++) {
-            int axis = random.nextInt(3); // 0=X, 1=Y, 2=Z
+            int axis = random.nextInt(3);
             switch (axis) {
                 case 0 -> piece.rotate3D(RotationAxis.X, _ ->false, false);
                 case 1 -> piece.rotate3D(RotationAxis.Y, _ ->false, false);

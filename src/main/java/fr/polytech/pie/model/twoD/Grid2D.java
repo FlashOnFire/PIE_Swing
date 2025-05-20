@@ -32,7 +32,6 @@ public class Grid2D extends Grid {
         return grid[y][x];
     }
 
-    @Override
     public void setValue(int x, int y, Piece value) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             Piece oldValue = grid[y][x];

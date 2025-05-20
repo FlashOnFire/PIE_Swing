@@ -131,7 +131,6 @@ public class Model extends Observable {
             this.executor = Executors.newScheduledThreadPool(1);
         }
 
-        // Automatic downward movement
         executor.scheduleAtFixedRate(
                 () -> {
                     if (this.is3D) {
@@ -147,7 +146,6 @@ public class Model extends Observable {
         CurrentPiece currentPiece = game.getCurrentPiece();
         int originalY = currentPiece.getY();
 
-        // Create a temporary piece copy to avoid modifying the actual game state
         CurrentPiece tempPiece = currentPiece.clone();
         int droppedY = originalY;
 
