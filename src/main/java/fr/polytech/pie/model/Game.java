@@ -1,13 +1,22 @@
 package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.twoD.Piece2D;
 import fr.polytech.pie.model.threeD.Piece3D;
+import fr.polytech.pie.model.twoD.Piece2D;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Game {
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
+
+    private final Runnable updateModelLambda;
+
     private Grid grid;
     private Ai ai;
     private Piece piece;
@@ -15,10 +24,12 @@ public class Game {
     private int score;
     private boolean is3D;
     private boolean gameOver;
-    private int difficulty = 1;
+    private final int difficulty;
 
-    public Game(boolean is3D) {
+    public Game(boolean is3D, int difficulty, Runnable updateModelLambda) {
         this.is3D = is3D;
+        this.difficulty = difficulty;
+        this.updateModelLambda = updateModelLambda;
         resetGame();
     }
 
@@ -71,7 +82,7 @@ public class Game {
             piece.getPosition().setX(grid.getWidth() - piece.getWidth());
         }
 
-        if (is3D){
+        if (is3D) {
             if (piece.getPosition().getZ() < 0) {
                 piece.getPosition().setZ(0);
             }
@@ -106,6 +117,14 @@ public class Game {
     }
 
     public void resetGame() {
+        if (future != null) {
+            future.cancel(false);
+        }
+
+        if (ai != null) {
+            ai.shutdown();
+        }
+
         grid = Grid.create(new TetrisVector(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
         ai = new Ai(grid, is3D ? AIParameters.DEFAULT_3D : AIParameters.DEFAULT);
         piece = null;
@@ -113,6 +132,17 @@ public class Game {
         generateNewPiece();
         score = 0;
         gameOver = false;
+
+        future = executor.scheduleAtFixedRate(
+                () -> {
+                    if (is3D) {
+                        translateCurrentPiece(new Position(new int[]{0, -1, 0}));
+                    } else {
+                        translateCurrentPiece(new Position(new int[]{0, -1}));
+                    }
+                    updateModelLambda.run();
+                }, 0, 200 / difficulty, TimeUnit.MILLISECONDS
+        );
     }
 
     private void generateNewPiece() {
@@ -153,15 +183,11 @@ public class Game {
         generateNewPiece();
     }
 
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
-    }
-
-    public int getDifficulty() {
-        return difficulty;
-    }
-
-    public Ai getAi() {
-        return ai;
+    public void cleanup() {
+        ai.shutdown();
+        if (future != null) {
+            future.cancel(false);
+        }
+        executor.shutdown();
     }
 }

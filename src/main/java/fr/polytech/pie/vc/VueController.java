@@ -47,8 +47,6 @@ public class VueController implements Observer {
         } else {
             switchRenderer(RendererType.GAME_2D);
         }
-
-        model.startScheduler();
     }
 
     void stopGame() {
@@ -124,10 +122,10 @@ public class VueController implements Observer {
     }
 
     public void setDifficulty(int difficulty) {
-        model.getGame().setDifficulty(difficulty);
+        model.setDifficulty(difficulty);
     }
 
     public int getDifficulty() {
-        return model.getGame().getDifficulty();
+        return model.getDifficulty();
     }
 }

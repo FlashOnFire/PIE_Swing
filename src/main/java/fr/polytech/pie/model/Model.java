@@ -4,10 +4,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Observable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Model class that handles the game state and user input.
@@ -15,32 +11,30 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("deprecation")
 public class Model extends Observable {
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> future;
+    private Game game;
 
-    private final Game game;
+    private int difficulty = 1;
 
     private int highScore2D = 0;
     private int highScore3D = 0;
 
-    /**
-     * Constructor that can create a model in either 2D or 3D mode.
-     *
-     * @param is3D Whether the game should be in 3D mode
-     */
-    public Model(boolean is3D) {
-        this.game = new Game(is3D);
+    public Model() {
         loadHighScore();
     }
 
     public void startGame(boolean is3D) {
-        game.resetGame();
+        if (game == null) {
+            game = new Game(is3D, difficulty, () -> {
+                setChanged();
+                notifyObservers();
+            });
+        } else {
+            game.resetGame();
 
-        if (game.is3D() != is3D) {
-            changeRenderingMode(is3D);
+            if (game.is3D() != is3D) {
+                changeRenderingMode(is3D);
+            }
         }
-
-        startScheduler();
 
         setChanged();
         notifyObservers();
@@ -54,10 +48,6 @@ public class Model extends Observable {
 
     public void translateCurrentPiece(TetrisVector translation) {
         game.translateCurrentPiece(translation);
-
-        if (game.isGameOver()) {
-            stopScheduler();
-        }
 
         setChanged();
         notifyObservers();
@@ -109,38 +99,18 @@ public class Model extends Observable {
     }
 
     public void stopGame() {
-        stopScheduler();
-
         if (game.getScore() > (game.is3D() ? highScore3D : highScore2D)) {
             setHighScore(game.getScore(), game.is3D());
         }
 
-        game.resetGame();
-    }
-
-    public void startScheduler() {
-        if (future != null && !future.isDone()) {
-            future.cancel(true);
-        }
-
-        future = executor.scheduleAtFixedRate(
-                () -> {
-                    if (game.is3D()) {
-                        translateCurrentPiece(new TetrisVector(new int[]{0, -1, 0}));
-                    } else {
-                        translateCurrentPiece(new TetrisVector(new int[]{0, -1}));
-                    }
-                }, 0, 200 / game.getDifficulty(), TimeUnit.MILLISECONDS
-        );
-    }
-
-    public void stopScheduler() {
-        game.getAi().shutdown();
-        future.cancel(false);
+        game.cleanup();
+        game = null;
     }
 
     public void cleanup() {
-        executor.shutdownNow();
+        if (game != null) {
+            game.cleanup();
+        }
     }
 
     public int getDroppedYCurrentPiece() {
@@ -206,5 +176,13 @@ public class Model extends Observable {
             this.highScore2D = score;
         }
         saveHighScore();
+    }
+
+    public int getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
     }
 }

@@ -29,7 +29,7 @@ public class Main {
             Logger.getLogger(Main.class.getName()).severe("Error playing music: " + e.getMessage());
         }
 
-        Model m = new Model(false);
+        Model m = new Model();
 
         VueController vc = new VueController(m);
         vc.loop();

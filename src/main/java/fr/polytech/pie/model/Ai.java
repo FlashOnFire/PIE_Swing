@@ -133,5 +133,4 @@ public class Ai {
 
     private record PieceMoveScore(Piece piece, double score) {
     }
-
 }
