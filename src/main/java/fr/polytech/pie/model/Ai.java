@@ -10,20 +10,20 @@ import java.util.Set;
 import java.util.concurrent.*;
 
 public class Ai {
-    static protected double heightWeight;
-    static protected double linesWeight;
-    static protected double bumpinessWeight;
-    static protected double holesWeight;
+    private final ExecutorService executorService = Executors.newWorkStealingPool();
+
+    private static double heightWeight;
+    private static double linesWeight;
+    private static double bumpinessWeight;
+    private static double holesWeight;
     private final Grid grid;
-    private final ExecutorService executorService;
-    private final int availableProcessors;
+
     private final boolean is3D;
 
     public Ai(Grid grid, boolean is3D) {
         this.grid = grid;
-        this.availableProcessors = Runtime.getRuntime().availableProcessors();
-        this.executorService = Executors.newWorkStealingPool(availableProcessors);
         this.is3D = is3D;
+
         if (is3D) {
             heightWeight = -0.6500491536113875;
             linesWeight = 0.5122503282774851;
@@ -40,12 +40,11 @@ public class Ai {
     public Ai(Grid grid, double[] parameters, boolean is3D) {
         this.grid = grid;
         this.is3D = is3D;
+
         heightWeight = parameters[0];
         linesWeight = parameters[1];
         bumpinessWeight = parameters[2];
         holesWeight = parameters[3];
-        this.availableProcessors = Runtime.getRuntime().availableProcessors();
-        this.executorService = Executors.newFixedThreadPool(availableProcessors);
     }
 
     @NotNull
