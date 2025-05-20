@@ -1,6 +1,6 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.Piece;
+import fr.polytech.pie.model.PieceColor;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -11,7 +11,7 @@ public class TetrisCubePanel extends JPanel {
 
     private static final int BLOCK_SIZE = 25;
 
-    private static final HashMap<Piece, Border> borders = new HashMap<>();
+    private static final HashMap<PieceColor, Border> borders = new HashMap<>();
 
     static {
         int outerBorderSize = BLOCK_SIZE / 10;
@@ -19,8 +19,8 @@ public class TetrisCubePanel extends JPanel {
         int bottomBorderSize = BLOCK_SIZE / 8;
         int cornerBorderSize = BLOCK_SIZE / 4;
 
-        for (Piece piece : Piece.values()) {
-            if (piece == Piece.Empty) {
+        for (PieceColor piece : PieceColor.values()) {
+            if (piece == PieceColor.Empty) {
                 continue;
             }
 
@@ -51,16 +51,16 @@ public class TetrisCubePanel extends JPanel {
             borders.put(piece, border);
         }
 
-        borders.put(Piece.Empty, null);
+        borders.put(PieceColor.Empty, null);
     }
 
     TetrisCubePanel() {
         setPreferredSize(new Dimension(BLOCK_SIZE, BLOCK_SIZE));
-        setPiece(Piece.Empty);
+        setPiece(PieceColor.Empty);
     }
 
-    public void setPiece(Piece piece) {
-        if (piece == Piece.Empty) {
+    public void setPiece(PieceColor piece) {
+        if (piece == PieceColor.Empty) {
             setBackground(Color.BLACK);
         } else {
             setBackground(piece.getColor());

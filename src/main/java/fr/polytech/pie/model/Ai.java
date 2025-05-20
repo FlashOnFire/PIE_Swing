@@ -49,19 +49,19 @@ public class Ai {
     }
 
     @NotNull
-    private List<Callable<PieceMoveScore>> getCallables(CurrentPiece nextPiece, Set<CurrentPiece> availablePossibilities) {
+    private List<Callable<PieceMoveScore>> getCallables(Piece nextPiece, Set<Piece> availablePossibilities) {
         List<Callable<PieceMoveScore>> tasks = new ArrayList<>();
 
         // Create tasks for evaluating each possible move
-        for (CurrentPiece possibility : availablePossibilities) {
+        for (Piece possibility : availablePossibilities) {
             tasks.add(() -> {
                 Grid threadLocalGrid = grid.copy();
                 double bestScore = Double.NEGATIVE_INFINITY;
 
                 threadLocalGrid.freezePiece(possibility);
-                Set<CurrentPiece> nextPiecePossibilities = threadLocalGrid.getPiecesPossibilities(nextPiece);
+                Set<Piece> nextPiecePossibilities = threadLocalGrid.getPiecesPossibilities(nextPiece);
 
-                for (CurrentPiece nextPiecePossibility : nextPiecePossibilities) {
+                for (Piece nextPiecePossibility : nextPiecePossibilities) {
                     threadLocalGrid.freezePiece(nextPiecePossibility);
                     double score = getScore(threadLocalGrid);
                     if (score > bestScore) {
@@ -126,11 +126,11 @@ public class Ai {
     }
 
 
-    public void makeMove(CurrentPiece currentPiece, CurrentPiece nextPiece) {
-        final var availablePossibilities = grid.getPiecesPossibilities(currentPiece);
+    public void makeMove(Piece piece, Piece nextPiece) {
+        final var availablePossibilities = grid.getPiecesPossibilities(piece);
 
         double best = Double.NEGATIVE_INFINITY;
-        CurrentPiece bestPiece = null;
+        Piece bestPiece = null;
 
         try {
             List<Callable<PieceMoveScore>> tasks = getCallables(nextPiece, availablePossibilities);
@@ -149,10 +149,10 @@ public class Ai {
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Error during parallel processing: " + e.getMessage());
             // Fallback to the current piece if error occurs
-            bestPiece = currentPiece;
+            bestPiece = piece;
         }
 
-        grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
+        grid.freezePiece(bestPiece != null ? bestPiece : piece);
     }
 
     public void shutdown() {
@@ -167,7 +167,7 @@ public class Ai {
         }
     }
 
-    private record PieceMoveScore(CurrentPiece piece, double score) {
+    private record PieceMoveScore(Piece piece, double score) {
     }
 
 }

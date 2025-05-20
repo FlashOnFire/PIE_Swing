@@ -289,14 +289,14 @@ classDiagram
             + valueOf(String) RotationAxis
         }
         class Game {
-            - CurrentPiece currentPiece
+            - CurrentPiece piece
             - Grid grid
             - int score
             boolean renderingMode
             Grid grid
             boolean 3D
             int score
-            CurrentPiece currentPiece
+            CurrentPiece piece
             + Game(boolean)
             + rotateCurrentPiece() void
             + rotateCurrentPiece3D(RotationAxis) void
@@ -427,15 +427,15 @@ classDiagram
     CameraController "1" *--> "freeCam 1" FreeCamCamera
     CurrentPiece "1" *--> "color 1" Piece
     CurrentPiece2D --> CurrentPiece
-    CurrentPiece2D "1" *--> "piece *" Piece
+    CurrentPiece2D "1" *--> "pieceColor *" Piece
     CurrentPiece2D ..> Piece : «create»
     CurrentPiece3D --> CurrentPiece
-    CurrentPiece3D "1" *--> "piece *" Piece
+    CurrentPiece3D "1" *--> "pieceColor *" Piece
     CurrentPiece3D ..> Piece : «create»
     Game "1" *--> "ai 1" Ai
     Game ..> Ai2D : «create»
     Game ..> Ai3D : «create»
-    Game "1" *--> "currentPiece 1" CurrentPiece
+    Game "1" *--> "piece 1" CurrentPiece
     Game "1" *--> "grid 1" Grid
     GeneticTrainer ..> Ai2D : «create»
     GeneticTrainer ..> Grid2D : «create»

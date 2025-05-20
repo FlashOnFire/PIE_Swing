@@ -1,86 +1,64 @@
 package fr.polytech.pie.model.threeD;
 
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
-import fr.polytech.pie.model.Piece;
-import fr.polytech.pie.model.RotationAxis;
+import fr.polytech.pie.model.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Grid3D extends Grid {
-    private final Piece[][][] grid;
-    private final int depth;
+    private final PieceColor[][][] grid;
     private final int[][] heightCache;
     private final int[][] holesCache;
 
-    public Grid3D(int width, int height, int depth) {
-        super(width, height);
-        this.depth = depth;
-        this.grid = new Piece[depth][height][width];
-        this.heightCache = new int[width][depth];
-        this.holesCache = new int[width][depth];
+    public Grid3D(Position size) {
+        super(size);
+        this.grid = new PieceColor[size.getZ()][size.getY()][size.getX()];
+        this.heightCache = new int[size.getX()][size.getZ()];
+        this.holesCache = new int[size.getX()][size.getZ()];
 
-        for (int z = 0; z < depth; z++) {
-            for (int y = 0; y < height; y++) {
-                Arrays.fill(grid[z][y], Piece.Empty);
-            }
-        }
-    }
-
-    public int getDepth() {
-        return depth;
-    }
-
-    @Override
-    public Piece getValue(int x, int y) {
-        for (int z = 0; z < depth; z++) {
-            if (getValue(x, y, z) != Piece.Empty) {
-                return getValue(x, y, z);
-            }
-        }
-        return Piece.Empty;
-    }
-
-    public Piece getValue(int x, int y, int z) {
-        if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth) {
-            return Piece.Empty;
-        }
-        return grid[z][y][x];
-    }
-
-    public void setValue(int x, int y, int z, Piece value) {
-        if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth) {
-            Piece oldValue = grid[z][y][x];
-            grid[z][y][x] = value;
-
-            if ((oldValue == Piece.Empty && value != Piece.Empty) ||
-                    (oldValue != Piece.Empty && value == Piece.Empty)) {
-                updateCaches(x, z);
+        for (int z = 0; z < size.getZ(); z++) {
+            for (int y = 0; y < size.getY(); y++) {
+                Arrays.fill(grid[z][y], PieceColor.Empty);
             }
         }
     }
 
     @Override
-    public void freezePiece(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece3D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
+    public PieceColor getValue(Position position) {
+        if (isOutOfBounds(position)) {
+            return PieceColor.Empty;
+        }
+        return grid[position.getZ()][position.getY()][position.getX()];
+    }
+
+    public void setValue(Position position, PieceColor value) {
+        if (!isOutOfBounds(position)) {
+            PieceColor oldValue = grid[position.getZ()][position.getY()][position.getX()];
+            grid[position.getZ()][position.getY()][position.getX()] = value;
+
+            if ((oldValue == PieceColor.Empty && value != PieceColor.Empty) || (oldValue != PieceColor.Empty && value == PieceColor.Empty)) {
+                updateCaches(position.getX(), position.getZ());
+            }
+        }
+    }
+
+    @Override
+    public void freezePiece(Piece piece) {
+        if (!(piece instanceof Piece3D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + piece.getClass().getName());
         }
 
-        Piece[][][] voxelGrid = ((CurrentPiece3D) currentPiece).getPiece3d();
-        int pieceX = currentPiece.getX();
-        int pieceY = currentPiece.getY();
-        int pieceZ = ((CurrentPiece3D) currentPiece).getZ();
+        PieceColor[][][] voxelGrid = ((Piece3D) piece).getPiece3d();
+        Position position = piece.getPosition();
 
-        for (int i = 0; i < currentPiece.getWidth(); i++) {
-            for (int j = 0; j < currentPiece.getHeight(); j++) {
-                for (int k = 0; k < ((CurrentPiece3D) currentPiece).getDepth(); k++) {
-                    if (voxelGrid[k][j][i] != Piece.Empty) {
-                        int x = pieceX + i;
-                        int y = pieceY + j;
-                        int z = pieceZ + k;
-                        setValue(x, y, z, currentPiece.getColor());
+        for (int i = 0; i < piece.getWidth(); i++) {
+            for (int j = 0; j < piece.getHeight(); j++) {
+                for (int k = 0; k < ((Piece3D) piece).getDepth(); k++) {
+                    if (voxelGrid[k][j][i] != PieceColor.Empty) {
+                        Position pos = new Position(new int[]{i, j, k});
+                        pos.add(position);
+                        setValue(pos, piece.getColor());
                     }
                 }
             }
@@ -88,19 +66,18 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public void removePiece(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece3D piece3D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
+    public void removePiece(Piece piece) {
+        if (!(piece instanceof Piece3D piece3D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + piece.getClass().getName());
         }
 
-        for (int i = 0; i < currentPiece.getWidth(); i++) {
-            for (int j = 0; j < currentPiece.getHeight(); j++) {
+        for (int i = 0; i < piece.getWidth(); i++) {
+            for (int j = 0; j < piece.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (piece3D.getPiece3d()[k][j][i] != Piece.Empty) {
-                        int x = currentPiece.getX() + i;
-                        int y = currentPiece.getY() + j;
-                        int z = piece3D.getZ() + k;
-                        setValue(x, y, z, Piece.Empty);
+                    if (piece3D.getPiece3d()[k][j][i] != PieceColor.Empty) {
+                        var pos = new Position(new int[]{i, j, k});
+                        pos.add(piece3D.getPosition());
+                        setValue(pos, PieceColor.Empty);
                     }
                 }
             }
@@ -108,29 +85,25 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public boolean checkCollision(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece3D piece3D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + currentPiece.getClass().getName());
+    public boolean checkCollision(Piece piece) {
+        if (!(piece instanceof Piece3D piece3D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece3D but got " + piece.getClass().getName());
         }
 
-        Piece[][][] voxelGrid = piece3D.getPiece3d();
-        int pieceX = piece3D.getX();
-        int pieceY = piece3D.getY();
-        int pieceZ = piece3D.getZ();
+        PieceColor[][][] voxelGrid = piece3D.getPiece3d();
 
         for (int i = 0; i < piece3D.getWidth(); i++) {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
-                    if (voxelGrid[k][j][i] != Piece.Empty) {
-                        int x = pieceX + i;
-                        int y = pieceY + j;
-                        int z = pieceZ + k;
+                    if (voxelGrid[k][j][i] != PieceColor.Empty) {
+                        var pos = new Position(new int[]{i, j, k});
+                        pos.add(piece3D.getPosition());
 
-                        if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth) {
+                        if (isOutOfBounds(pos)) {
                             return true;
                         }
 
-                        if (getValue(x, y, z) != Piece.Empty) {
+                        if (getValue(pos) != PieceColor.Empty) {
                             return true;
                         }
                     }
@@ -145,13 +118,13 @@ public class Grid3D extends Grid {
         int linesCleared = 0;
 
         // Check for full horizontal planes (XZ planes)
-        for (int y = 0; y < height; y++) {
+        for (int y = 0; y < size.getY(); y++) {
             boolean fullPlane = true;
 
             // Check if the plane is full
-            for (int x = 0; x < width && fullPlane; x++) {
-                for (int z = 0; z < depth; z++) {
-                    if (grid[z][y][x] == Piece.Empty) {
+            for (int x = 0; x < size.getX() && fullPlane; x++) {
+                for (int z = 0; z < size.getY(); z++) {
+                    if (grid[z][y][x] == PieceColor.Empty) {
                         fullPlane = false;
                         break;
                     }
@@ -163,18 +136,18 @@ public class Grid3D extends Grid {
 
                 if (!dry) {
                     // Shift all planes above down
-                    for (int i = y; i < height - 1; i++) {
-                        for (int x = 0; x < width; x++) {
-                            for (int z = 0; z < depth; z++) {
+                    for (int i = y; i < size.getY() - 1; i++) {
+                        for (int x = 0; x < size.getX(); x++) {
+                            for (int z = 0; z < size.getZ(); z++) {
                                 grid[z][i][x] = grid[z][i + 1][x];
                             }
                         }
                     }
 
                     // Clear the top plane
-                    for (int x = 0; x < width; x++) {
-                        for (int z = 0; z < depth; z++) {
-                            grid[z][height - 1][x] = Piece.Empty;
+                    for (int x = 0; x < size.getX(); x++) {
+                        for (int z = 0; z < size.getZ(); z++) {
+                            grid[z][size.getY() - 1][x] = PieceColor.Empty;
                         }
                     }
 
@@ -197,18 +170,18 @@ public class Grid3D extends Grid {
 
     @Override
     public Grid copy() {
-        Grid3D copy = new Grid3D(width, height, depth);
+        Grid3D copy = new Grid3D(size.clone());
 
-        for (int z = 0; z < depth; z++) {
-            for (int y = 0; y < height; y++) {
-                System.arraycopy(grid[z][y], 0, copy.grid[z][y], 0, width);
+        for (int z = 0; z < size.getZ(); z++) {
+            for (int y = 0; y < size.getY(); y++) {
+                System.arraycopy(grid[z][y], 0, copy.grid[z][y], 0, size.getX());
             }
         }
 
         // Copy the height cache
-        for (int x = 0; x < width; x++) {
-            System.arraycopy(heightCache[x], 0, copy.heightCache[x], 0, depth);
-            System.arraycopy(holesCache[x], 0, copy.holesCache[x], 0, depth);
+        for (int x = 0; x < size.getX(); x++) {
+            System.arraycopy(heightCache[x], 0, copy.heightCache[x], 0, size.getZ());
+            System.arraycopy(holesCache[x], 0, copy.holesCache[x], 0, size.getZ());
         }
 
         return copy;
@@ -217,8 +190,8 @@ public class Grid3D extends Grid {
     @Override
     public int getHoles() {
         int totalHoles = 0;
-        for (int x = 0; x < width; x++) {
-            for (int z = 0; z < depth; z++) {
+        for (int x = 0; x < size.getX(); x++) {
+            for (int z = 0; z < size.getZ(); z++) {
                 totalHoles += holesCache[x][z];
             }
         }
@@ -226,8 +199,8 @@ public class Grid3D extends Grid {
     }
 
     private void recalculateAllCaches() {
-        for (int x = 0; x < width; x++) {
-            for (int z = 0; z < depth; z++) {
+        for (int x = 0; x < size.getX(); x++) {
+            for (int z = 0; z < size.getZ(); z++) {
                 updateCaches(x, z);
             }
         }
@@ -243,8 +216,8 @@ public class Grid3D extends Grid {
         boolean foundBlock = false;
         boolean inHole = false;
 
-        for (int y = this.height - 1; y >= 0; y--) {
-            if (grid[z][y][x] != Piece.Empty) {
+        for (int y = this.size.getY() - 1; y >= 0; y--) {
+            if (grid[z][y][x] != PieceColor.Empty) {
                 if (!foundBlock) {
                     height = y + 1;
                 }
@@ -263,31 +236,31 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece3D currentPiece3D)) {
+    public Set<Piece> getPiecesPossibilities(Piece currentPiece) {
+        if (!(currentPiece instanceof Piece3D piece3D)) {
             throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
         }
 
-        Set<CurrentPiece> possibilities = new HashSet<>();
+        Set<Piece> possibilities = new HashSet<>();
 
         // Generate rotations
-        CurrentPiece3D workingPiece = currentPiece3D.copy();
+        Piece3D workingPiece = piece3D.copy();
         for (var axe : RotationAxis.values()) {
             for (int i = 0; i < 4; i++) {
                 workingPiece.rotate3D(axe, this::checkCollision, false);
-                workingPiece.setY(getHeight() - workingPiece.getHeight());
+                workingPiece.getPosition().setY(getHeight() - workingPiece.getHeight());
                 possibilities.add(workingPiece.copy());
             }
         }
 
         // Generate translations
-        Set<CurrentPiece> newTranslations = new HashSet<>();
+        Set<Piece> newTranslations = new HashSet<>();
         for (var piece : possibilities) {
             for (int x = 0; x < getWidth(); x++) {
                 for (int z = 0; z < getDepth(); z++) {
-                    CurrentPiece3D translatedPiece = ((CurrentPiece3D) piece).copy();
-                    translatedPiece.setX(x);
-                    translatedPiece.setZ(z);
+                    Piece3D translatedPiece = ((Piece3D) piece).copy();
+                    translatedPiece.getPosition().setX(x);
+                    translatedPiece.getPosition().setZ(z);
                     if (!checkCollision(translatedPiece)) {
                         newTranslations.add(translatedPiece);
                     }
@@ -298,10 +271,10 @@ public class Grid3D extends Grid {
 
         // Drop the pieces
         for (var piece : possibilities) {
-            piece.setY(0);
+            piece.getPosition().setY(0);
             int y = 0;
             do {
-                piece.setY(y++);
+                piece.getPosition().setY(y++);
             } while (checkCollision(piece));
         }
 

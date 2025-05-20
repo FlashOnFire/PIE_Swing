@@ -1,9 +1,8 @@
 package fr.polytech.pie.model;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.twoD.CurrentPiece2D;
-import fr.polytech.pie.model.threeD.CurrentPiece3D;
-import fr.polytech.pie.model.threeD.Grid3D;
+import fr.polytech.pie.model.twoD.Piece2D;
+import fr.polytech.pie.model.threeD.Piece3D;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,8 +10,8 @@ import java.util.logging.Logger;
 public class Game {
     private Grid grid;
     private Ai ai;
-    private CurrentPiece currentPiece;
-    private CurrentPiece nextPiece;
+    private Piece piece;
+    private Piece nextPiece;
     private int score;
     private boolean is3D;
     private boolean gameOver;
@@ -31,11 +30,11 @@ public class Game {
         return grid;
     }
 
-    public CurrentPiece getCurrentPiece() {
-        return currentPiece;
+    public Piece getCurrentPiece() {
+        return piece;
     }
 
-    public CurrentPiece getNextPiece() {
+    public Piece getNextPiece() {
         return nextPiece;
     }
 
@@ -58,27 +57,34 @@ public class Game {
         score += linesCleared * 100;
     }
 
-    public void translateCurrentPiece2D(int dx, int dy) {
+    public void translateCurrentPiece(Position translation) {
         if (gameOver) return;
-        assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
-        int originalX = currentPiece.getX();
-        int originalY = currentPiece.getY();
+        var originalPos = piece.getPosition();
 
-        ((CurrentPiece2D) currentPiece).translate2d(dx, dy);
+        piece.translate(translation);
 
-        if (currentPiece.getX() < 0) {
-            currentPiece.setX(0);
+        if (piece.getPosition().getX() < 0) {
+            piece.getPosition().setX(0);
         }
 
-        if (currentPiece.getX() + currentPiece.getWidth() > grid.getWidth()) {
-            currentPiece.setX(grid.getWidth() - currentPiece.getWidth());
+        if (piece.getPosition().getX() + piece.getWidth() > grid.getWidth()) {
+            piece.getPosition().setX(grid.getWidth() - piece.getWidth());
         }
 
-        if (grid.checkCollision(currentPiece)) {
-            currentPiece.setX(originalX);
-            currentPiece.setY(originalY);
+        if (is3D){
+            if (piece.getPosition().getZ() < 0) {
+                piece.getPosition().setZ(0);
+            }
 
-            if (dy < 0) {
+            if (piece.getPosition().getZ() + ((Piece3D) piece).getDepth() > grid.getDepth()) {
+                piece.getPosition().setZ(grid.getDepth() - ((Piece3D) piece).getDepth());
+            }
+        }
+
+        if (grid.checkCollision(piece)) {
+            piece.setPosition(originalPos);
+
+            if (translation.getY() < 0) {
                 freeze();
             }
         }
@@ -86,63 +92,23 @@ public class Game {
 
     private void freeze() {
         if (gameOver) return;
-        grid.freezePiece(currentPiece);
+        grid.freezePiece(piece);
 
         int linesCleared = grid.clearFullLines();
         updateScore(linesCleared);
 
         generateNewPiece();
 
-        if (grid.checkCollision(currentPiece)) {
+        if (grid.checkCollision(piece)) {
             Logger.getLogger(Game.class.getName()).log(Level.INFO, "Collision detected, game over!");
             gameOver = true;
         }
     }
 
-    public void translateCurrentPiece3D(int dx, int dy, int dz) {
-        if (gameOver) return;
-        if (!is3D || !(currentPiece instanceof CurrentPiece3D piece3D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
-        }
-
-        int originalX = piece3D.getX();
-        int originalY = piece3D.getY();
-        int originalZ = piece3D.getZ();
-
-        piece3D.translate3D(dx, dy, dz);
-
-        if (piece3D.getX() < 0) {
-            piece3D.setX(0);
-        }
-
-        if (piece3D.getX() + piece3D.getWidth() > grid.getWidth()) {
-            piece3D.setX(grid.getWidth() - piece3D.getWidth());
-        }
-
-        if (piece3D.getZ() < 0) {
-            piece3D.setZ(0);
-        }
-
-        if (piece3D.getZ() + piece3D.getDepth() > ((Grid3D) grid).getDepth()) {
-            piece3D.setZ(((Grid3D) grid).getDepth() - piece3D.getDepth());
-        }
-
-
-        if (grid.checkCollision(piece3D)) {
-            piece3D.setX(originalX);
-            piece3D.setY(originalY);
-            piece3D.setZ(originalZ);
-
-            if (dy < 0) {
-                freeze();
-            }
-        }
-    }
-
     public void resetGame() {
-        grid = Grid.create(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH, is3D);
+        grid = Grid.create(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
         ai = new Ai(grid, is3D);
-        currentPiece = null;
+        piece = null;
         nextPiece = null;
         generateNewPiece();
         score = 0;
@@ -153,15 +119,15 @@ public class Game {
         if (gameOver) return;
         if (nextPiece == null) {
             if (is3D) {
-                nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+                nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid.getDepth());
             } else {
                 nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
             }
         }
 
-        currentPiece = nextPiece;
+        piece = nextPiece;
         if (is3D) {
-            nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+            nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid.getDepth());
         } else {
             nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         }
@@ -169,19 +135,19 @@ public class Game {
 
     public void rotateCurrentPiece() {
         if (gameOver) return;
-        assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
-        ((CurrentPiece2D) currentPiece).rotate2d(piece -> grid.checkCollision(piece));
+        assert piece instanceof Piece2D : "Current piece is not a 2D piece";
+        ((Piece2D) piece).rotate2d(piece -> grid.checkCollision(piece));
     }
 
     public void rotateCurrentPiece3D(RotationAxis axis, boolean reverse) {
         if (gameOver) return;
-        assert currentPiece instanceof CurrentPiece3D : "Current piece is not a 3D piece";
-        ((CurrentPiece3D) currentPiece).rotate3D(axis, (piece) -> grid.checkCollision(piece), reverse);
+        assert piece instanceof Piece3D : "Current piece is not a 3D piece";
+        ((Piece3D) piece).rotate3D(axis, (piece) -> grid.checkCollision(piece), reverse);
     }
 
     public void runAi() {
         if (gameOver) return;
-        ai.makeMove(currentPiece, nextPiece);
+        ai.makeMove(piece, nextPiece);
         updateScore(grid.clearFullLines());
         generateNewPiece();
     }
@@ -194,7 +160,7 @@ public class Game {
         return difficulty;
     }
 
-    public Ai getAi(){
+    public Ai getAi() {
         return ai;
     }
 }

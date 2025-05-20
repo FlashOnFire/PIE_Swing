@@ -46,11 +46,9 @@ public class Model extends Observable {
         notifyObservers();
     }
 
-    /**
-     * Translate the current piece in 2D mode.
-     */
-    public void translateCurrentPiece2D(int dx, int dy) {
-        game.translateCurrentPiece2D(dx, dy);
+
+    public void translateCurrentPiece(Position translation) {
+        game.translateCurrentPiece(translation);
         if (game.isGameOver()) {
             stopScheduler();
         }
@@ -58,16 +56,6 @@ public class Model extends Observable {
         notifyObservers();
     }
 
-    /**
-     * Translate the current piece in 3D mode.
-     */
-    public void translateCurrentPiece3D(int dx, int dy, int dz) {
-        if (is3D) {
-            game.translateCurrentPiece3D(dx, dy, dz);
-            setChanged();
-            notifyObservers();
-        }
-    }
 
     /**
      * Run the AI for the current game state.
@@ -112,7 +100,6 @@ public class Model extends Observable {
 
     public void stopGame() {
         stopScheduler();
-        System.out.println("Game stopped");
         if (game.getScore() > (is3D ? highScore3D : highScore2D)) {
             setHighScore(game.getScore());
         }
@@ -134,31 +121,30 @@ public class Model extends Observable {
         executor.scheduleAtFixedRate(
                 () -> {
                     if (this.is3D) {
-                        translateCurrentPiece3D(0, -1, 0);
+                        translateCurrentPiece(new Position(new int[]{0, -1, 0}));
                     } else {
-                        translateCurrentPiece2D(0, -1);
+                        translateCurrentPiece(new Position(new int[]{0, -1}));
                     }
                 }, 0, 200 / game.getDifficulty(), TimeUnit.MILLISECONDS
         );
     }
 
     public int getDroppedYCurrentPiece() {
-        CurrentPiece currentPiece = game.getCurrentPiece();
-        int originalY = currentPiece.getY();
+        Piece piece = game.getCurrentPiece();
+        int originalY = piece.getPosition().getY();
 
-        CurrentPiece tempPiece = currentPiece.clone();
+        Piece tempPiece = piece.clone();
         int droppedY = originalY;
 
         do {
-            droppedY--;
-            tempPiece.setY(droppedY);
+            tempPiece.getPosition().setY(droppedY--);
         } while (!game.getGrid().checkCollision(tempPiece));
 
         return droppedY + 1;
     }
 
     public void dropCurrentPiece() {
-        game.getCurrentPiece().setY(getDroppedYCurrentPiece());
+        game.getCurrentPiece().getPosition().setY(getDroppedYCurrentPiece());
     }
 
     public boolean isGameOver() {

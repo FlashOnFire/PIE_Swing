@@ -1,45 +1,46 @@
 package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.model.Piece;
-import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.PieceColor;
 import fr.polytech.pie.model.Grid;
+import fr.polytech.pie.model.Position;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Grid2D extends Grid {
-    private final Piece[][] grid;
+    private final PieceColor[][] grid;
     private final int[] heightCache;
     private final int[] holesCache;
 
-    public Grid2D(int width, int height) {
-        super(width, height);
-        this.grid = new Piece[height][width];
-        this.heightCache = new int[width];
-        this.holesCache = new int[width];
+    public Grid2D(Position size) {
+        super(size);
+        this.grid = new PieceColor[size.getY()][size.getX()];
+        this.heightCache = new int[size.getX()];
+        this.holesCache = new int[size.getX()];
 
-        for (int y = 0; y < height; y++) {
-            Arrays.fill(grid[y], Piece.Empty);
+        for (int y = 0; y < size.getY(); y++) {
+            Arrays.fill(grid[y], PieceColor.Empty);
         }
     }
 
     @Override
-    public Piece getValue(int x, int y) {
-        if (x < 0 || x >= width || y < 0 || y >= height) {
-            return Piece.Empty;
+    public PieceColor getValue(Position position) {
+        if (isOutOfBounds(position)) {
+            return PieceColor.Empty;
         }
-        return grid[y][x];
+        return grid[position.getY()][position.getX()];
     }
 
-    public void setValue(int x, int y, Piece value) {
-        if (x >= 0 && x < width && y >= 0 && y < height) {
-            Piece oldValue = grid[y][x];
-            grid[y][x] = value;
+    public void setValue(Position position, PieceColor value) {
+        if (!isOutOfBounds(position)) {
+            PieceColor oldValue = grid[position.getY()][position.getX()];
+            grid[position.getY()][position.getX()] = value;
 
-            if ((oldValue == Piece.Empty && value != Piece.Empty) ||
-                (oldValue != Piece.Empty && value == Piece.Empty)) {
-                updateCache(x);
+            if ((oldValue == PieceColor.Empty && value != PieceColor.Empty) ||
+                (oldValue != PieceColor.Empty && value == PieceColor.Empty)) {
+                updateCache(position.getX());
             }
         }
     }
@@ -50,8 +51,8 @@ public class Grid2D extends Grid {
         boolean foundBlock = false;
         boolean inHole = false;
 
-        for (int y = this.height - 1; y >= 0; y--) {
-            if (grid[y][x] != Piece.Empty) {
+        for (int y = this.size.getY() - 1; y >= 0; y--) {
+            if (grid[y][x] != PieceColor.Empty) {
                 if (!foundBlock) {
                     height = y + 1;
                 }
@@ -70,60 +71,60 @@ public class Grid2D extends Grid {
     }
 
     private void recalculateAllCaches() {
-        for (int x = 0; x < width; x++) {
+        for (int x = 0; x < size.getX(); x++) {
             updateCache(x);
         }
     }
 
     @Override
-    public void freezePiece(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece2D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
+    public void freezePiece(Piece piece) {
+        if (!(piece instanceof Piece2D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece2D but got " + piece.getClass().getName());
         }
 
-        Piece[][] piece = ((CurrentPiece2D) currentPiece).getPiece2d();
-        for (int i = 0; i < currentPiece.getWidth(); i++) {
-            for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[j][i] != Piece.Empty) {
-                    int x = currentPiece.getX() + i;
-                    int y = currentPiece.getY() + j;
-                    setValue(x, y, currentPiece.getColor());
+        PieceColor[][] pieceColor = ((Piece2D) piece).getPiece2d();
+        for (int i = 0; i < piece.getWidth(); i++) {
+            for (int j = 0; j < piece.getHeight(); j++) {
+                if (pieceColor[j][i] != PieceColor.Empty) {
+                    var pos = new Position(new int[]{i, j});
+                    pos.add(piece.getPosition());
+                    setValue(pos, piece.getColor());
                 }
             }
         }
     }
 
     @Override
-    public void removePiece(CurrentPiece currentPiece) {
-        for (int i = 0; i < currentPiece.getWidth(); i++) {
-            for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (((CurrentPiece2D) currentPiece).getPiece2d()[j][i] != Piece.Empty) {
-                    int x = currentPiece.getX() + i;
-                    int y = currentPiece.getY() + j;
-                    setValue(x, y, Piece.Empty);
+    public void removePiece(Piece piece) {
+        for (int i = 0; i < piece.getWidth(); i++) {
+            for (int j = 0; j < piece.getHeight(); j++) {
+                if (((Piece2D) piece).getPiece2d()[j][i] != PieceColor.Empty) {
+                    var pos = new Position(new int[]{i, j});
+                    pos.add(piece.getPosition());
+                    setValue(pos, PieceColor.Empty);
                 }
             }
         }
     }
 
     @Override
-    public boolean checkCollision(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece2D piece2D)) {
-            throw new IllegalArgumentException("Expected CurrentPiece2D but got " + currentPiece.getClass().getName());
+    public boolean checkCollision(Piece piece) {
+        if (!(piece instanceof Piece2D piece2D)) {
+            throw new IllegalArgumentException("Expected CurrentPiece2D but got " + piece.getClass().getName());
         }
 
-        Piece[][] piece = piece2D.getPiece2d();
-        for (int i = 0; i < currentPiece.getWidth(); i++) {
-            for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[j][i] != Piece.Empty) {
-                    int x = currentPiece.getX() + i;
-                    int y = currentPiece.getY() + j;
+        PieceColor[][] pieceColor = piece2D.getPiece2d();
+        for (int i = 0; i < piece.getWidth(); i++) {
+            for (int j = 0; j < piece.getHeight(); j++) {
+                if (pieceColor[j][i] != PieceColor.Empty) {
+                    var pos = new Position(new int[]{i, j});
+                    pos.add(piece.getPosition());
 
-                    if (x < 0 || x >= width || y < 0 || y >= height) {
+                    if (isOutOfBounds(pos)) {
                         return true;
                     }
 
-                    if (getValue(x, y) != Piece.Empty) {
+                    if (getValue(pos) != PieceColor.Empty) {
                         return true;
                     }
                 }
@@ -143,13 +144,13 @@ public class Grid2D extends Grid {
 
     @Override
     public Grid copy() {
-        Grid2D copy = new Grid2D(width, height);
-        for (int y = 0; y < height; y++) {
-            System.arraycopy(grid[y], 0, copy.grid[y], 0, width);
+        Grid2D copy = new Grid2D(size);
+        for (int y = 0; y < size.getY(); y++) {
+            System.arraycopy(grid[y], 0, copy.grid[y], 0, size.getX());
         }
 
-        System.arraycopy(heightCache, 0, copy.heightCache, 0, width);
-        System.arraycopy(holesCache, 0, copy.holesCache, 0, width);
+        System.arraycopy(heightCache, 0, copy.heightCache, 0, size.getX());
+        System.arraycopy(holesCache, 0, copy.holesCache, 0, size.getX());
 
         return copy;
     }
@@ -157,7 +158,7 @@ public class Grid2D extends Grid {
     @Override
     public int getHoles() {
         int totalHoles = 0;
-        for (int x = 0; x < width; x++) {
+        for (int x = 0; x < size.getX(); x++) {
             totalHoles += holesCache[x];
         }
         return totalHoles;
@@ -167,10 +168,10 @@ public class Grid2D extends Grid {
     public int clearFullLines(boolean dry) {
         int linesCleared = 0;
 
-        for (int y = 0; y < height; y++) {
+        for (int y = 0; y < size.getY(); y++) {
             boolean fullLine = true;
-            for (int x = 0; x < width; x++) {
-                if (grid[y][x] == Piece.Empty) {
+            for (int x = 0; x < size.getX(); x++) {
+                if (grid[y][x] == PieceColor.Empty) {
                     fullLine = false;
                     break;
                 }
@@ -179,12 +180,12 @@ public class Grid2D extends Grid {
             if (fullLine) {
                 linesCleared++;
                 if (!dry) {
-                    for (int i = y; i < height - 1; i++) {
-                        System.arraycopy(grid[i + 1], 0, grid[i], 0, width);
+                    for (int i = y; i < size.getY() - 1; i++) {
+                        System.arraycopy(grid[i + 1], 0, grid[i], 0, size.getX());
                     }
                     y--;
-                    for (int x = 0; x < width; x++) {
-                        grid[height - 1][x] = Piece.Empty;
+                    for (int x = 0; x < size.getX(); x++) {
+                        grid[size.getY() - 1][x] = PieceColor.Empty;
                     }
                 }
             }
@@ -198,27 +199,27 @@ public class Grid2D extends Grid {
     }
 
     @Override
-    public Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece) {
-        if (!(currentPiece instanceof CurrentPiece2D currentPiece2D)) {
+    public Set<Piece> getPiecesPossibilities(Piece currentPiece) {
+        if (!(currentPiece instanceof Piece2D piece2D)) {
             throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
         }
 
-        Set<CurrentPiece> possibilities = new HashSet<>();
+        Set<Piece> possibilities = new HashSet<>();
 
         // generate rotations
-        CurrentPiece2D workingPiece = currentPiece2D.clone();
+        Piece2D workingPiece = piece2D.clone();
         for (int i = 0; i < 4; i++) {
             workingPiece.rotate2d(_ -> false);
-            workingPiece.setY(getHeight() - workingPiece.getHeight());
+            workingPiece.getPosition().setY(getHeight() - workingPiece.getHeight());
             possibilities.add(workingPiece.clone());
         }
 
         // generate translations
-        Set<CurrentPiece> newTranslations = new HashSet<>();
+        Set<Piece> newTranslations = new HashSet<>();
         for (var piece : possibilities) {
-            for (int i = 0; i < getWidth(); i++) {
-                CurrentPiece translatedPiece = piece.clone();
-                translatedPiece.setX(i);
+            for (int i = 0; i < size.getX(); i++) {
+                Piece translatedPiece = piece.clone();
+                translatedPiece.getPosition().setX(i);
                 if (!checkCollision(translatedPiece)) {
                     newTranslations.add(translatedPiece);
                 }
@@ -229,9 +230,9 @@ public class Grid2D extends Grid {
         // drop the pieces
         for (var piece : possibilities) {
             do {
-                piece.setY(piece.getY() - 1);
+                piece.getPosition().setY(piece.getPosition().getY() - 1);
             } while (!checkCollision(piece));
-            piece.setY(piece.getY() + 1);
+            piece.getPosition().setY(piece.getPosition().getY() + 1);
         }
 
         return possibilities;

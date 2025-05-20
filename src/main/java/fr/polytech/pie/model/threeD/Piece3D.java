@@ -1,74 +1,59 @@
 package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.model.Piece;
-import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.PieceColor;
+import fr.polytech.pie.model.Position;
 import fr.polytech.pie.model.RotationAxis;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
 
 import java.util.function.Predicate;
 
-public class CurrentPiece3D extends CurrentPiece {
-    private Piece[][][] piece;
+public class Piece3D extends Piece {
+    private PieceColor[][][] pieceColor;
     private int z;
 
-    public CurrentPiece3D(boolean[][][] piece, int x, int y, int z) {
-        super(x, y);
-        this.z = z;
-        this.piece = new Piece[piece.length][piece[0].length][piece[0][0].length];
+    public Piece3D(boolean[][][] piece, Position position){
+        super(position);
+        this.pieceColor = new PieceColor[piece.length][piece[0].length][piece[0][0].length];
         for (int i = 0; i < piece.length; i++) {
             for (int j = 0; j < piece[i].length; j++) {
                 for (int k = 0; k < piece[i][j].length; k++) {
                     if (piece[i][j][k]) {
-                        this.piece[i][j][k] = color;
+                        this.pieceColor[i][j][k] = color;
                     } else {
-                        this.piece[i][j][k] = Piece.Empty;
+                        this.pieceColor[i][j][k] = PieceColor.Empty;
                     }
                 }
             }
         }
     }
 
-    public CurrentPiece3D(Piece[][][] newGrid, int x, int y, int z, Piece color) {
-        super(x, y, color);
-        this.piece = newGrid;
-        this.z = z;
+    public Piece3D(PieceColor[][][] newGrid, Position position, PieceColor color) {
+        super(position, color);
+        this.pieceColor = newGrid;
     }
 
-    public Piece[][][] getPiece3d() {
-        return piece;
-    }
-
-    public int getZ() {
-        return z;
-    }
-
-    public void setZ(int z) {
-        this.z = z;
+    public PieceColor[][][] getPiece3d() {
+        return pieceColor;
     }
 
     public int getDepth() {
-        return piece.length;
+        return pieceColor.length;
     }
 
     @Override
     public int getWidth() {
-        return piece[0][0].length;
+        return pieceColor[0][0].length;
     }
 
     @Override
     public int getHeight() {
-        return piece[0].length;
+        return pieceColor[0].length;
     }
 
-    public void translate3D(int dx, int dy, int dz) {
-        this.x += dx;
-        this.y += dy;
-        this.z += dz;
-    }
-
-    public void rotate3D(RotationAxis axis, Predicate<CurrentPiece> collisionChecker, boolean reverse) {
-        CurrentPiece3D original = copy();
+    public void rotate3D(RotationAxis axis, Predicate<Piece> collisionChecker, boolean reverse) {
+        Piece3D original = copy();
 
         float angle = reverse ? (float) -Math.PI / 2 : (float) Math.PI / 2;
         Matrix3f rotationMatrix = new Matrix3f();
@@ -81,7 +66,7 @@ public class CurrentPiece3D extends CurrentPiece {
         applyRotation(rotationMatrix);
 
         if (collisionChecker.test(this)) {
-            piece = original.getPiece3d();
+            pieceColor = original.getPiece3d();
         }
     }
 
@@ -94,7 +79,7 @@ public class CurrentPiece3D extends CurrentPiece {
         
         BoundingBox bounds = calculateRotatedBounds(rotationMatrix, center, depth, height, width);
         
-        piece = createRotatedPiece(rotationMatrix, center, bounds, depth, height, width);
+        pieceColor = createRotatedPiece(rotationMatrix, center, bounds, depth, height, width);
     }
     
     private Vector3f calculateCenter(int depth, int height, int width) {
@@ -112,7 +97,7 @@ public class CurrentPiece3D extends CurrentPiece {
         for (int d = 0; d < depth; d++) {
             for (int h = 0; h < height; h++) {
                 for (int w = 0; w < width; w++) {
-                    if (piece[d][h][w] != Piece.Empty) {
+                    if (pieceColor[d][h][w] != PieceColor.Empty) {
                         Vector3f origCoords = new Vector3f(
                             d - center.x, 
                             h - center.y, 
@@ -131,17 +116,17 @@ public class CurrentPiece3D extends CurrentPiece {
         return bounds;
     }
     
-    private Piece[][][] createRotatedPiece(Matrix3f rotationMatrix, Vector3f center, 
-                                          BoundingBox bounds, int depth, int height, int width) {
+    private PieceColor[][][] createRotatedPiece(Matrix3f rotationMatrix, Vector3f center,
+                                                BoundingBox bounds, int depth, int height, int width) {
         int newDepth = (int) Math.ceil(bounds.maxX - bounds.minX + 1);
         int newHeight = (int) Math.ceil(bounds.maxY - bounds.minY + 1);
         int newWidth = (int) Math.ceil(bounds.maxZ - bounds.minZ + 1);
         
-        Piece[][][] rotated = new Piece[newDepth][newHeight][newWidth];
+        PieceColor[][][] rotated = new PieceColor[newDepth][newHeight][newWidth];
         for (int d = 0; d < newDepth; d++) {
             for (int h = 0; h < newHeight; h++) {
                 for (int w = 0; w < newWidth; w++) {
-                    rotated[d][h][w] = Piece.Empty;
+                    rotated[d][h][w] = PieceColor.Empty;
                 }
             }
         }
@@ -149,7 +134,7 @@ public class CurrentPiece3D extends CurrentPiece {
         for (int d = 0; d < depth; d++) {
             for (int h = 0; h < height; h++) {
                 for (int w = 0; w < width; w++) {
-                    if (piece[d][h][w] != Piece.Empty) {
+                    if (pieceColor[d][h][w] != PieceColor.Empty) {
                         Vector3f origCoords = new Vector3f(
                             d - center.x, 
                             h - center.y, 
@@ -164,7 +149,7 @@ public class CurrentPiece3D extends CurrentPiece {
                         int newW = Math.round(rotatedCoords.z - bounds.minZ);
                         
                         if (isValidIndex(newD, newH, newW, newDepth, newHeight, newWidth)) {
-                            rotated[newD][newH][newW] = piece[d][h][w];
+                            rotated[newD][newH][newW] = pieceColor[d][h][w];
                         }
                     }
                 }
@@ -196,26 +181,26 @@ public class CurrentPiece3D extends CurrentPiece {
         }
     }
 
-    public CurrentPiece3D copy() {
-        Piece[][][] newGrid = new Piece[piece.length][][];
-        for (int i = 0; i < piece.length; i++) {
-            newGrid[i] = new Piece[piece[i].length][];
-            for (int j = 0; j < piece[i].length; j++) {
-                newGrid[i][j] = piece[i][j].clone();
+    public Piece3D copy() {
+        PieceColor[][][] newGrid = new PieceColor[pieceColor.length][][];
+        for (int i = 0; i < pieceColor.length; i++) {
+            newGrid[i] = new PieceColor[pieceColor[i].length][];
+            for (int j = 0; j < pieceColor[i].length; j++) {
+                newGrid[i][j] = pieceColor[i][j].clone();
             }
         }
-        return new CurrentPiece3D(newGrid, x, y, z, color);
+        return new Piece3D(newGrid, position, color);
     }
 
     @Override
-    public CurrentPiece3D clone() {
-        CurrentPiece3D clone = (CurrentPiece3D) super.clone();
+    public Piece3D clone() {
+        Piece3D clone = (Piece3D) super.clone();
 
-        clone.piece = new Piece[piece.length][][];
-        for (int i = 0; i < piece.length; i++) {
-            clone.piece[i] = new Piece[piece[i].length][];
-            for (int j = 0; j < piece[i].length; j++) {
-                clone.piece[i][j] = piece[i][j].clone();
+        clone.pieceColor = new PieceColor[pieceColor.length][][];
+        for (int i = 0; i < pieceColor.length; i++) {
+            clone.pieceColor[i] = new PieceColor[pieceColor[i].length][];
+            for (int j = 0; j < pieceColor[i].length; j++) {
+                clone.pieceColor[i][j] = pieceColor[i][j].clone();
             }
         }
         clone.z = this.z;

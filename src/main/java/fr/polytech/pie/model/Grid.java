@@ -6,35 +6,54 @@ import fr.polytech.pie.model.threeD.Grid3D;
 import java.util.Set;
 
 public abstract class Grid {
-    protected final int width;
-    protected final int height;
+    protected final Position size;
 
-    public Grid(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public Grid(Position size) {
+        this.size = size;
     }
 
     public int getWidth() {
-        return width;
+        return size.getX();
     }
 
     public int getHeight() {
-        return height;
+        return size.getY();
     }
 
-    public abstract Piece getValue(int x, int y);
+    public int getDepth() {
+        return size.getZ();
+    }
+
     @SuppressWarnings("unused")
-    public abstract void freezePiece(CurrentPiece currentPiece);
-    public abstract void removePiece(CurrentPiece possibility);
-    public abstract boolean checkCollision(CurrentPiece currentPiece);
+    public abstract void freezePiece(Piece piece);
+
+    public abstract void removePiece(Piece possibility);
+
+    public abstract boolean checkCollision(Piece piece);
+
     public abstract int clearFullLines(boolean dry);
+
     public abstract int clearFullLines();
 
-    public static Grid create(int width, int height, int depth, boolean is3D) {
-        return is3D ? new Grid3D(width, height, depth) : new Grid2D(width, height);
+    public abstract PieceColor getValue(Position position);
+
+    public static Grid create(Position size, boolean is3D) {
+        return is3D ? new Grid3D(size) : new Grid2D(size);
     }
+
     public abstract Grid copy();
 
     public abstract int getHoles();
-    public abstract Set<CurrentPiece> getPiecesPossibilities(CurrentPiece currentPiece);
+
+    public abstract Set<Piece> getPiecesPossibilities(Piece piece);
+
+
+    public boolean isOutOfBounds(Position position) {
+        for (int i = 0; i < position.getSize(); i++) {
+            if (position.getPositions()[i] < 0 || position.getPositions()[i] >= size.getPositions()[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

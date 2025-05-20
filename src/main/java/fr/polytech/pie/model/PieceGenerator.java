@@ -1,7 +1,7 @@
 package fr.polytech.pie.model;
 
-import fr.polytech.pie.model.twoD.CurrentPiece2D;
-import fr.polytech.pie.model.threeD.CurrentPiece3D;
+import fr.polytech.pie.model.twoD.Piece2D;
+import fr.polytech.pie.model.threeD.Piece3D;
 
 import java.util.Random;
 
@@ -78,21 +78,21 @@ public class PieceGenerator {
 
     private static final Random random = new Random();
 
-    public static CurrentPiece2D generatePiece2D(int maxX, int maxY) {
+    public static Piece2D generatePiece2D(int maxX, int maxY) {
         int pieceIndex = random.nextInt(PIECES_2D.length);
-        var piece = new CurrentPiece2D(PIECES_2D[pieceIndex], 0, 0);
+        var piece = new Piece2D(PIECES_2D[pieceIndex], new Position(new int[]{0, 0}));
 
         if (random.nextBoolean()) {
             rotate2DPieceRandomly(piece);
         }
 
-        piece.setX(random.nextInt(maxX - piece.getWidth() + 1));
-        piece.setY(maxY - piece.getHeight());
+        piece.getPosition().setX(random.nextInt(maxX - piece.getWidth() + 1));
+        piece.getPosition().setY(maxY - piece.getHeight());
 
         return piece;
     }
 
-    private static void rotate2DPieceRandomly(CurrentPiece2D piece) {
+    private static void rotate2DPieceRandomly(Piece2D piece) {
         int rotations = random.nextInt(4);
 
         if (rotations == 0) {
@@ -104,35 +104,36 @@ public class PieceGenerator {
         }
     }
 
-    public static CurrentPiece3D generate3DPiece(int maxX, int maxY, int maxZ) {
+    public static Piece3D generate3DPiece(int maxX, int maxY, int maxZ) {
         int pieceIndex = random.nextInt(PIECES_3D.length);
 
-        var piece = new CurrentPiece3D(PIECES_3D[pieceIndex], 0, 0, 0);
+        var piece = new Piece3D(PIECES_3D[pieceIndex], new Position(new int[]{0, 0, 0}));
         if (random.nextBoolean()) {
             rotate3DPieceRandomly(piece);
         }
 
-        piece.setX(random.nextInt(maxX - piece.getWidth() + 1));
-        piece.setY(maxY - piece.getHeight());
-        piece.setZ(random.nextInt(maxZ - piece.getDepth() + 1));
+
+        piece.getPosition().setX(random.nextInt(maxX - piece.getWidth() + 1));
+        piece.getPosition().setY(maxY - piece.getHeight());
+        piece.getPosition().setZ(random.nextInt(maxZ - piece.getDepth() + 1));
 
         return piece;
     }
 
-    private static void rotate3DPieceRandomly(CurrentPiece3D piece) {
+    private static void rotate3DPieceRandomly(Piece3D piece) {
         int rotations = random.nextInt(4);
 
         if (rotations == 0) {
-            return ;
+            return;
         }
 
 
         for (int i = 0; i < rotations; i++) {
             int axis = random.nextInt(3);
             switch (axis) {
-                case 0 -> piece.rotate3D(RotationAxis.X, _ ->false, false);
-                case 1 -> piece.rotate3D(RotationAxis.Y, _ ->false, false);
-                case 2 -> piece.rotate3D(RotationAxis.Z, _ ->false, false);
+                case 0 -> piece.rotate3D(RotationAxis.X, _ -> false, false);
+                case 1 -> piece.rotate3D(RotationAxis.Y, _ -> false, false);
+                case 2 -> piece.rotate3D(RotationAxis.Z, _ -> false, false);
             }
         }
     }

@@ -1,6 +1,6 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;
@@ -163,7 +163,7 @@ public class MenuRenderer implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver) {
+    public void update(Grid grid, Piece currentPiece, Piece nextPiece, int score, boolean isGameOver) {
         // No update needed for the menu
     }
 

@@ -1,10 +1,8 @@
 package fr.polytech.pie.vc;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
-import fr.polytech.pie.model.Piece;
-import fr.polytech.pie.model.twoD.CurrentPiece2D;
+import fr.polytech.pie.model.*;
+import fr.polytech.pie.model.twoD.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -244,11 +242,11 @@ public class Renderer2D implements Renderer {
 
     private void performAction(KeyAction action) {
         switch (action) {
-            case MOVE_UP -> vueController.getModel().translateCurrentPiece2D(0, 1);
-            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece2D(0, -1);
+            case MOVE_UP -> vueController.getModel().translateCurrentPiece(new Position(new int[]{0, 1}));
+            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece(new Position(new int[]{0, -1}));
             case DROP -> vueController.getModel().dropCurrentPiece();
-            case MOVE_LEFT -> vueController.getModel().translateCurrentPiece2D(-1, 0);
-            case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece2D(1, 0);
+            case MOVE_LEFT -> vueController.getModel().translateCurrentPiece(new Position(new int[]{-1, 0}));
+            case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece(new Position(new int[]{1, 0}));
             case ROTATE -> vueController.getModel().rotateCurrentPiece2D();
             case RUN_AI -> vueController.getModel().runAi();
             case EXIT -> this.escape = true;
@@ -325,16 +323,16 @@ public class Renderer2D implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver) {
-        assert currentPiece instanceof CurrentPiece2D : "Current piece is not a 2D piece";
+    public void update(Grid grid, Piece currentPiece, Piece nextPiece, int score, boolean isGameOver) {
+        assert currentPiece instanceof Piece2D : "Current piece is not a 2D piece";
 
         try {
             SwingUtilities.invokeAndWait(() -> {
                 clearGrid();
                 drawFrozenPieces(grid);
-                drawCurrentPiece((CurrentPiece2D) currentPiece);
-                clearNextPieceGrid();
-                drawNextPiece((CurrentPiece2D) nextPiece);
+                drawCurrentPiece((Piece2D) currentPiece);
+                clearNextPiecePanels();
+                drawNextPiece((Piece2D) nextPiece);
                 scoreLabel.setText("Score: " + score);
                 gridPanel.repaint();
             });
@@ -353,9 +351,9 @@ public class Renderer2D implements Renderer {
     }
 
     private void clearGrid() {
-        for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
-            for (int x = 0; x < Consts.GRID_WIDTH; x++) {
-                gridPanels[y][x].setPiece(Piece.Empty);
+        for (int y = 0; y < vueController.getModel().getGame().getGrid().getHeight(); y++) {
+            for (int x = 0; x < vueController.getModel().getGame().getGrid().getWidth(); x++) {
+                gridPanels[y][x].setPiece(PieceColor.Empty);
             }
         }
     }
@@ -363,34 +361,33 @@ public class Renderer2D implements Renderer {
     private void clearNextPieceGrid() {
         for (int y = 0; y < Consts.PIECE_SIZE; y++) {
             for (int x = 0; x < Consts.PIECE_SIZE; x++) {
-                nextPiecePanels[y][x].setPiece(Piece.Empty);
+                nextPiecePanels[y][x].setPiece(PieceColor.Empty);
             }
         }
     }
 
-    private boolean isWithinBounds(int x, int y) {
-        return x >= 0 && x < Consts.GRID_WIDTH && y >= 0 && y < Consts.GRID_HEIGHT;
-    }
-
-    private void drawGridCell(int x, int y, Piece piece) {
-        if (isWithinBounds(x, y)) {
-            gridPanels[gridPanels.length - y - 1][x].setPiece(piece);
+    private void drawGridCell(Position pos, PieceColor pieceColor) {
+        if (!vueController.getModel().getGame().getGrid().isOutOfBounds(pos)) {
+            gridPanels[gridPanels.length - pos.getY() - 1][pos.getX()].setPiece(pieceColor);
         }
     }
 
     private void drawFrozenPieces(Grid grid) {
         for (int i = 0; i < grid.getWidth(); i++) {
             for (int j = 0; j < grid.getHeight(); j++) {
-                drawGridCell(i, j, grid.getValue(i, j));
+                var pos = new Position(new int[]{i, j});
+                drawGridCell(pos, grid.getValue(new Position(new int[]{i,j})));
             }
         }
     }
 
-    private void drawCurrentPiece(CurrentPiece2D currentPiece) {
-        Piece[][] piece = currentPiece.getPiece2d();
+    private void drawCurrentPiece(Piece2D currentPiece) {
+        PieceColor[][] piece = currentPiece.getPiece2d();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                drawGridCell(currentPiece.getX() + i, currentPiece.getY() + j, piece[j][i]);
+                var pos = new Position(new int[]{i, j});
+                pos.add(currentPiece.getPosition());
+                drawGridCell(pos, piece[j][i]);
             }
         }
 
@@ -398,20 +395,22 @@ public class Renderer2D implements Renderer {
 
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                drawGridCell(currentPiece.getX() + i, droppedY + j, Piece.Preview);
+                var pos = new Position(new int[]{currentPiece.getPosition().getX() + i, droppedY + j});
+
+                drawGridCell(pos, PieceColor.Preview);
             }
         }
     }
 
-    private void drawNextPiece(CurrentPiece2D nextPiece) {
-        Piece[][] piece = nextPiece.getPiece2d();
+    private void drawNextPiece(Piece2D nextPiece) {
+        PieceColor[][] piece = nextPiece.getPiece2d();
 
         int offsetX = (Consts.PIECE_SIZE - nextPiece.getWidth()) / 2;
         int offsetY = (Consts.PIECE_SIZE - nextPiece.getHeight()) / 2;
 
         for (int i = 0; i < nextPiece.getWidth(); i++) {
             for (int j = 0; j < nextPiece.getHeight(); j++) {
-                if (piece[j][i] != Piece.Empty) {
+                if (piece[j][i] != PieceColor.Empty) {
                     nextPiecePanels[offsetY + j][offsetX + i].setPiece(piece[j][i]);
                 }
             }

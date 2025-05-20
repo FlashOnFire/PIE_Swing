@@ -1,10 +1,7 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
-import fr.polytech.pie.model.Piece;
-import fr.polytech.pie.model.RotationAxis;
-import fr.polytech.pie.model.threeD.CurrentPiece3D;
+import fr.polytech.pie.model.*;
+import fr.polytech.pie.model.threeD.Piece3D;
 import fr.polytech.pie.model.threeD.Grid3D;
 import fr.polytech.pie.vc.render.Cube;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
@@ -165,7 +162,7 @@ public class Renderer3D implements Renderer {
 
         float gridWidth = vueController.getModel().getGame().getGrid().getWidth();
         float gridHeight = vueController.getModel().getGame().getGrid().getHeight();
-        float gridDepth = ((Grid3D) vueController.getModel().getGame().getGrid()).getDepth();
+        float gridDepth = vueController.getModel().getGame().getGrid().getDepth();
 
         Vector3f center = new Vector3f(gridWidth / 2.0F, gridHeight / 2.0F, gridDepth / 2.0F);
         camController.setDirectedCamTarget(center);
@@ -283,19 +280,19 @@ public class Renderer3D implements Renderer {
                 }
             } else {
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(-forward.x), 0, Math.round(-forward.y));
+                    vueController.getModel().translateCurrentPiece(new Position(new int[]{Math.round(-forward.x), 0, Math.round(-forward.y)}));
                     pieceForwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(forward.x), 0, Math.round(forward.y));
+                    vueController.getModel().translateCurrentPiece(new Position(new int[]{Math.round(forward.x), 0, Math.round(forward.y)}));
                     pieceBackwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(-right.x), 0, Math.round(-right.y));
+                    vueController.getModel().translateCurrentPiece(new Position(new int[]{Math.round(-right.x), 0, Math.round(-right.y)}));
                     pieceLeftTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(right.x), 0, Math.round(right.y));
+                    vueController.getModel().translateCurrentPiece(new Position(new int[]{Math.round(right.x), 0, Math.round(right.y)}));
                     pieceRightTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_I] && pieceAiTimeCounter > (shiftModifier ? 0.01F : 0.1F)) {
@@ -307,8 +304,8 @@ public class Renderer3D implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver) {
-        assert currentPiece != null : "Current piece is null";
+    public void update(Grid grid, Piece piece, Piece nextPiece, int score, boolean isGameOver) {
+        assert piece != null : "Current piece is null";
         assert grid != null : "Grid is null";
 
         assert grid instanceof Grid3D;
@@ -320,8 +317,8 @@ public class Renderer3D implements Renderer {
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
-                    Piece value = grid3D.getValue(x, y, z);
-                    if (value != Piece.Empty) {
+                    PieceColor value = grid3D.getValue(new Position(new int[]{x, y, z}));
+                    if (value != PieceColor.Empty) {
                         Cube cube = new Cube(
                                 new Vector3f(x, y, z),
                                 isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector()
@@ -332,24 +329,25 @@ public class Renderer3D implements Renderer {
             }
         }
 
-        CurrentPiece3D currentPiece3D = (CurrentPiece3D) currentPiece;
-        Piece[][][] positions = currentPiece3D.getPiece3d();
+        Piece3D currentPiece3D = (Piece3D) piece;
+        PieceColor[][][] positions = currentPiece3D.getPiece3d();
 
-        Vector3f piecePos = new Vector3f(currentPiece3D.getX(), currentPiece3D.getY(), currentPiece3D.getZ());
+        Vector3f piecePos = currentPiece3D.getPosition().toVector3f();
         int fallenPieceY = vueController.getModel().getDroppedYCurrentPiece();
-        Vector3f fallenPiecePos = new Vector3f(currentPiece3D.getX(), fallenPieceY, currentPiece3D.getZ());
+        Vector3f fallenPiecePos = new Vector3f(piecePos);
+        fallenPiecePos.y = fallenPieceY;
 
         for (int x = 0; x < positions[0][0].length; x++) {
             for (int y = 0; y < positions[0].length; y++) {
                 for (int z = 0; z < positions.length; z++) {
-                    Piece value = positions[z][y][x];
-                    if (value != Piece.Empty) {
+                    PieceColor value = positions[z][y][x];
+                    if (value != PieceColor.Empty) {
                         cubes.add(new Cube(
                                 new Vector3f(x, y, z).add(piecePos),
                                 isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector()
                         ));
 
-                        if (fallenPieceY != currentPiece3D.getY()) {
+                        if (fallenPieceY != currentPiece3D.getPosition().getY()) {
                             cubes.add(new Cube(
                                     new Vector3f(x, y, z).add(fallenPiecePos),
                                     isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : new Vector3f(
@@ -365,8 +363,8 @@ public class Renderer3D implements Renderer {
         }
 
         if (!isGameOver) {
-            CurrentPiece3D nextPiece3D = (CurrentPiece3D) nextPiece;
-            Piece[][][] nextPositions = nextPiece3D.getPiece3d();
+            Piece3D nextPiece3D = (Piece3D) nextPiece;
+            PieceColor[][][] nextPositions = nextPiece3D.getPiece3d();
 
             Vector3f nextPos = new Vector3f(
                     grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F,
@@ -378,8 +376,8 @@ public class Renderer3D implements Renderer {
             for (int x = 0; x < nextPositions[0][0].length; x++) {
                 for (int y = 0; y < nextPositions[0].length; y++) {
                     for (int z = 0; z < nextPositions.length; z++) {
-                        Piece value = nextPositions[z][y][x];
-                        if (value != Piece.Empty) {
+                        PieceColor value = nextPositions[z][y][x];
+                        if (value != PieceColor.Empty) {
                             cubes.add(new Cube(new Vector3f(x, y, z).add(nextPos), nextPieceColor));
                         }
                     }

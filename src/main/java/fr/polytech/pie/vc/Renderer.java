@@ -1,11 +1,10 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.CurrentPiece;
-import fr.polytech.pie.model.Grid;
+import fr.polytech.pie.model.*;
 
 public interface Renderer {
     void initialize();
     LoopStatus loop();
-    void update(Grid grid, CurrentPiece currentPiece, CurrentPiece nextPiece, int score, boolean isGameOver);
+    void update(Grid grid, Piece piece, Piece nextPiece, int score, boolean isGameOver);
     void cleanup();
 }

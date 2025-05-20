@@ -184,13 +184,13 @@ public class GeneticTrainer {
 
     private int runGame(double[] parameters, int maxPieces) {
         Grid grid;
-        CurrentPiece nextPiece;
-        CurrentPiece currentPiece;
+        Piece nextPiece;
+        Piece currentPiece;
         if (is3D) {
-            grid = new Grid3D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH);
-            nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), ((Grid3D) grid).getDepth());
+            grid = new Grid3D(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}));
+            nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid.getDepth());
         } else {
-            grid = new Grid2D(Consts.GRID_WIDTH, Consts.GRID_HEIGHT);
+            grid = new Grid2D(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT}));
             nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         }
 
