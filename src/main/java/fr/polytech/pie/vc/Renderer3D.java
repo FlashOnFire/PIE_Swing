@@ -272,6 +272,14 @@ public class Renderer3D implements Renderer {
                     vueController.getModel().rotateCurrentPiece3D(RotationAxis.Y);
                     pieceRightRotationTimeCounter = 0;
                 }
+                if (keys[GLFW_KEY_S] && pieceForwardRotationTimeCounter > 0.1F) {
+                    vueController.getModel().rotateCurrentPiece3D(forwardRotationAxis, true);
+                    pieceForwardRotationTimeCounter = 0;
+                }
+                if (keys[GLFW_KEY_D] && pieceRightRotationTimeCounter > 0.1F) {
+                    vueController.getModel().rotateCurrentPiece3D(RotationAxis.Y, true);
+                    pieceRightRotationTimeCounter = 0;
+                }
             } else {
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
                     vueController.getModel().translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));

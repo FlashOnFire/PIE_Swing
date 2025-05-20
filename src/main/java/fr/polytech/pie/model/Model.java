@@ -32,9 +32,9 @@ public class Model extends Observable {
     /**
      * Constructor that can create a model in either 2D or 3D mode.
      *
-     * @param is3D      Whether the game should be in 3D mode
+     * @param is3D Whether the game should be in 3D mode
      */
-    public Model( boolean is3D) {
+    public Model(boolean is3D) {
         this.is3D = is3D;
         this.game = new Game(is3D);
     }
@@ -51,7 +51,7 @@ public class Model extends Observable {
      */
     public void translateCurrentPiece2D(int dx, int dy) {
         game.translateCurrentPiece2D(dx, dy);
-        if (game.isGameOver()){
+        if (game.isGameOver()) {
             stopScheduler();
         }
         setChanged();
@@ -87,12 +87,16 @@ public class Model extends Observable {
         notifyObservers();
     }
 
+    public void rotateCurrentPiece3D(RotationAxis axis) {
+        rotateCurrentPiece3D(axis, false);
+    }
+
     /**
      * Rotate the current piece in 3D mode around the specified axis.
      */
-    public void rotateCurrentPiece3D(RotationAxis axis) {
+    public void rotateCurrentPiece3D(RotationAxis axis, boolean reverse) {
         if (is3D) {
-            game.rotateCurrentPiece3D(axis);
+            game.rotateCurrentPiece3D(axis, reverse);
             setChanged();
             notifyObservers();
         }
@@ -139,21 +143,21 @@ public class Model extends Observable {
         );
     }
 
-   public int getDroppedYCurrentPiece(){
-       CurrentPiece currentPiece = game.getCurrentPiece();
-       int originalY = currentPiece.getY();
+    public int getDroppedYCurrentPiece() {
+        CurrentPiece currentPiece = game.getCurrentPiece();
+        int originalY = currentPiece.getY();
 
-       // Create a temporary piece copy to avoid modifying the actual game state
-       CurrentPiece tempPiece = currentPiece.clone();
-       int droppedY = originalY;
+        // Create a temporary piece copy to avoid modifying the actual game state
+        CurrentPiece tempPiece = currentPiece.clone();
+        int droppedY = originalY;
 
-       do {
-           droppedY--;
-           tempPiece.setY(droppedY);
-       } while (!game.getGrid().checkCollision(tempPiece));
+        do {
+            droppedY--;
+            tempPiece.setY(droppedY);
+        } while (!game.getGrid().checkCollision(tempPiece));
 
-       return droppedY + 1;
-   }
+        return droppedY + 1;
+    }
 
     public void dropCurrentPiece() {
         game.getCurrentPiece().setY(getDroppedYCurrentPiece());

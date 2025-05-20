@@ -283,7 +283,7 @@ public class Grid3D extends Grid {
         CurrentPiece3D workingPiece = currentPiece3D.copy();
         for (var axe : RotationAxis.values()) {
             for (int i = 0; i < 4; i++) {
-                workingPiece.rotate3D(axe, this::checkCollision);
+                workingPiece.rotate3D(axe, this::checkCollision, false);
                 workingPiece.setY(getHeight() - workingPiece.getHeight());
                 possibilities.add(workingPiece.copy());
             }

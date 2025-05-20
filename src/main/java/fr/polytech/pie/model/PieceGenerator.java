@@ -130,9 +130,9 @@ public class PieceGenerator {
         for (int i = 0; i < rotations; i++) {
             int axis = random.nextInt(3); // 0=X, 1=Y, 2=Z
             switch (axis) {
-                case 0 -> piece.rotate3D(RotationAxis.X, _ ->false);
-                case 1 -> piece.rotate3D(RotationAxis.Y, _ ->false);
-                case 2 -> piece.rotate3D(RotationAxis.Z, _ ->false);
+                case 0 -> piece.rotate3D(RotationAxis.X, _ ->false, false);
+                case 1 -> piece.rotate3D(RotationAxis.Y, _ ->false, false);
+                case 2 -> piece.rotate3D(RotationAxis.Z, _ ->false, false);
             }
         }
     }

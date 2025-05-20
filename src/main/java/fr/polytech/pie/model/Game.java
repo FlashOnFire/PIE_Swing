@@ -173,10 +173,10 @@ public class Game {
         ((CurrentPiece2D) currentPiece).rotate2d(piece -> grid.checkCollision(piece));
     }
 
-    public void rotateCurrentPiece3D(RotationAxis axis) {
+    public void rotateCurrentPiece3D(RotationAxis axis, boolean reverse) {
         if (gameOver) return;
         assert currentPiece instanceof CurrentPiece3D : "Current piece is not a 3D piece";
-        ((CurrentPiece3D) currentPiece).rotate3D(axis, (piece) -> grid.checkCollision(piece));
+        ((CurrentPiece3D) currentPiece).rotate3D(axis, (piece) -> grid.checkCollision(piece), reverse);
     }
 
     public void runAi() {
