@@ -300,7 +300,6 @@ public class Renderer2D implements Renderer {
     private void updateCountdownLabel() {
         if (countdownLabel != null) {
             countdownLabel.setText("Retour au menu dans " + remainingSeconds + "s...");
-            gameOverPanel.validate();
             gameOverPanel.repaint();
         }
     }
@@ -313,7 +312,6 @@ public class Renderer2D implements Renderer {
 
         SwingUtilities.invokeLater(() -> {
             gameOverPanel.setVisible(true);
-            frame.validate();
             frame.repaint();
         });
     }
@@ -322,7 +320,6 @@ public class Renderer2D implements Renderer {
         isGameOver = false;
         SwingUtilities.invokeLater(() -> {
             gameOverPanel.setVisible(false);
-            frame.validate();
             frame.repaint();
         });
     }
