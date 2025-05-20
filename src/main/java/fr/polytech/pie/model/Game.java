@@ -136,9 +136,9 @@ public class Game {
         future = executor.scheduleAtFixedRate(
                 () -> {
                     if (is3D) {
-                        translateCurrentPiece(new Position(new int[]{0, -1, 0}));
+                        translateCurrentPiece(new TetrisVector(new int[]{0, -1, 0}));
                     } else {
-                        translateCurrentPiece(new Position(new int[]{0, -1}));
+                        translateCurrentPiece(new TetrisVector(new int[]{0, -1}));
                     }
                     updateModelLambda.run();
                 }, 0, 200 / difficulty, TimeUnit.MILLISECONDS
