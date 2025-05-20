@@ -85,6 +85,7 @@ public class Game {
             piece.setPosition(originalPos);
 
             if (translation.getY() < 0) {
+                piece.getPosition().setY(0);
                 freeze();
             }
         }
