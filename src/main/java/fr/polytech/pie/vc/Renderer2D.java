@@ -375,28 +375,24 @@ public class Renderer2D implements Renderer {
         for (int i = 0; i < grid.getWidth(); i++) {
             for (int j = 0; j < grid.getHeight(); j++) {
                 var pos = new Position(new int[]{i, j});
-                drawGridCell(pos, grid.getValue(new Position(new int[]{i,j})));
+                drawGridCell(pos, grid.getValue(new Position(new int[]{i, j})));
             }
         }
     }
 
     private void drawCurrentPiece(Piece2D currentPiece) {
         PieceColor[][] piece = currentPiece.getPiece2d();
+        int droppedY = vueController.getModel().getDroppedYCurrentPiece();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
                 var pos = new Position(new int[]{i, j});
                 pos.add(currentPiece.getPosition());
+                var droppedPos = new Position(new int[]{currentPiece.getPosition().getX() + i, droppedY + j});
+                if (piece[j][i] != PieceColor.Empty) {
+                    drawGridCell(pos, piece[j][i]);
+                    drawGridCell(droppedPos, PieceColor.Preview);
+                }
                 drawGridCell(pos, piece[j][i]);
-            }
-        }
-
-        int droppedY = vueController.getModel().getDroppedYCurrentPiece();
-
-        for (int i = 0; i < currentPiece.getWidth(); i++) {
-            for (int j = 0; j < currentPiece.getHeight(); j++) {
-                var pos = new Position(new int[]{currentPiece.getPosition().getX() + i, droppedY + j});
-
-                drawGridCell(pos, PieceColor.Preview);
             }
         }
     }

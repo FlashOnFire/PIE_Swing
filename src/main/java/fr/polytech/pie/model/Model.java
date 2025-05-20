@@ -137,7 +137,7 @@ public class Model extends Observable {
         int droppedY = originalY;
 
         do {
-            tempPiece.getPosition().setY(droppedY--);
+            tempPiece.getPosition().setY(--droppedY);
         } while (!game.getGrid().checkCollision(tempPiece));
 
         return droppedY + 1;
