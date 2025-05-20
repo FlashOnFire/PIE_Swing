@@ -13,7 +13,11 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.freetype.FT_Face;
 import org.lwjgl.util.freetype.FT_GlyphSlot;
 
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,10 +60,10 @@ public class TextRenderer {
 
     // Suppress resource warning for autocloseable FT_Bitmap objects as they are served as a view to the internal freetype data and are not meant to be destroyed manually.
     @SuppressWarnings("resource")
-    public int loadFont(String fontPath, int fontSize) {
+    public int loadFont(Path fontPath, int fontSize) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             PointerBuffer pFace = stack.mallocPointer(1);
-            int err = FT_New_Face(ftLibrary, fontPath, 0, pFace);
+            int err = FT_New_Face(ftLibrary, fontPath.toAbsolutePath().toString(), 0, pFace);
             if (err != 0) {
                 throw new RuntimeException("Failed to load font. Error code: " + err);
             }
@@ -196,12 +200,23 @@ public class TextRenderer {
         GL11.glDisable(GL11.GL_BLEND);
     }
 
-    public static String getResourceFontPath(String filename) {
+    public static Path getResourceFontPath(String filename) {
         URL resource = TextRenderer.class.getResource("/fonts/" + filename);
         if (resource == null) {
-            throw new RuntimeException("Font file not found");
+            throw new RuntimeException("Font file not found: " + filename);
         }
 
-        return resource.getPath();
+       try {
+            Path tempFile = Files.createTempFile("tetris_font_", "_" + filename);
+            tempFile.toFile().deleteOnExit();
+
+            try (InputStream in = resource.openStream()) {
+                Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            return tempFile;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract font resource: " + e.getMessage(), e);
+        }
     }
 }
