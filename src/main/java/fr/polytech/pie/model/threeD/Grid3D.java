@@ -244,21 +244,21 @@ public class Grid3D extends Grid {
         Set<Piece> possibilities = new HashSet<>();
 
         // Generate rotations
-        Piece3D workingPiece = piece3D.copy();
+        Piece3D workingPiece = piece3D.clone();
         for (var axe : RotationAxis.values()) {
             for (int i = 0; i < 4; i++) {
-                workingPiece.rotate3D(axe, this::checkCollision, false);
+                workingPiece.rotate3D(axe, _ -> false, false);
                 workingPiece.getPosition().setY(getHeight() - workingPiece.getHeight());
-                possibilities.add(workingPiece.copy());
+                possibilities.add(workingPiece.clone());
             }
         }
 
         // Generate translations
         Set<Piece> newTranslations = new HashSet<>();
         for (var piece : possibilities) {
-            for (int x = 0; x < getWidth(); x++) {
-                for (int z = 0; z < getDepth(); z++) {
-                    Piece3D translatedPiece = ((Piece3D) piece).copy();
+            for (int x = 0; x < size.getX(); x++) {
+                for (int z = 0; z < size.getZ(); z++) {
+                    Piece3D translatedPiece = ((Piece3D) piece).clone();
                     translatedPiece.getPosition().setX(x);
                     translatedPiece.getPosition().setZ(z);
                     if (!checkCollision(translatedPiece)) {
@@ -271,20 +271,15 @@ public class Grid3D extends Grid {
 
         Set<Piece> finalPossibilities = new HashSet<>();
         for (var piece : possibilities) {
-            Piece3D droppedPiece = ((Piece3D) piece).copy();
-            droppedPiece.getPosition().setY(getHeight());
-
-            // Drop the piece until it collides
-            while (!checkCollision(droppedPiece)) {
-                droppedPiece.getPosition().setY(droppedPiece.getPosition().getY() - 1);
+            while (!checkCollision(piece)) {
+                piece.getPosition().setY(piece.getPosition().getY() - 1);
             }
 
-            // Move it back up one position to be valid
-            droppedPiece.getPosition().setY(droppedPiece.getPosition().getY() + 1);
+            piece.getPosition().setY(piece.getPosition().getY() + 1);
 
-            // Only add if it's a valid position
-            if (!checkCollision(droppedPiece)) {
-                finalPossibilities.add(droppedPiece);
+
+            if (!checkCollision(piece)) {
+                finalPossibilities.add(piece);
             }
         }
 

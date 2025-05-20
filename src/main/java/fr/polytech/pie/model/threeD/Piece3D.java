@@ -29,11 +29,6 @@ public class Piece3D extends Piece {
         }
     }
 
-    public Piece3D(PieceColor[][][] newGrid, Position position, PieceColor color) {
-        super(position, color);
-        this.pieceColor = newGrid;
-    }
-
     public PieceColor[][][] getPiece3d() {
         return pieceColor;
     }
@@ -53,7 +48,7 @@ public class Piece3D extends Piece {
     }
 
     public void rotate3D(RotationAxis axis, Predicate<Piece> collisionChecker, boolean reverse) {
-        Piece3D original = copy();
+        Piece3D original = clone();
 
         float angle = reverse ? (float) -Math.PI / 2 : (float) Math.PI / 2;
         Matrix3f rotationMatrix = new Matrix3f();
@@ -181,17 +176,6 @@ public class Piece3D extends Piece {
         }
     }
 
-    public Piece3D copy() {
-        PieceColor[][][] newGrid = new PieceColor[pieceColor.length][][];
-        for (int i = 0; i < pieceColor.length; i++) {
-            newGrid[i] = new PieceColor[pieceColor[i].length][];
-            for (int j = 0; j < pieceColor[i].length; j++) {
-                newGrid[i][j] = pieceColor[i][j].clone();
-            }
-        }
-        return new Piece3D(newGrid, position, color);
-    }
-
     @Override
     public Piece3D clone() {
         Piece3D clone = (Piece3D) super.clone();
@@ -204,6 +188,7 @@ public class Piece3D extends Piece {
             }
         }
         clone.z = this.z;
+        clone.position = new Position(position);
         return clone;
     }
 }
