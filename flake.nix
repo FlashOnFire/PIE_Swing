@@ -27,6 +27,10 @@
           lombok = prev.lombok.override { inherit jdk; };
         };
 
+      packages = forEachSupportedSystem ({ pkgs }: {
+        default = pkgs.callPackage ./package.nix {};
+      });
+
       devShells = forEachSupportedSystem ({ pkgs }: {
         default = pkgs.mkShell {
           packages = with pkgs; [

@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("org.gradle.java")
 }
 
 java {
@@ -78,4 +79,20 @@ tasks.withType<JavaExec>().configureEach {
 
 tasks.withType<Test>().configureEach {
     jvmArgs(args)
+}
+
+tasks.register<Jar>("fatJar") {
+    archiveClassifier.set("all")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets.main.get().output)
+    from("src/main/resources") {
+        into("/")
+    }
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
+    manifest {
+        attributes["Main-Class"] = "fr.polytech.pie.Main"
+    }
 }
