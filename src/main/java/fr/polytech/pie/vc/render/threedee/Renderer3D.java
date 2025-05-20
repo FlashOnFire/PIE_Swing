@@ -259,7 +259,7 @@ public class Renderer3D implements Renderer {
                     (float) Math.cos(horizontalAngle + Math.PI / 2)  // Z
             ).normalize();
 
-            RotationAxis forwardRotationAxis = forward.x > forward.y ? RotationAxis.Z : RotationAxis.X;
+            RotationAxis forwardRotationAxis = Math.abs(forward.x) > Math.abs(forward.y) ? RotationAxis.X : RotationAxis.Z;
 
             if (keys[GLFW_KEY_LEFT_SHIFT]) {
                 if (keys[GLFW_KEY_W] && pieceForwardRotationTimeCounter > 0.1F) {
