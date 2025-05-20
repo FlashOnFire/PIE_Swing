@@ -155,6 +155,18 @@ public class Ai {
         grid.freezePiece(bestPiece != null ? bestPiece : currentPiece);
     }
 
+    public void shutdown() {
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private record PieceMoveScore(CurrentPiece piece, double score) {
     }
 

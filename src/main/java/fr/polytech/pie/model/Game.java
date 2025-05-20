@@ -193,4 +193,8 @@ public class Game {
     public int getDifficulty() {
         return difficulty;
     }
+
+    public Ai getAi(){
+        return ai;
+    }
 }

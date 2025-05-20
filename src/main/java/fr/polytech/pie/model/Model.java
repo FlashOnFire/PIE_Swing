@@ -119,6 +119,7 @@ public class Model extends Observable {
         if (executor != null && !executor.isShutdown()) {
             this.executor.shutdown();
         }
+        game.getAi().shutdown();
     }
 
     public void startScheduler() {
