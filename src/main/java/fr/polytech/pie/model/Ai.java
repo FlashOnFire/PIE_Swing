@@ -148,7 +148,7 @@ public class Ai {
 
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Error during parallel processing: " + e.getMessage());
-            // Fallback to the current piece if error occurs
+            // Fallback to the current piece if an error occurs
             bestPiece = piece;
         }
 
