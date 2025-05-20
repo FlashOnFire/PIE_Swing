@@ -3,6 +3,7 @@ package fr.polytech.pie.model;
 import org.joml.Vector3f;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Position implements Cloneable {
     protected int[] positions;
@@ -59,33 +60,31 @@ public class Position implements Cloneable {
         }
     }
 
-
     @Override
-    public final boolean equals(Object o) {
-        if (!(o instanceof Position position)) return false;
-
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
         return size == position.size && Arrays.equals(positions, position.positions);
     }
 
     @Override
     public int hashCode() {
-        int result = Arrays.hashCode(positions);
-        result = 31 * result + size;
-        return result;
+        return Objects.hash(Arrays.hashCode(positions), size);
     }
 
-   @Override
-   public Position clone() {
-       try {
-           Position cloned = (Position) super.clone();
-           // Copie profonde du tableau positions
-           cloned.positions = new int[size];
-           System.arraycopy(this.positions, 0, cloned.positions, 0, size);
-           return cloned;
-       } catch (CloneNotSupportedException e) {
-           throw new AssertionError();
-       }
-   }
+    @Override
+    public Position clone() {
+        try {
+            Position cloned = (Position) super.clone();
+
+            cloned.positions = new int[size];
+            System.arraycopy(this.positions, 0, cloned.positions, 0, size);
+
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
     public void add(Position other) {
         if (this.size != other.size) {
