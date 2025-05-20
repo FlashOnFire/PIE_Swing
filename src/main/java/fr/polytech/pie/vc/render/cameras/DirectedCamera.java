@@ -21,16 +21,11 @@ public class DirectedCamera {
     @Nullable
     private Matrix4f viewMatrix = null;
 
-    public DirectedCamera() {
-    }
-
     public DirectedCamera(float aspectRatio) {
-        this();
         this.aspectRatio = aspectRatio;
     }
 
     public DirectedCamera(Vector3f target) {
-        this();
         this.target = target;
     }
 

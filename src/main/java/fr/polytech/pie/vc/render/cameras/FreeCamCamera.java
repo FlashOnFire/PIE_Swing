@@ -12,10 +12,10 @@ public class FreeCamCamera {
     public static final float pitchLimit = (float) (Math.PI / 2.0 - 0.01);
 
     public float aspectRatio = 1.0F;
-    private Vector3f pos;
+    private Vector3f pos = new Vector3f(0.0F, 0.0F, 0.0F);
 
-    private float yaw;
-    private float pitch;
+    private float yaw = 0.0F;
+    private float pitch = 0.0F;
 
     @Nullable
     private Matrix4f projectionMatrix;
@@ -23,13 +23,9 @@ public class FreeCamCamera {
     private Matrix4f viewMatrix;
 
     public FreeCamCamera() {
-        this.pos = new Vector3f(0, 2.0F, 0);
-        this.yaw = 0.0F;
-        this.pitch = 0.0F;
     }
 
     public FreeCamCamera(float aspectRatio) {
-        this();
         this.aspectRatio = aspectRatio;
     }
 
