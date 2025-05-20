@@ -24,7 +24,6 @@ public abstract class Grid {
         return size.getZ();
     }
 
-    @SuppressWarnings("unused")
     public abstract void freezePiece(Piece piece);
 
     public abstract void removePiece(Piece possibility);
@@ -47,13 +46,13 @@ public abstract class Grid {
 
     public abstract Set<Piece> getPiecesPossibilities(Piece piece);
 
-
     public boolean isOutOfBounds(Position position) {
         for (int i = 0; i < position.getSize(); i++) {
             if (position.getPositions()[i] < 0 || position.getPositions()[i] >= size.getPositions()[i]) {
                 return true;
             }
         }
+
         return false;
     }
 }

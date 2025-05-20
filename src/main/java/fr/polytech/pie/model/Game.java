@@ -108,7 +108,7 @@ public class Game {
 
     public void resetGame() {
         grid = Grid.create(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
-        ai = new Ai(grid, is3D);
+        ai = new Ai(grid, is3D ? AIParameters.DEFAULT_3D : AIParameters.DEFAULT);
         piece = null;
         nextPiece = null;
         generateNewPiece();

@@ -12,39 +12,12 @@ import java.util.concurrent.*;
 public class Ai {
     private final ExecutorService executorService = Executors.newWorkStealingPool();
 
-    private static double heightWeight;
-    private static double linesWeight;
-    private static double bumpinessWeight;
-    private static double holesWeight;
+    private final AIParameters params;
     private final Grid grid;
 
-    private final boolean is3D;
-
-    public Ai(Grid grid, boolean is3D) {
+    public Ai(Grid grid, AIParameters parameters) {
         this.grid = grid;
-        this.is3D = is3D;
-
-        if (is3D) {
-            heightWeight = -0.6500491536113875;
-            linesWeight = 0.5122503282774851;
-            bumpinessWeight = -0.1763291765999144;
-            holesWeight = -0.5328636979081272;
-        } else {
-            heightWeight = -0.7303205229567257;
-            linesWeight = 0.6082323862482821;
-            bumpinessWeight = -0.22463833194827965;
-            holesWeight = -0.21499515782089093;
-        }
-    }
-
-    public Ai(Grid grid, double[] parameters, boolean is3D) {
-        this.grid = grid;
-        this.is3D = is3D;
-
-        heightWeight = parameters[0];
-        linesWeight = parameters[1];
-        bumpinessWeight = parameters[2];
-        holesWeight = parameters[3];
+        this.params = parameters;
     }
 
     @NotNull
@@ -81,15 +54,16 @@ public class Ai {
         int holes = gridToScore.getHoles();
         int bumpiness = getBumpiness(gridToScore);
 
-        return heightWeight * heights +
-                linesWeight * completedLines +
-                holesWeight * holes +
-                bumpinessWeight * bumpiness;
+        return params.heightWeight() * heights +
+                params.linesWeight() * completedLines +
+                params.holesWeight() * holes +
+                params.bumpinessWeight() * bumpiness;
     }
 
     private int getBumpiness(Grid gridToScore) {
         int bumpiness = 0;
-        if (is3D && gridToScore instanceof Grid3D grid3D) {
+
+        if (gridToScore instanceof Grid3D grid3D) {
             for (int x = 0; x < grid3D.getWidth(); x++) {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
                     if (x < grid3D.getWidth() - 1) {
@@ -110,7 +84,7 @@ public class Ai {
 
     private int getHeights(Grid gridToScore) {
         int heights = 0;
-        if (is3D && gridToScore instanceof Grid3D grid3D) {
+        if (gridToScore instanceof Grid3D grid3D) {
             for (int i = 0; i < grid3D.getWidth(); i++) {
                 for (int j = 0; j < grid3D.getDepth(); j++) {
                     heights += grid3D.getHeightOfColumn3D(i, j);
@@ -147,10 +121,9 @@ public class Ai {
 
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("Error during parallel processing: " + e.getMessage());
-            // Fallback to the current piece if an error occurs
-            bestPiece = piece;
         }
 
+        // Fallback to the current piece if an error occurs
         grid.freezePiece(bestPiece != null ? bestPiece : piece);
     }
 

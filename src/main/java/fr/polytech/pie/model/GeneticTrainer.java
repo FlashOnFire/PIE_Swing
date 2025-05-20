@@ -194,7 +194,7 @@ public class GeneticTrainer {
             nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         }
 
-        Ai ai = new Ai(grid, parameters, is3D);
+        Ai ai = new Ai(grid, new AIParameters(parameters[0], parameters[1], parameters[2], parameters[3]));
         int linesCleared = 0;
         int piecesWithoutLines = 0;
 
