@@ -7,29 +7,28 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MenuRenderer implements Renderer {
-
+    final VueController vueController;
     private final JFrame frame = new JFrame();
 
-    private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
     private final int highScore2D;
     private final int highScore3D;
-    private JComboBox<String> levelSelector;
-    final VueController vueController;
+
+    private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
 
     public MenuRenderer(int highScore2D, int highScore3D, VueController vueController) {
         this.highScore2D = highScore2D;
         this.highScore3D = highScore3D;
         this.vueController = vueController;
+    }
 
+    @Override
+    public void initialize() {
         frame.setTitle("Tetris");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(400, 300);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
-    }
 
-    @Override
-    public void initialize() {
         frame.setLayout(new BorderLayout());
 
         JLabel titleLabel = createTitleLabel();
@@ -85,7 +84,7 @@ public class MenuRenderer implements Renderer {
         levelLabel.setFont(new Font("Arial", Font.BOLD, 14));
 
         String[] levels = {"Facile", "Moyen", "Difficile"};
-        levelSelector = new JComboBox<>(levels);
+        JComboBox<String> levelSelector = new JComboBox<>(levels);
         levelSelector.setSelectedIndex(vueController.getDifficulty() - 1);
         levelSelector.addActionListener(_ -> vueController.setDifficulty(levelSelector.getSelectedIndex() + 1));
 
