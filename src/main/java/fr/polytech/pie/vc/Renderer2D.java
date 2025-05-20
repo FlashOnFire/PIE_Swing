@@ -30,9 +30,9 @@ public class Renderer2D implements Renderer {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private final boolean[] keys = new boolean[6];
-    private final boolean[] keyProcessed = new boolean[6];
-    private final long[] keyLastProcessedTime = new long[6];
+    private final boolean[] keys = new boolean[7];
+    private final boolean[] keyProcessed = new boolean[7];
+    private final long[] keyLastProcessedTime = new long[7];
     private static final long KEY_REPEAT_DELAY = 150;
 
     private boolean isGameOver = false;
@@ -40,6 +40,7 @@ public class Renderer2D implements Renderer {
     private JPanel gameOverPanel;
     private int remainingSeconds = 5;
     private JLabel countdownLabel;
+    private boolean escape = false;
 
     private enum KeyAction {
         MOVE_DOWN(0, KeyEvent.VK_Z, true),
@@ -47,7 +48,8 @@ public class Renderer2D implements Renderer {
         MOVE_LEFT(2, KeyEvent.VK_Q, true),
         MOVE_RIGHT(3, KeyEvent.VK_D, true),
         ROTATE(4, KeyEvent.VK_A, true, 2.0),
-        RUN_AI(5, KeyEvent.VK_I, true);
+        RUN_AI(5, KeyEvent.VK_I, true),
+        EXIT(6, KeyEvent.VK_ESCAPE, false);
 
         final int index;
         final int keyCode;
@@ -131,12 +133,7 @@ public class Renderer2D implements Renderer {
         gridPanel.setLayout(new GridLayout(Consts.GRID_HEIGHT, Consts.GRID_WIDTH));
         for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
             for (int x = 0; x < Consts.GRID_WIDTH; x++) {
-                JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
-                panel.setPreferredSize(new Dimension(25, 25));
-                panel.setLayout(new BorderLayout());
-                panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-                gridPanels[y][x] = panel;
-                gridPanel.add(panel);
+                drawGrid(y, x, gridPanels, gridPanel);
             }
         }
         gridPanel.setPreferredSize(new Dimension(400, 800));
@@ -148,16 +145,20 @@ public class Renderer2D implements Renderer {
                 )));
     }
 
+    private void drawGrid(int y, int x, JPanel[][] gridPanels, JPanel gridPanel) {
+        JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
+        panel.setPreferredSize(new Dimension(25, 25));
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        gridPanels[y][x] = panel;
+        gridPanel.add(panel);
+    }
+
     private void initializeNextPiecePanel() {
         nextPiecePanel.setLayout(new GridLayout(Consts.PIECE_SIZE, Consts.PIECE_SIZE));
         for (int y = 0; y < Consts.PIECE_SIZE; y++) {
             for (int x = 0; x < Consts.PIECE_SIZE; x++) {
-                JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
-                panel.setPreferredSize(new Dimension(25, 25));
-                panel.setLayout(new BorderLayout());
-                panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-                nextPiecePanels[y][x] = panel;
-                nextPiecePanel.add(panel);
+                drawGrid(y, x, nextPiecePanels, nextPiecePanel);
             }
         }
         nextPiecePanel.setPreferredSize(new Dimension(200, 200));
@@ -248,6 +249,7 @@ public class Renderer2D implements Renderer {
             case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece2D(1, 0);
             case ROTATE -> vueController.getModel().rotateCurrentPiece2D();
             case RUN_AI -> vueController.getModel().runAi();
+            case EXIT -> this.escape = true;
         }
     }
 
@@ -256,6 +258,11 @@ public class Renderer2D implements Renderer {
             Thread.sleep(200);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+
+        if (escape) {
+            escape = false;
+            return LoopStatus.SHOW_MENU;
         }
 
         if (!frame.isDisplayable()) {
