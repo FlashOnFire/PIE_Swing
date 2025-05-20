@@ -117,6 +117,7 @@ public class Game {
 
     private void generateNewPiece() {
         if (gameOver) return;
+
         if (nextPiece == null) {
             if (is3D) {
                 nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid.getDepth());

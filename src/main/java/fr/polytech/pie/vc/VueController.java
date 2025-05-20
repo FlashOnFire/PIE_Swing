@@ -40,14 +40,14 @@ public class VueController implements Observer {
     }
 
     void startGame(boolean is3D) {
-        model.resetGame();
+        model.startGame(is3D);
+
         if (is3D) {
-            model.changeRenderingMode(true);
             switchRenderer(RendererType.GAME_3D);
         } else {
-            model.changeRenderingMode(false);
             switchRenderer(RendererType.GAME_2D);
         }
+
         model.startScheduler();
     }
 

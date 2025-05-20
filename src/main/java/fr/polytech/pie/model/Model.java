@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.Observable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -14,20 +15,13 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("deprecation")
 public class Model extends Observable {
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> future;
+
     private final Game game;
-    private boolean is3D;
-    private ScheduledExecutorService executor;
 
     private int highScore2D = 0;
     private int highScore3D = 0;
-
-    /**
-     * Constructor for the model with 2D mode as the default
-     */
-    public Model() {
-        this(false);
-        loadHighScore();
-    }
 
     /**
      * Constructor that can create a model in either 2D or 3D mode.
@@ -35,23 +29,36 @@ public class Model extends Observable {
      * @param is3D Whether the game should be in 3D mode
      */
     public Model(boolean is3D) {
-        this.is3D = is3D;
         this.game = new Game(is3D);
+        loadHighScore();
+    }
+
+    public void startGame(boolean is3D) {
+        game.resetGame();
+
+        if (game.is3D() != is3D) {
+            changeRenderingMode(is3D);
+        }
+
+        startScheduler();
+
+        setChanged();
+        notifyObservers();
     }
 
     public void changeRenderingMode(boolean is3D) {
-        this.is3D = is3D;
         game.setRenderingMode(is3D);
         setChanged();
         notifyObservers();
     }
 
-
     public void translateCurrentPiece(Position translation) {
         game.translateCurrentPiece(translation);
+
         if (game.isGameOver()) {
             stopScheduler();
         }
+
         setChanged();
         notifyObservers();
     }
@@ -62,6 +69,7 @@ public class Model extends Observable {
      */
     public void runAi() {
         game.runAi();
+
         setChanged();
         notifyObservers();
     }
@@ -71,6 +79,7 @@ public class Model extends Observable {
      */
     public void rotateCurrentPiece2D() {
         game.rotateCurrentPiece();
+
         setChanged();
         notifyObservers();
     }
@@ -83,8 +92,9 @@ public class Model extends Observable {
      * Rotate the current piece in 3D mode around the specified axis.
      */
     public void rotateCurrentPiece3D(RotationAxis axis, boolean reverse) {
-        if (is3D) {
+        if (game.is3D()) {
             game.rotateCurrentPiece3D(axis, reverse);
+
             setChanged();
             notifyObservers();
         }
@@ -100,33 +110,37 @@ public class Model extends Observable {
 
     public void stopGame() {
         stopScheduler();
-        if (game.getScore() > (is3D ? highScore3D : highScore2D)) {
-            setHighScore(game.getScore());
+
+        if (game.getScore() > (game.is3D() ? highScore3D : highScore2D)) {
+            setHighScore(game.getScore(), game.is3D());
         }
+
         game.resetGame();
     }
 
-    public void stopScheduler() {
-        if (executor != null && !executor.isShutdown()) {
-            this.executor.shutdown();
-        }
-        game.getAi().shutdown();
-    }
-
     public void startScheduler() {
-        if (executor == null || executor.isShutdown()) {
-            this.executor = Executors.newScheduledThreadPool(1);
+        if (future != null && !future.isDone()) {
+            future.cancel(true);
         }
 
-        executor.scheduleAtFixedRate(
+        future = executor.scheduleAtFixedRate(
                 () -> {
-                    if (this.is3D) {
+                    if (game.is3D()) {
                         translateCurrentPiece(new Position(new int[]{0, -1, 0}));
                     } else {
                         translateCurrentPiece(new Position(new int[]{0, -1}));
                     }
                 }, 0, 200 / game.getDifficulty(), TimeUnit.MILLISECONDS
         );
+    }
+
+    public void stopScheduler() {
+        game.getAi().shutdown();
+        future.cancel(false);
+    }
+
+    public void cleanup() {
+        executor.shutdownNow();
     }
 
     public int getDroppedYCurrentPiece() {
@@ -185,7 +199,7 @@ public class Model extends Observable {
         return is3D ? highScore3D : highScore2D;
     }
 
-    public void setHighScore(int score) {
+    public void setHighScore(int score, boolean is3D) {
         if (is3D) {
             this.highScore3D = score;
         } else {
