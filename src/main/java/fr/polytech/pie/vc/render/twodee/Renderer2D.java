@@ -245,11 +245,11 @@ public class Renderer2D implements Renderer {
 
     private void performAction(KeyAction action) {
         switch (action) {
-            case MOVE_UP -> vueController.getModel().translateCurrentPiece(new Vector(new int[]{0, 1}));
-            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece(new Vector(new int[]{0, -1}));
+            case MOVE_UP -> vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{0, 1}));
+            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{0, -1}));
             case DROP -> vueController.getModel().dropCurrentPiece();
-            case MOVE_LEFT -> vueController.getModel().translateCurrentPiece(new Vector(new int[]{-1, 0}));
-            case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece(new Vector(new int[]{1, 0}));
+            case MOVE_LEFT -> vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{-1, 0}));
+            case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{1, 0}));
             case ROTATE -> vueController.getModel().rotateCurrentPiece2D();
             case RUN_AI -> vueController.getModel().runAi();
             case EXIT -> this.escape = true;
@@ -367,7 +367,7 @@ public class Renderer2D implements Renderer {
         }
     }
 
-    private void drawGridCell(Vector pos, PieceColor pieceColor) {
+    private void drawGridCell(TetrisVector pos, PieceColor pieceColor) {
         if (!vueController.getModel().getGame().getGrid().isOutOfBounds(pos)) {
             gridPanels[gridPanels.length - pos.getY() - 1][pos.getX()].setPiece(pieceColor);
         }
@@ -376,8 +376,8 @@ public class Renderer2D implements Renderer {
     private void drawFrozenPieces(Grid grid) {
         for (int i = 0; i < grid.getWidth(); i++) {
             for (int j = 0; j < grid.getHeight(); j++) {
-                var pos = new Vector(new int[]{i, j});
-                drawGridCell(pos, grid.getValue(new Vector(new int[]{i, j})));
+                var pos = new TetrisVector(new int[]{i, j});
+                drawGridCell(pos, grid.getValue(new TetrisVector(new int[]{i, j})));
             }
         }
     }
@@ -387,9 +387,9 @@ public class Renderer2D implements Renderer {
         int droppedY = vueController.getModel().getDroppedYCurrentPiece();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                var pos = new Vector(new int[]{i, j});
+                var pos = new TetrisVector(new int[]{i, j});
                 pos.add(currentPiece.getPosition());
-                var droppedPos = new Vector(new int[]{currentPiece.getPosition().getX() + i, droppedY + j});
+                var droppedPos = new TetrisVector(new int[]{currentPiece.getPosition().getX() + i, droppedY + j});
                 if (piece[j][i] != PieceColor.Empty) {
                     drawGridCell(pos, piece[j][i]);
                     drawGridCell(droppedPos, PieceColor.Preview);

@@ -6,9 +6,9 @@ import fr.polytech.pie.model.threeD.Grid3D;
 import java.util.Set;
 
 public abstract class Grid {
-    protected final Vector size;
+    protected final TetrisVector size;
 
-    public Grid(Vector size) {
+    public Grid(TetrisVector size) {
         this.size = size;
     }
 
@@ -34,9 +34,9 @@ public abstract class Grid {
 
     public abstract int clearFullLines();
 
-    public abstract PieceColor getValue(Vector position);
+    public abstract PieceColor getValue(TetrisVector position);
 
-    public static Grid create(Vector size, boolean is3D) {
+    public static Grid create(TetrisVector size, boolean is3D) {
         return is3D ? new Grid3D(size) : new Grid2D(size);
     }
 
@@ -46,9 +46,9 @@ public abstract class Grid {
 
     public abstract Set<Piece> getPiecesPossibilities(Piece piece);
 
-    public boolean isOutOfBounds(Vector position) {
+    public boolean isOutOfBounds(TetrisVector position) {
         for (int i = 0; i < position.getSize(); i++) {
-            if (position.getPositions()[i] < 0 || position.getPositions()[i] >= size.getPositions()[i]) {
+            if (position.getVector()[i] < 0 || position.getVector()[i] >= size.getVector()[i]) {
                 return true;
             }
         }

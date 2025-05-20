@@ -80,7 +80,7 @@ public class PieceGenerator {
 
     public static Piece2D generatePiece2D(int maxX, int maxY) {
         int pieceIndex = random.nextInt(PIECES_2D.length);
-        var piece = new Piece2D(PIECES_2D[pieceIndex], new Vector(new int[]{0, 0}));
+        var piece = new Piece2D(PIECES_2D[pieceIndex], new TetrisVector(new int[]{0, 0}));
 
         if (random.nextBoolean()) {
             rotate2DPieceRandomly(piece);
@@ -107,7 +107,7 @@ public class PieceGenerator {
     public static Piece3D generate3DPiece(int maxX, int maxY, int maxZ) {
         int pieceIndex = random.nextInt(PIECES_3D.length);
 
-        var piece = new Piece3D(PIECES_3D[pieceIndex], new Vector(new int[]{0, 0, 0}));
+        var piece = new Piece3D(PIECES_3D[pieceIndex], new TetrisVector(new int[]{0, 0, 0}));
         if (random.nextBoolean()) {
             rotate3DPieceRandomly(piece);
         }

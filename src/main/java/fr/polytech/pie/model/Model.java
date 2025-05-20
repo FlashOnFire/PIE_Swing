@@ -52,7 +52,7 @@ public class Model extends Observable {
         notifyObservers();
     }
 
-    public void translateCurrentPiece(Vector translation) {
+    public void translateCurrentPiece(TetrisVector translation) {
         game.translateCurrentPiece(translation);
 
         if (game.isGameOver()) {
@@ -126,9 +126,9 @@ public class Model extends Observable {
         future = executor.scheduleAtFixedRate(
                 () -> {
                     if (game.is3D()) {
-                        translateCurrentPiece(new Vector(new int[]{0, -1, 0}));
+                        translateCurrentPiece(new TetrisVector(new int[]{0, -1, 0}));
                     } else {
-                        translateCurrentPiece(new Vector(new int[]{0, -1}));
+                        translateCurrentPiece(new TetrisVector(new int[]{0, -1}));
                     }
                 }, 0, 200 / game.getDifficulty(), TimeUnit.MILLISECONDS
         );

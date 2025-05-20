@@ -4,32 +4,33 @@ import org.joml.Vector3f;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Consumer;
 
-public class Vector {
+public class TetrisVector {
     private final int size;
-    private final int[] positions;
+    private final int[] vector;
 
-    public Vector(int size) {
+    public TetrisVector(int size) {
         this.size = size;
-        this.positions = new int[size];
+        this.vector = new int[size];
     }
 
-    public Vector(int[] positions) {
-        this.size = positions.length;
-        this.positions = new int[size];
+    public TetrisVector(int[] vector) {
+        this.size = vector.length;
+        this.vector = new int[size];
 
-        System.arraycopy(positions, 0, this.positions, 0, size);
+        System.arraycopy(vector, 0, this.vector, 0, size);
     }
 
-    public Vector(Vector position) {
+    public TetrisVector(TetrisVector position) {
         this.size = position.size;
-        this.positions = new int[size];
+        this.vector = new int[size];
 
-        System.arraycopy(position.positions, 0, this.positions, 0, size);
+        System.arraycopy(position.vector, 0, this.vector, 0, size);
     }
 
-    public int[] getPositions() {
-        return positions;
+    public int[] getVector() {
+        return vector;
     }
 
     public int getSize() {
@@ -37,24 +38,24 @@ public class Vector {
     }
 
     public void setX(int x) {
-        positions[0] = x;
+        vector[0] = x;
     }
 
     public void setY(int y) {
-        positions[1] = y;
+        vector[1] = y;
     }
 
     public int getX() {
-        return positions[0];
+        return vector[0];
     }
 
     public int getY() {
-        return positions[1];
+        return vector[1];
     }
 
     public void setZ(int z) {
         if (size > 2) {
-            positions[2] = z;
+            vector[2] = z;
         } else {
             throw new IllegalArgumentException("Position does not have a Z coordinate");
         }
@@ -62,7 +63,7 @@ public class Vector {
 
     public int getZ() {
         if (size > 2) {
-            return positions[2];
+            return vector[2];
         } else {
             throw new IllegalArgumentException("Position does not have a Z coordinate");
         }
@@ -71,27 +72,27 @@ public class Vector {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Vector position = (Vector) o;
-        return size == position.size && Arrays.equals(positions, position.positions);
+        TetrisVector position = (TetrisVector) o;
+        return size == position.size && Arrays.equals(vector, position.vector);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.hashCode(positions), size);
+        return Objects.hash(Arrays.hashCode(vector), size);
     }
 
-    public void add(Vector other) {
+    public void add(TetrisVector other) {
         if (this.size != other.size) {
             throw new IllegalArgumentException("Positions must have the same size to be added");
         }
         for (int i = 0; i < size; i++) {
-            positions[i] = positions[i] + other.positions[i];
+            vector[i] = vector[i] + other.vector[i];
         }
     }
 
     public Vector3f toVector3f() {
         if (size == 3) {
-            return new Vector3f(positions[0], positions[1], positions[2]);
+            return new Vector3f(vector[0], vector[1], vector[2]);
         } else {
             throw new IllegalArgumentException("Position does not have a Z coordinate");
         }
@@ -100,7 +101,7 @@ public class Vector {
     @Override
     public String toString() {
         return "Position{" +
-                "positions=" + Arrays.toString(positions) +
+                "positions=" + Arrays.toString(vector) +
                 ", size=" + size +
                 '}';
     }

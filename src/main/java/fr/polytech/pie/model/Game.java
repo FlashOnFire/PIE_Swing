@@ -57,9 +57,9 @@ public class Game {
         score += linesCleared * 100;
     }
 
-    public void translateCurrentPiece(Vector translation) {
+    public void translateCurrentPiece(TetrisVector translation) {
         if (gameOver) return;
-        var originalPos = new Vector(piece.getPosition());
+        var originalPos = new TetrisVector(piece.getPosition());
 
         piece.translate(translation);
 
@@ -106,7 +106,7 @@ public class Game {
     }
 
     public void resetGame() {
-        grid = Grid.create(new Vector(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
+        grid = Grid.create(new TetrisVector(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
         ai = new Ai(grid, is3D ? AIParameters.DEFAULT_3D : AIParameters.DEFAULT);
         piece = null;
         nextPiece = null;

@@ -1,9 +1,9 @@
 package fr.polytech.pie.model;
 
 public abstract class Piece implements Cloneable {
-    protected Vector position;
+    protected TetrisVector position;
 
-    public Piece(Vector position, PieceColor color) {
+    public Piece(TetrisVector position, PieceColor color) {
         this.position = position;
         this.color = color;
     }
@@ -14,16 +14,16 @@ public abstract class Piece implements Cloneable {
 
     protected PieceColor color;
 
-    public Piece(Vector position) {
+    public Piece(TetrisVector position) {
         this.position = position;
         this.color = PieceColor.values()[(int) (Math.random() * (PieceColor.values().length - 2) + 1)]; // Skip empty and preview pieces
     }
 
-    public Vector getPosition() {
+    public TetrisVector getPosition() {
         return position;
     }
 
-    public void setPosition(Vector position) {
+    public void setPosition(TetrisVector position) {
         this.position = position;
     }
 
@@ -31,7 +31,7 @@ public abstract class Piece implements Cloneable {
 
     public abstract int getHeight();
 
-    public void translate(Vector addedPosition) {
+    public void translate(TetrisVector addedPosition) {
         this.position.add(addedPosition);
     }
 
@@ -39,7 +39,7 @@ public abstract class Piece implements Cloneable {
     public Piece clone() {
         try {
             Piece clone = (Piece) super.clone();
-            clone.position = new Vector(this.position);
+            clone.position = new TetrisVector(this.position);
             clone.color = this.color;
             return clone;
         } catch (CloneNotSupportedException e) {

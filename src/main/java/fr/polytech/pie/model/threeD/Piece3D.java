@@ -2,7 +2,7 @@ package fr.polytech.pie.model.threeD;
 
 import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.PieceColor;
-import fr.polytech.pie.model.Vector;
+import fr.polytech.pie.model.TetrisVector;
 import fr.polytech.pie.model.RotationAxis;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
@@ -13,7 +13,7 @@ public class Piece3D extends Piece {
     private PieceColor[][][] pieceColor;
     private int z;
 
-    public Piece3D(boolean[][][] piece, Vector position){
+    public Piece3D(boolean[][][] piece, TetrisVector position){
         super(position);
         this.pieceColor = new PieceColor[piece.length][piece[0].length][piece[0][0].length];
         for (int i = 0; i < piece.length; i++) {
@@ -188,7 +188,7 @@ public class Piece3D extends Piece {
             }
         }
         clone.z = this.z;
-        clone.position = new Vector(position);
+        clone.position = new TetrisVector(position);
         return clone;
     }
 }

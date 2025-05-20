@@ -281,19 +281,19 @@ public class Renderer3D implements Renderer {
                 }
             } else {
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece(new Vector(new int[]{Math.round(-forward.x), 0, Math.round(-forward.y)}));
+                    vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{Math.round(-forward.x), 0, Math.round(-forward.y)}));
                     pieceForwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece(new Vector(new int[]{Math.round(forward.x), 0, Math.round(forward.y)}));
+                    vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{Math.round(forward.x), 0, Math.round(forward.y)}));
                     pieceBackwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece(new Vector(new int[]{Math.round(-right.x), 0, Math.round(-right.y)}));
+                    vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{Math.round(-right.x), 0, Math.round(-right.y)}));
                     pieceLeftTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece(new Vector(new int[]{Math.round(right.x), 0, Math.round(right.y)}));
+                    vueController.getModel().translateCurrentPiece(new TetrisVector(new int[]{Math.round(right.x), 0, Math.round(right.y)}));
                     pieceRightTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_I] && pieceAiTimeCounter > (shiftModifier ? 0.01F : 0.1F)) {
@@ -318,7 +318,7 @@ public class Renderer3D implements Renderer {
         for (int x = 0; x < grid.getWidth(); x++) {
             for (int y = 0; y < grid.getHeight(); y++) {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
-                    PieceColor value = grid3D.getValue(new Vector(new int[]{x, y, z}));
+                    PieceColor value = grid3D.getValue(new TetrisVector(new int[]{x, y, z}));
                     if (value != PieceColor.Empty) {
                         Cube cube = new Cube(
                                 new Vector3f(x, y, z),
