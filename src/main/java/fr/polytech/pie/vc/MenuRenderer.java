@@ -4,6 +4,10 @@ import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.Grid;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 
 public class MenuRenderer implements Renderer {
@@ -44,6 +48,8 @@ public class MenuRenderer implements Renderer {
         menuPanel.add(highScorePanel, BorderLayout.BEFORE_FIRST_LINE);
 
         menuPanel.add(createBottomPanel(), BorderLayout.SOUTH);
+
+        menuPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         frame.add(menuPanel, BorderLayout.CENTER);
         frame.pack();
@@ -114,19 +120,29 @@ public class MenuRenderer implements Renderer {
         return bottomPanel;
     }
 
-    private JTextArea createControlsTextArea() {
-        JTextArea controlsText = new JTextArea();
+    private JTextPane createControlsTextArea() {
+        JTextPane controlsText = new JTextPane();
         controlsText.setEditable(false);
         controlsText.setFont(new Font("Arial", Font.PLAIN, 12));
         controlsText.setText(
                 """
                         2D Controls:
-                        z - Up, s - Down, q - Left, d - Right, a - Rotate
+                        Z - Up, S - Down, Q - Left, D - Right
+                        Q - Rotate, Space - Drop
+                        Escape - Quit
                         
                         3D Controls:
-                        z - Up, s - Down, q - Left, d - Right, a - Rotate Z
-                        r - Forward, f - Backward, t - Rotate X, g - Rotate Y
-                        m - Switch between 2D and 3D mode""");
+                        Z - Forward, S - Backward, Q - Left, D - Right
+                        SHIFT+Z, SHIFT+S - Up, SHIFT+Q, SHIFT+D - Rotations
+                        SPACE - Drop
+                        Escape - Quit
+                        """);
+
+        StyledDocument documentStyle = controlsText.getStyledDocument();
+        SimpleAttributeSet centerAttribute = new SimpleAttributeSet();
+        StyleConstants.setAlignment(centerAttribute, StyleConstants.ALIGN_CENTER);
+        documentStyle.setParagraphAttributes(0, documentStyle.getLength(), centerAttribute, false);
+
         return controlsText;
     }
 
