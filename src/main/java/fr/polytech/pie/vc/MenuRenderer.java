@@ -40,6 +40,10 @@ public class MenuRenderer implements Renderer {
         JPanel menuPanel = new JPanel(new BorderLayout());
         menuPanel.add(titleLabel, BorderLayout.NORTH);
         menuPanel.add(centerPanel, BorderLayout.CENTER);
+
+        JPanel highScorePanel = createHighscorePanel();
+        menuPanel.add(highScorePanel, BorderLayout.BEFORE_FIRST_LINE);
+
         menuPanel.add(createBottomPanel(), BorderLayout.SOUTH);
 
         frame.add(menuPanel, BorderLayout.CENTER);
@@ -52,6 +56,27 @@ public class MenuRenderer implements Renderer {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setForeground(Color.BLUE);
         return titleLabel;
+    }
+
+    private JPanel createHighscorePanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel highscore2DLabel = new JLabel("Highscore 2D : " + highscore2D, JLabel.CENTER);
+        highscore2DLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        highscore2DLabel.setForeground(new Color(34, 139, 34));
+        highscore2DLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel highscore3DLabel = new JLabel("Highscore 3D : " + highscore3D, JLabel.CENTER);
+        highscore3DLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        highscore3DLabel.setForeground(new Color(34, 139, 34));
+        highscore3DLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(highscore2DLabel);
+        panel.add(highscore3DLabel);
+
+        return panel;
     }
 
     private JPanel createLevelPanel() {
@@ -87,20 +112,7 @@ public class MenuRenderer implements Renderer {
     private JPanel createBottomPanel() {
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.add(createControlsTextArea(), BorderLayout.CENTER);
-        bottomPanel.add(createHighscoreTextArea(), BorderLayout.SOUTH);
         return bottomPanel;
-    }
-
-    private JTextArea createHighscoreTextArea() {
-        JTextArea highscoreText = new JTextArea();
-        highscoreText.setEditable(false);
-        highscoreText.setFont(new Font("Arial", Font.PLAIN, 12));
-        highscoreText.setText(
-                """
-                    Highscore 2D: %d
-                    Highscore 3D: %d""".formatted(highscore2D, highscore3D)
-        );
-        return highscoreText;
     }
 
     private JTextArea createControlsTextArea() {
