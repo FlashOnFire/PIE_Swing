@@ -164,7 +164,6 @@ public class Renderer3D implements Renderer {
         float gridDepth = ((Grid3D) vueController.getModel().getGame().getGrid()).getDepth();
 
         Vector3f center = new Vector3f(gridWidth / 2.0F, gridHeight / 2.0F, gridDepth / 2.0F);
-
         camController.setDirectedCamTarget(center);
 
         lastLoopTime = glfwGetTime();
@@ -390,6 +389,6 @@ public class Renderer3D implements Renderer {
 
         // Cleanup GLFW
         glfwTerminate();
-        Objects.requireNonNull(glfwSetErrorCallback(null)).close();
+        Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }
 }
