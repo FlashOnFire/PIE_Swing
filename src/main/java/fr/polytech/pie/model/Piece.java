@@ -16,8 +16,7 @@ public abstract class Piece implements Cloneable {
 
     public Piece(Position position) {
         this.position = position;
-        this.color = PieceColor.values()[(int) (Math.random() * PieceColor.values().length)];
-        color = color == PieceColor.Empty ? PieceColor.Blue : color;
+        this.color = PieceColor.values()[(int) (Math.random() * (PieceColor.values().length - 2) + 1)]; // Skip empty and preview pieces
     }
 
     public Position getPosition() {
