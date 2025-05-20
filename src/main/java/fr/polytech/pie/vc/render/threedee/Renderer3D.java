@@ -141,7 +141,6 @@ public class Renderer3D implements Renderer {
 
         renderer.init();
 
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 

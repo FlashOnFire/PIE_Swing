@@ -47,6 +47,12 @@ public class OpenGLRenderer {
     }
 
     public void render(long window, Vector2i screenSize, Matrix4f projectionMatrix, Matrix4f viewMatrix, int score, boolean isGameOver, float elapsedTimeSinceGameOver) {
+        if (!isGameOver) {
+            glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+        } else {
+            glClearColor(0.8F, 0.8F, 0.8F, 1.0F);
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         drawCubes(projectionMatrix, viewMatrix, cubes, isGameOver);
