@@ -4,6 +4,7 @@ import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class Grid2D extends Grid {
         this.holesCache = new int[width];
 
         for (int y = 0; y < height; y++) {
-            java.util.Arrays.fill(grid[y], Piece.Empty);
+            Arrays.fill(grid[y], Piece.Empty);
         }
     }
 
