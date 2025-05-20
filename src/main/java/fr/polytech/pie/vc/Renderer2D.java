@@ -336,7 +336,7 @@ public class Renderer2D implements Renderer {
                 clearGrid();
                 drawFrozenPieces(grid);
                 drawCurrentPiece((CurrentPiece2D) currentPiece);
-                clearNextPiecePanels();
+                clearNextPieceGrid();
                 drawNextPiece((CurrentPiece2D) nextPiece);
                 scoreLabel.setText("Score: " + score);
                 gridPanel.repaint();
@@ -363,7 +363,7 @@ public class Renderer2D implements Renderer {
         }
     }
 
-    private void clearNextPiecePanels() {
+    private void clearNextPieceGrid() {
         for (int y = 0; y < Consts.PIECE_SIZE; y++) {
             for (int x = 0; x < Consts.PIECE_SIZE; x++) {
                 nextPiecePanels[y][x].setPiece(Piece.Empty);
