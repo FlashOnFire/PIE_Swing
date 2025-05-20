@@ -123,7 +123,7 @@ public class Grid3D extends Grid {
 
             // Check if the plane is full
             for (int x = 0; x < size.getX() && fullPlane; x++) {
-                for (int z = 0; z < size.getY(); z++) {
+                for (int z = 0; z < size.getZ(); z++) {
                     if (grid[z][y][x] == PieceColor.Empty) {
                         fullPlane = false;
                         break;
@@ -156,16 +156,16 @@ public class Grid3D extends Grid {
             }
         }
 
+        if (!dry && linesCleared > 0) {
+            recalculateAllCaches();
+        }
+
         return linesCleared;
     }
 
     @Override
     public int clearFullLines() {
-        int linesCleared = clearFullLines(false);
-        if (linesCleared > 0) {
-            recalculateAllCaches();
-        }
-        return linesCleared;
+        return clearFullLines(false);
     }
 
     @Override
@@ -269,15 +269,25 @@ public class Grid3D extends Grid {
         }
         possibilities = newTranslations;
 
-        // Drop the pieces
+        Set<Piece> finalPossibilities = new HashSet<>();
         for (var piece : possibilities) {
-            piece.getPosition().setY(0);
-            int y = 0;
-            do {
-                piece.getPosition().setY(y++);
-            } while (checkCollision(piece));
+            Piece3D droppedPiece = ((Piece3D) piece).copy();
+            droppedPiece.getPosition().setY(getHeight());
+
+            // Drop the piece until it collides
+            while (!checkCollision(droppedPiece)) {
+                droppedPiece.getPosition().setY(droppedPiece.getPosition().getY() - 1);
+            }
+
+            // Move it back up one position to be valid
+            droppedPiece.getPosition().setY(droppedPiece.getPosition().getY() + 1);
+
+            // Only add if it's a valid position
+            if (!checkCollision(droppedPiece)) {
+                finalPossibilities.add(droppedPiece);
+            }
         }
 
-        return possibilities;
+        return finalPossibilities;
     }
 }
