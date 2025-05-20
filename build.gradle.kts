@@ -96,3 +96,11 @@ tasks.register<Jar>("fatJar") {
         attributes["Main-Class"] = "fr.polytech.pie.Main"
     }
 }
+
+tasks.register<JavaExec>("run") {
+    group = "application"
+    description = "Run the application"
+    mainClass.set("fr.polytech.pie.Main")
+    classpath = sourceSets.main.get().runtimeClasspath
+    jvmArgs(args)
+}
