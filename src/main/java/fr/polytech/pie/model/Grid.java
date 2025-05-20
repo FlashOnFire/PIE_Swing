@@ -6,9 +6,9 @@ import fr.polytech.pie.model.threeD.Grid3D;
 import java.util.Set;
 
 public abstract class Grid {
-    protected final Position size;
+    protected final Vector size;
 
-    public Grid(Position size) {
+    public Grid(Vector size) {
         this.size = size;
     }
 
@@ -34,9 +34,9 @@ public abstract class Grid {
 
     public abstract int clearFullLines();
 
-    public abstract PieceColor getValue(Position position);
+    public abstract PieceColor getValue(Vector position);
 
-    public static Grid create(Position size, boolean is3D) {
+    public static Grid create(Vector size, boolean is3D) {
         return is3D ? new Grid3D(size) : new Grid2D(size);
     }
 
@@ -46,7 +46,7 @@ public abstract class Grid {
 
     public abstract Set<Piece> getPiecesPossibilities(Piece piece);
 
-    public boolean isOutOfBounds(Position position) {
+    public boolean isOutOfBounds(Vector position) {
         for (int i = 0; i < position.getSize(); i++) {
             if (position.getPositions()[i] < 0 || position.getPositions()[i] >= size.getPositions()[i]) {
                 return true;

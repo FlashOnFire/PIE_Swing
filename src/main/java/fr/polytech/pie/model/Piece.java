@@ -1,9 +1,9 @@
 package fr.polytech.pie.model;
 
 public abstract class Piece implements Cloneable {
-    protected Position position;
+    protected Vector position;
 
-    public Piece(Position position, PieceColor color) {
+    public Piece(Vector position, PieceColor color) {
         this.position = position;
         this.color = color;
     }
@@ -14,16 +14,16 @@ public abstract class Piece implements Cloneable {
 
     protected PieceColor color;
 
-    public Piece(Position position) {
+    public Piece(Vector position) {
         this.position = position;
         this.color = PieceColor.values()[(int) (Math.random() * (PieceColor.values().length - 2) + 1)]; // Skip empty and preview pieces
     }
 
-    public Position getPosition() {
+    public Vector getPosition() {
         return position;
     }
 
-    public void setPosition(Position position) {
+    public void setPosition(Vector position) {
         this.position = position;
     }
 
@@ -31,7 +31,7 @@ public abstract class Piece implements Cloneable {
 
     public abstract int getHeight();
 
-    public void translate(Position addedPosition) {
+    public void translate(Vector addedPosition) {
         this.position.add(addedPosition);
     }
 
@@ -39,7 +39,7 @@ public abstract class Piece implements Cloneable {
     public Piece clone() {
         try {
             Piece clone = (Piece) super.clone();
-            clone.position = new Position(this.position);
+            clone.position = new Vector(this.position);
             clone.color = this.color;
             return clone;
         } catch (CloneNotSupportedException e) {

@@ -11,7 +11,7 @@ public class Grid3D extends Grid {
     private final int[][] heightCache;
     private final int[][] holesCache;
 
-    public Grid3D(Position size) {
+    public Grid3D(Vector size) {
         super(size);
         this.grid = new PieceColor[size.getZ()][size.getY()][size.getX()];
         this.heightCache = new int[size.getX()][size.getZ()];
@@ -25,14 +25,14 @@ public class Grid3D extends Grid {
     }
 
     @Override
-    public PieceColor getValue(Position position) {
+    public PieceColor getValue(Vector position) {
         if (isOutOfBounds(position)) {
             return PieceColor.Empty;
         }
         return grid[position.getZ()][position.getY()][position.getX()];
     }
 
-    public void setValue(Position position, PieceColor value) {
+    public void setValue(Vector position, PieceColor value) {
         if (!isOutOfBounds(position)) {
             PieceColor oldValue = grid[position.getZ()][position.getY()][position.getX()];
             grid[position.getZ()][position.getY()][position.getX()] = value;
@@ -50,13 +50,13 @@ public class Grid3D extends Grid {
         }
 
         PieceColor[][][] voxelGrid = piece3D.getPiece3d();
-        Position position = piece.getPosition();
+        Vector position = piece.getPosition();
 
         for (int i = 0; i < piece.getWidth(); i++) {
             for (int j = 0; j < piece.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[k][j][i] != PieceColor.Empty) {
-                        Position pos = new Position(new int[]{i, j, k});
+                        Vector pos = new Vector(new int[]{i, j, k});
                         pos.add(position);
                         setValue(pos, piece.getColor());
                     }
@@ -75,7 +75,7 @@ public class Grid3D extends Grid {
             for (int j = 0; j < piece.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (piece3D.getPiece3d()[k][j][i] != PieceColor.Empty) {
-                        var pos = new Position(new int[]{i, j, k});
+                        var pos = new Vector(new int[]{i, j, k});
                         pos.add(piece3D.getPosition());
                         setValue(pos, PieceColor.Empty);
                     }
@@ -96,7 +96,7 @@ public class Grid3D extends Grid {
             for (int j = 0; j < piece3D.getHeight(); j++) {
                 for (int k = 0; k < piece3D.getDepth(); k++) {
                     if (voxelGrid[k][j][i] != PieceColor.Empty) {
-                        var pos = new Position(new int[]{i, j, k});
+                        var pos = new Vector(new int[]{i, j, k});
                         pos.add(piece3D.getPosition());
 
                         if (isOutOfBounds(pos)) {
@@ -170,7 +170,7 @@ public class Grid3D extends Grid {
 
     @Override
     public Grid copy() {
-        Grid3D copy = new Grid3D(new Position(size));
+        Grid3D copy = new Grid3D(new Vector(size));
 
         for (int z = 0; z < size.getZ(); z++) {
             for (int y = 0; y < size.getY(); y++) {

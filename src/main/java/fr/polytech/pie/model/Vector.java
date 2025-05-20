@@ -5,23 +5,23 @@ import org.joml.Vector3f;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Position {
+public class Vector {
     private final int size;
     private final int[] positions;
 
-    public Position(int size) {
+    public Vector(int size) {
         this.size = size;
         this.positions = new int[size];
     }
 
-    public Position(int[] positions) {
+    public Vector(int[] positions) {
         this.size = positions.length;
         this.positions = new int[size];
 
         System.arraycopy(positions, 0, this.positions, 0, size);
     }
 
-    public Position(Position position) {
+    public Vector(Vector position) {
         this.size = position.size;
         this.positions = new int[size];
 
@@ -71,7 +71,7 @@ public class Position {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Position position = (Position) o;
+        Vector position = (Vector) o;
         return size == position.size && Arrays.equals(positions, position.positions);
     }
 
@@ -80,7 +80,7 @@ public class Position {
         return Objects.hash(Arrays.hashCode(positions), size);
     }
 
-    public void add(Position other) {
+    public void add(Vector other) {
         if (this.size != other.size) {
             throw new IllegalArgumentException("Positions must have the same size to be added");
         }

@@ -57,9 +57,9 @@ public class Game {
         score += linesCleared * 100;
     }
 
-    public void translateCurrentPiece(Position translation) {
+    public void translateCurrentPiece(Vector translation) {
         if (gameOver) return;
-        var originalPos = new Position(piece.getPosition());
+        var originalPos = new Vector(piece.getPosition());
 
         piece.translate(translation);
 
@@ -106,7 +106,7 @@ public class Game {
     }
 
     public void resetGame() {
-        grid = Grid.create(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
+        grid = Grid.create(new Vector(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}), is3D);
         ai = new Ai(grid, is3D ? AIParameters.DEFAULT_3D : AIParameters.DEFAULT);
         piece = null;
         nextPiece = null;

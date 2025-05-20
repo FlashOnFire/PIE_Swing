@@ -2,14 +2,14 @@ package fr.polytech.pie.model.twoD;
 
 import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.PieceColor;
-import fr.polytech.pie.model.Position;
+import fr.polytech.pie.model.Vector;
 
 import java.util.function.Predicate;
 
 public class Piece2D extends Piece {
     private PieceColor[][] pieceColor;
 
-    public Piece2D(boolean[][] piece, Position position) {
+    public Piece2D(boolean[][] piece, Vector position) {
         super(position);
         this.pieceColor = new PieceColor[piece.length][piece[0].length];
         for (int i = 0; i < piece.length; i++) {

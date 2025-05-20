@@ -52,7 +52,7 @@ public class Model extends Observable {
         notifyObservers();
     }
 
-    public void translateCurrentPiece(Position translation) {
+    public void translateCurrentPiece(Vector translation) {
         game.translateCurrentPiece(translation);
 
         if (game.isGameOver()) {
@@ -126,9 +126,9 @@ public class Model extends Observable {
         future = executor.scheduleAtFixedRate(
                 () -> {
                     if (game.is3D()) {
-                        translateCurrentPiece(new Position(new int[]{0, -1, 0}));
+                        translateCurrentPiece(new Vector(new int[]{0, -1, 0}));
                     } else {
-                        translateCurrentPiece(new Position(new int[]{0, -1}));
+                        translateCurrentPiece(new Vector(new int[]{0, -1}));
                     }
                 }, 0, 200 / game.getDifficulty(), TimeUnit.MILLISECONDS
         );

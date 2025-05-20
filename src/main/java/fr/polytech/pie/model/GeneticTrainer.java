@@ -187,10 +187,10 @@ public class GeneticTrainer {
         Piece nextPiece;
         Piece currentPiece;
         if (is3D) {
-            grid = new Grid3D(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}));
+            grid = new Grid3D(new Vector(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT, Consts.GRID_DEPTH}));
             nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid.getDepth());
         } else {
-            grid = new Grid2D(new Position(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT}));
+            grid = new Grid2D(new Vector(new int[]{Consts.GRID_WIDTH, Consts.GRID_HEIGHT}));
             nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
         }
 

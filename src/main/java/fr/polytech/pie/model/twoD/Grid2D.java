@@ -3,7 +3,7 @@ package fr.polytech.pie.model.twoD;
 import fr.polytech.pie.model.Piece;
 import fr.polytech.pie.model.PieceColor;
 import fr.polytech.pie.model.Grid;
-import fr.polytech.pie.model.Position;
+import fr.polytech.pie.model.Vector;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ public class Grid2D extends Grid {
     private final int[] heightCache;
     private final int[] holesCache;
 
-    public Grid2D(Position size) {
+    public Grid2D(Vector size) {
         super(size);
         this.grid = new PieceColor[size.getY()][size.getX()];
         this.heightCache = new int[size.getX()];
@@ -26,14 +26,14 @@ public class Grid2D extends Grid {
     }
 
     @Override
-    public PieceColor getValue(Position position) {
+    public PieceColor getValue(Vector position) {
         if (isOutOfBounds(position)) {
             return PieceColor.Empty;
         }
         return grid[position.getY()][position.getX()];
     }
 
-    public void setValue(Position position, PieceColor value) {
+    public void setValue(Vector position, PieceColor value) {
         if (!isOutOfBounds(position)) {
             PieceColor oldValue = grid[position.getY()][position.getX()];
             grid[position.getY()][position.getX()] = value;
@@ -86,7 +86,7 @@ public class Grid2D extends Grid {
         for (int i = 0; i < piece.getWidth(); i++) {
             for (int j = 0; j < piece.getHeight(); j++) {
                 if (pieceColor[j][i] != PieceColor.Empty) {
-                    var pos = new Position(new int[]{i, j});
+                    var pos = new Vector(new int[]{i, j});
                     pos.add(piece.getPosition());
                     setValue(pos, piece.getColor());
                 }
@@ -99,7 +99,7 @@ public class Grid2D extends Grid {
         for (int i = 0; i < piece.getWidth(); i++) {
             for (int j = 0; j < piece.getHeight(); j++) {
                 if (((Piece2D) piece).getPiece2d()[j][i] != PieceColor.Empty) {
-                    var pos = new Position(new int[]{i, j});
+                    var pos = new Vector(new int[]{i, j});
                     pos.add(piece.getPosition());
                     setValue(pos, PieceColor.Empty);
                 }
@@ -117,7 +117,7 @@ public class Grid2D extends Grid {
         for (int i = 0; i < piece.getWidth(); i++) {
             for (int j = 0; j < piece.getHeight(); j++) {
                 if (pieceColor[j][i] != PieceColor.Empty) {
-                    var pos = new Position(new int[]{i, j});
+                    var pos = new Vector(new int[]{i, j});
                     pos.add(piece.getPosition());
 
                     if (isOutOfBounds(pos)) {
