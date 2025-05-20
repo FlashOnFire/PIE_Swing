@@ -9,10 +9,15 @@ import java.util.Set;
 
 public class Grid2D extends Grid {
     private final Piece[][] grid;
+    private final int[] heightCache;
+    private final int[] holesCache;
 
     public Grid2D(int width, int height) {
         super(width, height);
         this.grid = new Piece[height][width];
+        this.heightCache = new int[width];
+        this.holesCache = new int[width];
+
         for (int y = 0; y < height; y++) {
             java.util.Arrays.fill(grid[y], Piece.Empty);
         }
@@ -29,7 +34,44 @@ public class Grid2D extends Grid {
     @Override
     public void setValue(int x, int y, Piece value) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
+            Piece oldValue = grid[y][x];
             grid[y][x] = value;
+
+            if ((oldValue == Piece.Empty && value != Piece.Empty) ||
+                (oldValue != Piece.Empty && value == Piece.Empty)) {
+                updateCache(x);
+            }
+        }
+    }
+
+    private void updateCache(int x) {
+        int height = 0;
+        int holes = 0;
+        boolean foundBlock = false;
+        boolean inHole = false;
+
+        for (int y = this.height - 1; y >= 0; y--) {
+            if (grid[y][x] != Piece.Empty) {
+                if (!foundBlock) {
+                    height = y + 1;
+                }
+                foundBlock = true;
+                inHole = false;
+            } else if (foundBlock) {
+                if (!inHole) {
+                    holes++;
+                    inHole = true;
+                }
+            }
+        }
+
+        heightCache[x] = height;
+        holesCache[x] = holes;
+    }
+
+    private void recalculateAllCaches() {
+        for (int x = 0; x < width; x++) {
+            updateCache(x);
         }
     }
 
@@ -64,7 +106,6 @@ public class Grid2D extends Grid {
         }
     }
 
-
     @Override
     public boolean checkCollision(CurrentPiece currentPiece) {
         if (!(currentPiece instanceof CurrentPiece2D piece2D)) {
@@ -93,7 +134,11 @@ public class Grid2D extends Grid {
 
     @Override
     public int clearFullLines() {
-        return clearFullLines(false);
+        int linesCleared = clearFullLines(false);
+        if (linesCleared > 0) {
+            recalculateAllCaches();
+        }
+        return linesCleared;
     }
 
     @Override
@@ -102,23 +147,20 @@ public class Grid2D extends Grid {
         for (int y = 0; y < height; y++) {
             System.arraycopy(grid[y], 0, copy.grid[y], 0, width);
         }
+
+        System.arraycopy(heightCache, 0, copy.heightCache, 0, width);
+        System.arraycopy(holesCache, 0, copy.holesCache, 0, width);
+
         return copy;
     }
 
     @Override
     public int getHoles() {
-        int holes = 0;
+        int totalHoles = 0;
         for (int x = 0; x < width; x++) {
-            boolean foundBlock = false;
-            for (int y = height - 1; y >= 0; y--) {
-                if (grid[y][x] != Piece.Empty) {
-                    foundBlock = true;
-                } else if (foundBlock) {
-                    holes++;
-                }
-            }
+            totalHoles += holesCache[x];
         }
-        return holes;
+        return totalHoles;
     }
 
     @Override
@@ -137,13 +179,12 @@ public class Grid2D extends Grid {
             if (fullLine) {
                 linesCleared++;
                 if (!dry) {
-                    // Shift all lines above down
                     for (int i = y; i < height - 1; i++) {
                         System.arraycopy(grid[i + 1], 0, grid[i], 0, width);
                     }
-                    y--; // Check the same line again after shifting
+                    y--;
                     for (int x = 0; x < width; x++) {
-                        grid[height - 1][x] = Piece.Empty; // Clear the last line
+                        grid[height - 1][x] = Piece.Empty;
                     }
                 }
             }
@@ -153,15 +194,7 @@ public class Grid2D extends Grid {
     }
 
     public int getHeightOfColumn2D(int x) {
-        int height = 0;
-        for (int y = this.height - 1; y >= 0; y--) {
-            if (grid[y][x] != Piece.Empty) {
-                height = y + 1;
-                break;
-            }
-        }
-
-        return height;
+        return heightCache[x];
     }
 
     @Override
