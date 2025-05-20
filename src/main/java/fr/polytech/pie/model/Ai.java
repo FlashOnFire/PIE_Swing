@@ -22,7 +22,7 @@ public class Ai {
     public Ai(Grid grid, boolean is3D) {
         this.grid = grid;
         this.availableProcessors = Runtime.getRuntime().availableProcessors();
-        this.executorService = Executors.newFixedThreadPool(availableProcessors);
+        this.executorService = Executors.newWorkStealingPool(availableProcessors);
         this.is3D = is3D;
         if (is3D) {
             heightWeight = -0.6500491536113875;
@@ -156,15 +156,7 @@ public class Ai {
     }
 
     public void shutdown() {
-        executorService.shutdown();
-        try {
-            if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        executorService.shutdownNow();
     }
 
     private record PieceMoveScore(Piece piece, double score) {
