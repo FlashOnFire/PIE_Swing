@@ -198,13 +198,14 @@ public class Grid3D extends Grid {
     @Override
     public Grid copy() {
         Grid3D copy = new Grid3D(width, height, depth);
+
         for (int z = 0; z < depth; z++) {
             for (int y = 0; y < height; y++) {
                 System.arraycopy(grid[z][y], 0, copy.grid[z][y], 0, width);
             }
         }
 
-        // Copy the height cache too
+        // Copy the height cache
         for (int x = 0; x < width; x++) {
             System.arraycopy(heightCache[x], 0, copy.heightCache[x], 0, depth);
             System.arraycopy(holesCache[x], 0, copy.holesCache[x], 0, depth);

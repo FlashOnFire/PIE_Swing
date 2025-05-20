@@ -1,11 +1,15 @@
 package fr.polytech.pie.vc;
 
-import fr.polytech.pie.model.*;
+import fr.polytech.pie.model.CurrentPiece;
+import fr.polytech.pie.model.Grid;
+import fr.polytech.pie.model.Piece;
+import fr.polytech.pie.model.RotationAxis;
 import fr.polytech.pie.model.threeD.CurrentPiece3D;
 import fr.polytech.pie.model.threeD.Grid3D;
 import fr.polytech.pie.vc.render.Cube;
 import fr.polytech.pie.vc.render.OpenGLRenderer;
 import fr.polytech.pie.vc.render.cameras.CameraController;
+import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -58,12 +62,13 @@ public class Renderer3D implements Renderer {
 
     public Renderer3D(VueController vueController) {
         this.vueController = vueController;
-     }
+    }
 
     @Override
     public void initialize() {
         GLFWErrorCallback.createPrint(System.err).set();
-        // This is called from the main thread (since the call path is either from VueController constructor or loop() method)
+        // Safety: This is called from the main thread as the only function creating
+        // this object is the loop() function from VueController class
         if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
@@ -107,7 +112,6 @@ public class Renderer3D implements Renderer {
         );
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        // Get the thread stack and push a new frame
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
             IntBuffer pHeight = stack.mallocInt(1);
@@ -126,7 +130,7 @@ public class Renderer3D implements Renderer {
                         (videoMode.height() - pHeight.get(0)) / 2
                 );
             }
-        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+        } // the stack is popped automatically as MemoryStack implements AutoCloseable
 
         glfwMakeContextCurrent(window);
 
@@ -200,8 +204,16 @@ public class Renderer3D implements Renderer {
             height = pHeight.get();
             camController.setAspectRatio(((float) width) / ((float) height));
 
-            renderer.render(window, new Vector2i(width, height), camController.getCurrentProjectionMatrix(), camController.getCurrentViewMatrix(), score, isGameOver, elapsedTimeSinceGameOver);
-        } // the stack frame is popped automatically as MemoryStack implements AutoCloseable
+            renderer.render(
+                    window,
+                    new Vector2i(width, height),
+                    camController.getCurrentProjectionMatrix(),
+                    camController.getCurrentViewMatrix(),
+                    score,
+                    isGameOver,
+                    elapsedTimeSinceGameOver
+            );
+        } // the stack is popped automatically as MemoryStack implements AutoCloseable
 
         camController.handleKeyboardInput(deltaTime, keys, lastKeys);
         handleKeyboardInput(deltaTime, keys);
@@ -241,26 +253,16 @@ public class Renderer3D implements Renderer {
         if (!camController.isFreeCam()) {
             float horizontalAngle = camController.getDirectedCam().getHorizontalAngle();
 
-            float forwardX = (float) Math.sin(horizontalAngle);
-            float forwardZ = (float) Math.cos(horizontalAngle);
-            float rightX = (float) Math.sin(horizontalAngle + Math.PI / 2);
-            float rightZ = (float) Math.cos(horizontalAngle + Math.PI / 2);
+            Vector2f forward = new Vector2f(
+                    (float) Math.sin(horizontalAngle), // X
+                    (float) Math.cos(horizontalAngle)  // Z
+            ).normalize();
+            Vector2f right = new Vector2f(
+                    (float) Math.sin(horizontalAngle + Math.PI / 2), // X
+                    (float) Math.cos(horizontalAngle + Math.PI / 2)  // Z
+            ).normalize();
 
-            // Normalize direction vectors
-            float forwardLength = (float) Math.sqrt(forwardX * forwardX + forwardZ * forwardZ);
-            float rightLength = (float) Math.sqrt(rightX * rightX + rightZ * rightZ);
-
-            if (forwardLength > 0) {
-                forwardX /= forwardLength;
-                forwardZ /= forwardLength;
-            }
-
-            if (rightLength > 0) {
-                rightX /= rightLength;
-                rightZ /= rightLength;
-            }
-
-            RotationAxis forwardRotationAxis = forwardX > forwardZ ? RotationAxis.Z : RotationAxis.X;
+            RotationAxis forwardRotationAxis = forward.x > forward.y ? RotationAxis.Z : RotationAxis.X;
 
             if (keys[GLFW_KEY_LEFT_SHIFT]) {
                 if (keys[GLFW_KEY_W] && pieceForwardRotationTimeCounter > 0.1F) {
@@ -281,19 +283,19 @@ public class Renderer3D implements Renderer {
                 }
             } else {
                 if (keys[GLFW_KEY_W] && pieceForwardTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(-forwardX), 0, Math.round(-forwardZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(-forward.x), 0, Math.round(-forward.y));
                     pieceForwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_S] && pieceBackwardTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(forwardX), 0, Math.round(forwardZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(forward.x), 0, Math.round(forward.y));
                     pieceBackwardTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_A] && pieceLeftTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(-rightX), 0, Math.round(-rightZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(-right.x), 0, Math.round(-right.y));
                     pieceLeftTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_D] && pieceRightTimeCounter > 0.1F) {
-                    vueController.getModel().translateCurrentPiece3D(Math.round(rightX), 0, Math.round(rightZ));
+                    vueController.getModel().translateCurrentPiece3D(Math.round(right.x), 0, Math.round(right.y));
                     pieceRightTimeCounter = 0;
                 }
                 if (keys[GLFW_KEY_I] && pieceAiTimeCounter > (shiftModifier ? 0.01F : 0.1F)) {
@@ -320,7 +322,10 @@ public class Renderer3D implements Renderer {
                 for (int z = 0; z < grid3D.getDepth(); z++) {
                     Piece value = grid3D.getValue(x, y, z);
                     if (value != Piece.Empty) {
-                        Cube cube = new Cube(new Vector3f(x, y, z), isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector());
+                        Cube cube = new Cube(
+                                new Vector3f(x, y, z),
+                                isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector()
+                        );
                         cubes.add(cube);
                     }
                 }
@@ -339,10 +344,20 @@ public class Renderer3D implements Renderer {
                 for (int z = 0; z < positions.length; z++) {
                     Piece value = positions[z][y][x];
                     if (value != Piece.Empty) {
-                        cubes.add(new Cube(new Vector3f(x, y, z).add(piecePos), isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector()));
+                        cubes.add(new Cube(
+                                new Vector3f(x, y, z).add(piecePos),
+                                isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : value.getVector()
+                        ));
 
                         if (fallenPieceY != currentPiece3D.getY()) {
-                            cubes.add(new Cube(new Vector3f(x, y, z).add(fallenPiecePos), isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : new Vector3f(0.5F, 0.5F, 0.5F)));
+                            cubes.add(new Cube(
+                                    new Vector3f(x, y, z).add(fallenPiecePos),
+                                    isGameOver ? new Vector3f(1.0F, 0.0F, 0.F) : new Vector3f(
+                                            0.5F,
+                                            0.5F,
+                                            0.5F
+                                    )
+                            ));
                         }
                     }
                 }
@@ -353,7 +368,11 @@ public class Renderer3D implements Renderer {
             CurrentPiece3D nextPiece3D = (CurrentPiece3D) nextPiece;
             Piece[][][] nextPositions = nextPiece3D.getPiece3d();
 
-            Vector3f nextPos = new Vector3f(grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F, grid.getHeight() - nextPiece.getHeight() / 2.0F + 10.0F, grid3D.getDepth() / 2.0F - nextPiece3D.getDepth() / 2.0F);
+            Vector3f nextPos = new Vector3f(
+                    grid.getWidth() / 2.0F - nextPiece.getWidth() / 2.0F,
+                    grid.getHeight() - nextPiece.getHeight() / 2.0F + 10.0F,
+                    grid3D.getDepth() / 2.0F - nextPiece3D.getDepth() / 2.0F
+            );
             Vector3f nextPieceColor = new Vector3f(0.0F, 1.0F, 0.0F);
 
             for (int x = 0; x < nextPositions[0][0].length; x++) {
@@ -387,7 +406,6 @@ public class Renderer3D implements Renderer {
         glfwDestroyWindow(window);
         glfwWaitEventsTimeout(1000);
 
-        // Cleanup GLFW
         glfwTerminate();
         Objects.requireNonNull(glfwSetErrorCallback(null)).free();
     }

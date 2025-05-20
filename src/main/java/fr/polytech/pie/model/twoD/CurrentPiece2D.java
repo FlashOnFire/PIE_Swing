@@ -60,7 +60,6 @@ public class CurrentPiece2D extends CurrentPiece {
 
         // Check if the rotation causes a collision
         if (collisionChecker.test(this)) {
-            // Restore the original piece if there's a collision
             piece = original.getPiece2d();
         }
     }

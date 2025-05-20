@@ -38,7 +38,6 @@ public class RenderUtils {
     }
 
     private static float[] getBoxPositions(Vector3f size) {
-        // A cube has 8 vertices
         float[] positions = new float[8 * 3]; // 8 vertices, 3 coordinates each
 
         // Calculate the corner positions directly
@@ -106,42 +105,42 @@ public class RenderUtils {
     private static float[] getCubeNormals() {
         float[] normals = new float[8 * 3]; // 8 vertices, 3 coordinates each
 
-        // vertex 0 (bottom-left-front): average of -x, -y, -z normals
+        // vertex 0 (bottom-left-front)
         normals[0] = -1.0f;
         normals[1] = -1.0f;
         normals[2] = -1.0f;
 
-        // vertex 1 (bottom-right-front): average of +x, -y, -z normals
+        // vertex 1 (bottom-right-front)
         normals[3] = 1.0f;
         normals[4] = -1.0f;
         normals[5] = -1.0f;
 
-        // vertex 2 (top-left-front): average of -x, +y, -z normals
+        // vertex 2 (top-left-front)
         normals[6] = -1.0f;
         normals[7] = 1.0f;
         normals[8] = -1.0f;
 
-        // vertex 3 (top-right-front): average of +x, +y, -z normals
+        // vertex 3 (top-right-front)
         normals[9] = 1.0f;
         normals[10] = 1.0f;
         normals[11] = -1.0f;
 
-        // vertex 4 (bottom-left-back): average of -x, -y, +z normals
+        // vertex 4 (bottom-left-back)
         normals[12] = -1.0f;
         normals[13] = -1.0f;
         normals[14] = 1.0f;
 
-        // vertex 5 (bottom-right-back): average of +x, -y, +z normals
+        // vertex 5 (bottom-right-back)
         normals[15] = 1.0f;
         normals[16] = -1.0f;
         normals[17] = 1.0f;
 
-        // vertex 6 (top-left-back): average of -x, +y, +z normals
+        // vertex 6 (top-left-back)
         normals[18] = -1.0f;
         normals[19] = 1.0f;
         normals[20] = 1.0f;
 
-        // vertex 7 (top-right-back): average of +x, +y, +z normals
+        // vertex 7 (top-right-back)
         normals[21] = 1.0f;
         normals[22] = 1.0f;
         normals[23] = 1.0f;

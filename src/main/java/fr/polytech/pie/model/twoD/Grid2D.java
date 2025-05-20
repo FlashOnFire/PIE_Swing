@@ -202,6 +202,7 @@ public class Grid2D extends Grid {
         if (!(currentPiece instanceof CurrentPiece2D currentPiece2D)) {
             throw new IllegalArgumentException("Ai2D can only handle CurrentPiece2D instances");
         }
+
         Set<CurrentPiece> possibilities = new HashSet<>();
 
         // generate rotations
@@ -225,7 +226,7 @@ public class Grid2D extends Grid {
         }
         possibilities = newTranslations;
 
-        // drops the pieces
+        // drop the pieces
         for (var piece : possibilities) {
             do {
                 piece.setY(piece.getY() - 1);

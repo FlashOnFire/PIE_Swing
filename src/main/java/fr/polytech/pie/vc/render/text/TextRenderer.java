@@ -45,7 +45,8 @@ public class TextRenderer {
 
         VertexBuffer textBuffer = new VertexBuffer(
                 4 * 6 * 4, // sizeof(float) * 4 floats per vertex * 6 vertices (see TextShader)
-                GL30.GL_DYNAMIC_DRAW);
+                GL30.GL_DYNAMIC_DRAW
+        );
         textBuffer.addVertexAttribPointer(0, 4, GL11.GL_FLOAT, 4, 0);
 
         textVAO.bind();
@@ -66,7 +67,6 @@ public class TextRenderer {
             long faceAddress = pFace.get(0);
             FT_Face face = FT_Face.create(faceAddress);
 
-            // Set font size
             FT_Set_Pixel_Sizes(face, 0, fontSize);
 
             List<TextChar> glyphList = new ArrayList<>();
@@ -88,7 +88,8 @@ public class TextRenderer {
                 GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
                 GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
 
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D,
+                GL11.glTexImage2D(
+                        GL11.GL_TEXTURE_2D,
                         0,
                         GL11.GL_RED,
                         glyphSlot.bitmap().width(),
