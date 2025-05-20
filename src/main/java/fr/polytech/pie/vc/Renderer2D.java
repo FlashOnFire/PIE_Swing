@@ -20,12 +20,10 @@ public class Renderer2D implements Renderer {
 
     final JFrame frame = new JFrame("Tetris");
 
-    private static final Color EMPTY_CELL_COLOR = Color.WHITE;
-
-    private final JPanel[][] gridPanels;
+    private final TetrisCubePanel[][] gridPanels;
     private final JLabel scoreLabel;
     private final JPanel gridPanel;
-    private final JPanel[][] nextPiecePanels;
+    private final TetrisCubePanel[][] nextPiecePanels;
     private final JPanel nextPiecePanel;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -73,9 +71,9 @@ public class Renderer2D implements Renderer {
         this.vueController = vueController;
         setupFrame();
         this.scoreLabel = createScoreLabel();
-        this.gridPanels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
+        this.gridPanels = new TetrisCubePanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
         this.gridPanel = new JPanel();
-        this.nextPiecePanels = new JPanel[Consts.PIECE_SIZE][Consts.PIECE_SIZE];
+        this.nextPiecePanels = new TetrisCubePanel[Consts.PIECE_SIZE][Consts.PIECE_SIZE];
         this.nextPiecePanel = new JPanel();
         JPanel sidePanel = createSidePanel();
 
@@ -143,14 +141,13 @@ public class Renderer2D implements Renderer {
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
                         BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
-                )));
+                )
+        ));
     }
 
     private void drawGrid(int y, int x, JPanel[][] gridPanels, JPanel gridPanel) {
-        JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
-        panel.setPreferredSize(new Dimension(25, 25));
+        JPanel panel = new TetrisCubePanel();
         panel.setLayout(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
         gridPanels[y][x] = panel;
         gridPanel.add(panel);
     }
@@ -168,7 +165,8 @@ public class Renderer2D implements Renderer {
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
                         BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
-                )));
+                )
+        ));
     }
 
     private void setupKeyboard() {
@@ -191,21 +189,23 @@ public class Renderer2D implements Renderer {
     }
 
     private void setupScheduler() {
-        scheduler.scheduleAtFixedRate(() -> {
-            long currentTime = System.currentTimeMillis();
-            for (KeyAction action : KeyAction.values()) {
-                int i = action.index;
-                if (keys[i]) {
-                    boolean shouldProcess = !keyProcessed[i] ||
-                            (action.repeatable && currentTime - keyLastProcessedTime[i] > KEY_REPEAT_DELAY * action.delayFactor);
-                    if (shouldProcess) {
-                        performAction(action);
-                        keyLastProcessedTime[i] = currentTime;
-                        keyProcessed[i] = true;
+        scheduler.scheduleAtFixedRate(
+                () -> {
+                    long currentTime = System.currentTimeMillis();
+                    for (KeyAction action : KeyAction.values()) {
+                        int i = action.index;
+                        if (keys[i]) {
+                            boolean shouldProcess = !keyProcessed[i] ||
+                                    (action.repeatable && currentTime - keyLastProcessedTime[i] > KEY_REPEAT_DELAY * action.delayFactor);
+                            if (shouldProcess) {
+                                performAction(action);
+                                keyLastProcessedTime[i] = currentTime;
+                                keyProcessed[i] = true;
+                            }
+                        }
                     }
-                }
-            }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+                }, 0, 50, TimeUnit.MILLISECONDS
+        );
     }
 
     private void setupGameOverPanel() {
@@ -334,10 +334,10 @@ public class Renderer2D implements Renderer {
         try {
             SwingUtilities.invokeAndWait(() -> {
                 clearGrid();
-                clearNextPiecePanels();
-                drawCurrentPiece((CurrentPiece2D) currentPiece);
-                drawNextPiece((CurrentPiece2D) nextPiece);
                 drawFrozenPieces(grid);
+                drawCurrentPiece((CurrentPiece2D) currentPiece);
+                clearNextPiecePanels();
+                drawNextPiece((CurrentPiece2D) nextPiece);
                 scoreLabel.setText("Score: " + score);
                 gridPanel.repaint();
             });
@@ -358,7 +358,7 @@ public class Renderer2D implements Renderer {
     private void clearGrid() {
         for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
             for (int x = 0; x < Consts.GRID_WIDTH; x++) {
-                gridPanels[y][x].setBackground(EMPTY_CELL_COLOR);
+                gridPanels[y][x].setPiece(Piece.Empty);
             }
         }
     }
@@ -366,7 +366,7 @@ public class Renderer2D implements Renderer {
     private void clearNextPiecePanels() {
         for (int y = 0; y < Consts.PIECE_SIZE; y++) {
             for (int x = 0; x < Consts.PIECE_SIZE; x++) {
-                nextPiecePanels[y][x].setBackground(EMPTY_CELL_COLOR);
+                nextPiecePanels[y][x].setPiece(Piece.Empty);
             }
         }
     }
@@ -375,18 +375,16 @@ public class Renderer2D implements Renderer {
         return x >= 0 && x < Consts.GRID_WIDTH && y >= 0 && y < Consts.GRID_HEIGHT;
     }
 
-    private void drawGridCell(int x, int y, Color color) {
+    private void drawGridCell(int x, int y, Piece piece) {
         if (isWithinBounds(x, y)) {
-            gridPanels[gridPanels.length - y - 1][x].setBackground(color);
+            gridPanels[gridPanels.length - y - 1][x].setPiece(piece);
         }
     }
 
     private void drawFrozenPieces(Grid grid) {
         for (int i = 0; i < grid.getWidth(); i++) {
             for (int j = 0; j < grid.getHeight(); j++) {
-                if (grid.getValue(i, j) != Piece.Empty) {
-                    drawGridCell(i, j, grid.getValue(i, j).getColor());
-                }
+                drawGridCell(i, j, grid.getValue(i, j));
             }
         }
     }
@@ -395,9 +393,7 @@ public class Renderer2D implements Renderer {
         Piece[][] piece = currentPiece.getPiece2d();
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[j][i] != Piece.Empty) {
-                    drawGridCell(currentPiece.getX() + i, currentPiece.getY() + j, piece[j][i].getColor());
-                }
+                drawGridCell(currentPiece.getX() + i, currentPiece.getY() + j, piece[j][i]);
             }
         }
 
@@ -405,9 +401,7 @@ public class Renderer2D implements Renderer {
 
         for (int i = 0; i < currentPiece.getWidth(); i++) {
             for (int j = 0; j < currentPiece.getHeight(); j++) {
-                if (piece[j][i] != Piece.Empty) {
-                    drawGridCell(currentPiece.getX() + i, droppedY + j, Color.gray);
-                }
+                drawGridCell(currentPiece.getX() + i, droppedY + j, Piece.Preview);
             }
         }
     }
@@ -421,7 +415,7 @@ public class Renderer2D implements Renderer {
         for (int i = 0; i < nextPiece.getWidth(); i++) {
             for (int j = 0; j < nextPiece.getHeight(); j++) {
                 if (piece[j][i] != Piece.Empty) {
-                    nextPiecePanels[offsetY + j][offsetX + i].setBackground(piece[j][i].getColor());
+                    nextPiecePanels[offsetY + j][offsetX + i].setPiece(piece[j][i]);
                 }
             }
         }

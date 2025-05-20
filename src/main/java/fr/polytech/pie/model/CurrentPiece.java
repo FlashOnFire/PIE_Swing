@@ -19,8 +19,7 @@ public abstract class CurrentPiece implements Cloneable {
     public CurrentPiece(int x, int y) {
         this.x = x;
         this.y = y;
-        this.color = Piece.values()[(int) (Math.random() * Piece.values().length)];
-        color = color == Piece.Empty ? Piece.Blue : color;
+        this.color = Piece.values()[(int) (Math.random() * (Piece.values().length -2) + 1)]; // Skip empty and preview pieces
     }
 
     public int getX() {

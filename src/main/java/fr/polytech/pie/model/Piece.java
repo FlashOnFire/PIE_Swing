@@ -11,7 +11,8 @@ public enum Piece {
     Blue,
     Cyan,
     Magenta,
-    Orange;
+    Orange,
+    Preview;
 
     public Color getColor() {
         return switch (this) {
@@ -22,6 +23,7 @@ public enum Piece {
             case Cyan -> Color.CYAN;
             case Magenta -> Color.MAGENTA;
             case Orange -> Color.ORANGE;
+            case Preview -> Color.LIGHT_GRAY;
         };
     }
 
