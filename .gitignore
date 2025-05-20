@@ -45,4 +45,4 @@ bin/
 ### Nix ###
 .direnv
 
-highscore.txt
+high-score.txt
