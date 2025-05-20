@@ -56,7 +56,6 @@ public class Piece2D extends Piece {
 
         // Check if the rotation causes a collision
         if (collisionChecker.test(this)) {
-            // Restore the original piece if there's a collision
             pieceColor = original.getPiece2d();
         }
     }
