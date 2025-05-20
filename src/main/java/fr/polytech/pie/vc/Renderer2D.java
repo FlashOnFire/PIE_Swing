@@ -67,29 +67,45 @@ public class Renderer2D implements Renderer {
 
     public Renderer2D(VueController vueController) {
         this.vueController = vueController;
+        setupFrame();
+        this.scoreLabel = createScoreLabel();
+        this.gridPanels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
+        this.gridPanel = new JPanel();
+        this.nextPiecePanels = new JPanel[Consts.PIECE_SIZE][Consts.PIECE_SIZE];
+        this.nextPiecePanel = new JPanel();
+        JPanel sidePanel = createSidePanel();
+
+        frame.add(createScorePanel(), BorderLayout.NORTH);
+        frame.add(gridPanel, BorderLayout.CENTER);
+        frame.add(sidePanel, BorderLayout.EAST);
+        frame.setVisible(true);
+    }
+
+    private void setupFrame() {
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setSize(600, 800);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setLayout(new BorderLayout());
         frame.setBackground(Color.LIGHT_GRAY);
-        this.scoreLabel = new JLabel("Score: 0");
-        this.scoreLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        this.scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        this.gridPanels = new JPanel[Consts.GRID_HEIGHT][Consts.GRID_WIDTH];
-        this.gridPanel = new JPanel();
-        this.gridPanel.setBackground(Color.black);
-        this.nextPiecePanels = new JPanel[Consts.PIECE_SIZE][Consts.PIECE_SIZE];
-        this.nextPiecePanel = new JPanel();
-        this.gridPanel.setBackground(Color.black);
-        JPanel sidePanel = new JPanel();
+    }
 
+    private JLabel createScoreLabel() {
+        JLabel label = new JLabel("Score: 0");
+        label.setFont(new Font("Arial", Font.BOLD, 20));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        return label;
+    }
+
+    private JPanel createScorePanel() {
         JPanel scorePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         scorePanel.add(scoreLabel);
         scorePanel.setBackground(Color.LIGHT_GRAY);
-        frame.add(scorePanel, BorderLayout.NORTH);
-        frame.add(gridPanel, BorderLayout.CENTER);
-        sidePanel.setLayout(new BorderLayout());
+        return scorePanel;
+    }
+
+    private JPanel createSidePanel() {
+        JPanel sidePanel = new JPanel(new BorderLayout());
         sidePanel.add(new JLabel("Next Piece", SwingConstants.CENTER), BorderLayout.NORTH);
 
         JPanel centeringPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -98,54 +114,66 @@ public class Renderer2D implements Renderer {
 
         sidePanel.add(centeringPanel, BorderLayout.CENTER);
         sidePanel.setBackground(Color.LIGHT_GRAY);
-        frame.add(sidePanel, BorderLayout.EAST);
-        frame.setVisible(true);
+        return sidePanel;
     }
 
     @Override
     public void initialize() {
-        gridPanel.setLayout(new GridLayout(Consts.GRID_HEIGHT, Consts.GRID_WIDTH));
+        initializeGridPanel();
+        initializeNextPiecePanel();
+        setupKeyboard();
+        setupScheduler();
+        setupGameOverPanel();
+    }
 
+    private void initializeGridPanel() {
+        gridPanel.setLayout(new GridLayout(Consts.GRID_HEIGHT, Consts.GRID_WIDTH));
         for (int y = 0; y < Consts.GRID_HEIGHT; y++) {
             for (int x = 0; x < Consts.GRID_WIDTH; x++) {
                 JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
                 panel.setPreferredSize(new Dimension(25, 25));
                 panel.setLayout(new BorderLayout());
                 panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
                 gridPanels[y][x] = panel;
                 gridPanel.add(panel);
             }
         }
-
         gridPanel.setPreferredSize(new Dimension(400, 800));
-        gridPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 3), BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 8), BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3))));
+        gridPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 3),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
+                        BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
+                )));
+    }
 
+    private void initializeNextPiecePanel() {
         nextPiecePanel.setLayout(new GridLayout(Consts.PIECE_SIZE, Consts.PIECE_SIZE));
-
         for (int y = 0; y < Consts.PIECE_SIZE; y++) {
             for (int x = 0; x < Consts.PIECE_SIZE; x++) {
                 JPanel panel = new TetrisCubePanel(EMPTY_CELL_COLOR);
                 panel.setPreferredSize(new Dimension(25, 25));
                 panel.setLayout(new BorderLayout());
                 panel.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
                 nextPiecePanels[y][x] = panel;
                 nextPiecePanel.add(panel);
             }
         }
-
         nextPiecePanel.setPreferredSize(new Dimension(200, 200));
-        nextPiecePanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK, 3), BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 8), BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3))));
+        nextPiecePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.BLACK, 3),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.DARK_GRAY, 8),
+                        BorderFactory.createLineBorder(Color.LIGHT_GRAY, 3)
+                )));
+    }
 
-
+    private void setupKeyboard() {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
             if (e.getID() != KeyEvent.KEY_PRESSED && e.getID() != KeyEvent.KEY_RELEASED) {
                 return false;
             }
-
             boolean isKeyPressed = e.getID() == KeyEvent.KEY_PRESSED;
-
             for (KeyAction action : KeyAction.values()) {
                 if (e.getKeyCode() == action.keyCode) {
                     keys[action.index] = isKeyPressed;
@@ -155,19 +183,18 @@ public class Renderer2D implements Renderer {
                     break;
                 }
             }
-
             return false;
         });
+    }
 
+    private void setupScheduler() {
         scheduler.scheduleAtFixedRate(() -> {
             long currentTime = System.currentTimeMillis();
-
             for (KeyAction action : KeyAction.values()) {
                 int i = action.index;
-
                 if (keys[i]) {
-                    boolean shouldProcess = !keyProcessed[i] || (action.repeatable && currentTime - keyLastProcessedTime[i] > KEY_REPEAT_DELAY * action.delayFactor);
-
+                    boolean shouldProcess = !keyProcessed[i] ||
+                            (action.repeatable && currentTime - keyLastProcessedTime[i] > KEY_REPEAT_DELAY * action.delayFactor);
                     if (shouldProcess) {
                         performAction(action);
                         keyLastProcessedTime[i] = currentTime;
@@ -176,7 +203,9 @@ public class Renderer2D implements Renderer {
                 }
             }
         }, 0, 50, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
 
+    private void setupGameOverPanel() {
         gameOverPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -185,7 +214,6 @@ public class Renderer2D implements Renderer {
                 g.fillRect(0, 0, getWidth(), getHeight());
             }
         };
-
         gameOverPanel.setOpaque(false);
         gameOverPanel.setLayout(new BorderLayout());
 

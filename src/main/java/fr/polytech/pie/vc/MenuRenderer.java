@@ -2,7 +2,6 @@ package fr.polytech.pie.vc;
 
 import fr.polytech.pie.model.CurrentPiece;
 import fr.polytech.pie.model.Grid;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,52 +32,67 @@ public class MenuRenderer implements Renderer {
     public void initialize() {
         frame.setLayout(new BorderLayout());
 
+        JLabel titleLabel = createTitleLabel();
+        JPanel buttonPanel = createButtonPanel();
+        JPanel levelPanel = createLevelPanel();
+        JPanel gameControlsPanel = createGameControlsPanel(buttonPanel, levelPanel);
+        JPanel centerPanel = createCenterPanel(gameControlsPanel);
+        JPanel menuPanel = new JPanel(new BorderLayout());
+        menuPanel.add(titleLabel, BorderLayout.NORTH);
+        menuPanel.add(centerPanel, BorderLayout.CENTER);
+        menuPanel.add(createBottomPanel(), BorderLayout.SOUTH);
+
+        frame.add(menuPanel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private JLabel createTitleLabel() {
         JLabel titleLabel = new JLabel("TETRIS", JLabel.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 48));
         titleLabel.setForeground(Color.BLUE);
+        return titleLabel;
+    }
 
-        JPanel buttonPanel = getJPanel();
-
+    private JPanel createLevelPanel() {
         JPanel levelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel levelLabel = new JLabel("Difficulté : ");
         levelLabel.setFont(new Font("Arial", Font.BOLD, 14));
 
         String[] levels = {"Facile", "Moyen", "Difficile"};
         levelSelector = new JComboBox<>(levels);
-        levelSelector.setSelectedIndex(vueController.getDifficulty()-1);
-        levelSelector.addActionListener(_ -> vueController.setDifficulty(levelSelector.getSelectedIndex()+1));
+        levelSelector.setSelectedIndex(vueController.getDifficulty() - 1);
+        levelSelector.addActionListener(_ -> vueController.setDifficulty(levelSelector.getSelectedIndex() + 1));
 
         levelPanel.add(levelLabel);
         levelPanel.add(levelSelector);
+        return levelPanel;
+    }
 
+    private JPanel createGameControlsPanel(JPanel buttonPanel, JPanel levelPanel) {
         JPanel gameControlsPanel = new JPanel(new BorderLayout());
         gameControlsPanel.add(buttonPanel, BorderLayout.CENTER);
         gameControlsPanel.add(levelPanel, BorderLayout.SOUTH);
+        return gameControlsPanel;
+    }
 
+    private JPanel createCenterPanel(JPanel gameControlsPanel) {
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(Box.createVerticalStrut(100), BorderLayout.NORTH);
         centerPanel.add(gameControlsPanel, BorderLayout.CENTER);
         centerPanel.add(Box.createVerticalStrut(100), BorderLayout.SOUTH);
-
-        JPanel menuPanel = new JPanel(new BorderLayout());
-        menuPanel.add(titleLabel, BorderLayout.NORTH);
-        menuPanel.add(centerPanel, BorderLayout.CENTER);
-
-        JPanel bottomPanel = getPanel();
-
-        menuPanel.add(bottomPanel, BorderLayout.SOUTH);
-        frame.add(menuPanel, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
+        return centerPanel;
     }
 
-    @NotNull
-    private JPanel getPanel() {
+    private JPanel createBottomPanel() {
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        JTextArea controlsText = getControlsTextArea();
-        bottomPanel.add(controlsText, BorderLayout.CENTER);
+        bottomPanel.add(createControlsTextArea(), BorderLayout.CENTER);
+        bottomPanel.add(createHighscoreTextArea(), BorderLayout.SOUTH);
+        return bottomPanel;
+    }
 
-        var highscoreText = new JTextArea();
+    private JTextArea createHighscoreTextArea() {
+        JTextArea highscoreText = new JTextArea();
         highscoreText.setEditable(false);
         highscoreText.setFont(new Font("Arial", Font.PLAIN, 12));
         highscoreText.setText(
@@ -86,13 +100,10 @@ public class MenuRenderer implements Renderer {
                     Highscore 2D: %d
                     Highscore 3D: %d""".formatted(highscore2D, highscore3D)
         );
-
-        bottomPanel.add(highscoreText, BorderLayout.SOUTH);
-        return bottomPanel;
+        return highscoreText;
     }
 
-    @NotNull
-    private static JTextArea getControlsTextArea() {
+    private JTextArea createControlsTextArea() {
         JTextArea controlsText = new JTextArea();
         controlsText.setEditable(false);
         controlsText.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -108,10 +119,8 @@ public class MenuRenderer implements Renderer {
         return controlsText;
     }
 
-    @NotNull
-    private JPanel getJPanel() {
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(2, 1, 10, 20));
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 20));
 
         JButton play2DButton = new JButton("Play 2D");
         play2DButton.setFont(new Font("Arial", Font.BOLD, 24));
