@@ -347,7 +347,6 @@ public class Renderer2D implements Renderer {
         if (frame.isDisplayable()) {
             frame.dispose();
         }
-        resetGameOver();
     }
 
     private void clearGrid() {
