@@ -30,9 +30,9 @@ public class Renderer2D implements Renderer {
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private final boolean[] keys = new boolean[7];
-    private final boolean[] keyProcessed = new boolean[7];
-    private final long[] keyLastProcessedTime = new long[7];
+    private final boolean[] keys = new boolean[8];
+    private final boolean[] keyProcessed = new boolean[8];
+    private final long[] keyLastProcessedTime = new long[8];
     private static final long KEY_REPEAT_DELAY = 150;
 
     private boolean isGameOver = false;
@@ -43,13 +43,14 @@ public class Renderer2D implements Renderer {
     private boolean escape = false;
 
     private enum KeyAction {
-        MOVE_DOWN(0, KeyEvent.VK_Z, true),
-        DROP(1, KeyEvent.VK_SPACE, false),
-        MOVE_LEFT(2, KeyEvent.VK_Q, true),
-        MOVE_RIGHT(3, KeyEvent.VK_D, true),
-        ROTATE(4, KeyEvent.VK_A, true, 2.0),
-        RUN_AI(5, KeyEvent.VK_I, true),
-        EXIT(6, KeyEvent.VK_ESCAPE, false);
+        MOVE_UP(0, KeyEvent.VK_Z, true),
+        MOVE_DOWN(1, KeyEvent.VK_S, true),
+        DROP(2, KeyEvent.VK_SPACE, false),
+        MOVE_LEFT(3, KeyEvent.VK_Q, true),
+        MOVE_RIGHT(4, KeyEvent.VK_D, true),
+        ROTATE(5, KeyEvent.VK_A, true, 2.0),
+        RUN_AI(6, KeyEvent.VK_I, true),
+        EXIT(7, KeyEvent.VK_ESCAPE, false);
 
         final int index;
         final int keyCode;
@@ -243,7 +244,8 @@ public class Renderer2D implements Renderer {
 
     private void performAction(KeyAction action) {
         switch (action) {
-            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece2D(0, 1);
+            case MOVE_UP -> vueController.getModel().translateCurrentPiece2D(0, 1);
+            case MOVE_DOWN -> vueController.getModel().translateCurrentPiece2D(0, -1);
             case DROP -> vueController.getModel().dropCurrentPiece();
             case MOVE_LEFT -> vueController.getModel().translateCurrentPiece2D(-1, 0);
             case MOVE_RIGHT -> vueController.getModel().translateCurrentPiece2D(1, 0);
