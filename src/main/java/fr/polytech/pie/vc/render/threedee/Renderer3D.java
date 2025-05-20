@@ -1,11 +1,12 @@
-package fr.polytech.pie.vc;
+package fr.polytech.pie.vc.render.threedee;
 
 import fr.polytech.pie.model.*;
 import fr.polytech.pie.model.threeD.Piece3D;
 import fr.polytech.pie.model.threeD.Grid3D;
-import fr.polytech.pie.vc.render.Cube;
-import fr.polytech.pie.vc.render.OpenGLRenderer;
-import fr.polytech.pie.vc.render.cameras.CameraController;
+import fr.polytech.pie.vc.LoopStatus;
+import fr.polytech.pie.vc.Renderer;
+import fr.polytech.pie.vc.VueController;
+import fr.polytech.pie.vc.render.threedee.cameras.CameraController;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;

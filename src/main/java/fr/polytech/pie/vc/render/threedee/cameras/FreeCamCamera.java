@@ -1,4 +1,4 @@
-package fr.polytech.pie.vc.render.cameras;
+package fr.polytech.pie.vc.render.threedee.cameras;
 
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;

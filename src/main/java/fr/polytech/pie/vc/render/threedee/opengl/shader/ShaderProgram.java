@@ -1,4 +1,4 @@
-package fr.polytech.pie.vc.render.shader;
+package fr.polytech.pie.vc.render.threedee.opengl.shader;
 
 
 import org.joml.Matrix4f;
@@ -88,6 +88,7 @@ public abstract class ShaderProgram {
         GL30.glUniform1f(location, value);
     }
 
+    @SuppressWarnings("unused")
     public void loadInt(int location, int value) {
         GL30.glUniform1i(location, value);
     }

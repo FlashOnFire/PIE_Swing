@@ -1,4 +1,4 @@
-package fr.polytech.pie.vc.render.shader;
+package fr.polytech.pie.vc.render.threedee.opengl.shader;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;

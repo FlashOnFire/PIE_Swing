@@ -1,8 +1,11 @@
-package fr.polytech.pie.vc;
+package fr.polytech.pie.vc.render.twodee;
 
 import fr.polytech.pie.Consts;
 import fr.polytech.pie.model.*;
 import fr.polytech.pie.model.twoD.*;
+import fr.polytech.pie.vc.LoopStatus;
+import fr.polytech.pie.vc.Renderer;
+import fr.polytech.pie.vc.VueController;
 
 import javax.swing.*;
 import java.awt.*;

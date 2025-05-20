@@ -1,4 +1,4 @@
-package fr.polytech.pie.vc;
+package fr.polytech.pie.vc.render.twodee;
 
 import fr.polytech.pie.model.PieceColor;
 

@@ -1,4 +1,4 @@
-package fr.polytech.pie.vc.render.text;
+package fr.polytech.pie.vc.render.threedee.text;
 
 import org.joml.Vector2i;
 import org.lwjgl.opengl.GL11;

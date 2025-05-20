@@ -1,9 +1,10 @@
-package fr.polytech.pie.vc.render;
+package fr.polytech.pie.vc.render.threedee;
 
 import fr.polytech.pie.Consts;
-import fr.polytech.pie.vc.render.shader.CubeShader;
-import fr.polytech.pie.vc.render.shader.SimpleShader;
-import fr.polytech.pie.vc.render.text.TextRenderer;
+import fr.polytech.pie.vc.render.threedee.opengl.VertexArray;
+import fr.polytech.pie.vc.render.threedee.opengl.shader.CubeShader;
+import fr.polytech.pie.vc.render.threedee.opengl.shader.SimpleShader;
+import fr.polytech.pie.vc.render.threedee.text.TextRenderer;
 import org.joml.Matrix4f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;

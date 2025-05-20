@@ -1,5 +1,8 @@
-package fr.polytech.pie.vc.render;
+package fr.polytech.pie.vc.render.threedee;
 
+import fr.polytech.pie.vc.render.threedee.opengl.ElementBuffer;
+import fr.polytech.pie.vc.render.threedee.opengl.VertexArray;
+import fr.polytech.pie.vc.render.threedee.opengl.VertexBuffer;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL30;
 

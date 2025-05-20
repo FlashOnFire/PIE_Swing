@@ -1,4 +1,4 @@
-package fr.polytech.pie.vc.render;
+package fr.polytech.pie.vc.render.threedee.opengl;
 
 import org.lwjgl.opengl.GL30;
 

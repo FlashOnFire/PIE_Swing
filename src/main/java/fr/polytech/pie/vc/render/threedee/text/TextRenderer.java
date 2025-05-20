@@ -1,8 +1,8 @@
-package fr.polytech.pie.vc.render.text;
+package fr.polytech.pie.vc.render.threedee.text;
 
-import fr.polytech.pie.vc.render.VertexArray;
-import fr.polytech.pie.vc.render.VertexBuffer;
-import fr.polytech.pie.vc.render.shader.TextShader;
+import fr.polytech.pie.vc.render.threedee.opengl.VertexArray;
+import fr.polytech.pie.vc.render.threedee.opengl.VertexBuffer;
+import fr.polytech.pie.vc.render.threedee.opengl.shader.TextShader;
 import org.joml.Matrix4f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;

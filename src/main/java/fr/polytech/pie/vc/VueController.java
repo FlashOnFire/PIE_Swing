@@ -3,6 +3,8 @@ package fr.polytech.pie.vc;
 import fr.polytech.pie.Main;
 import fr.polytech.pie.model.Game;
 import fr.polytech.pie.model.Model;
+import fr.polytech.pie.vc.render.threedee.Renderer3D;
+import fr.polytech.pie.vc.render.twodee.Renderer2D;
 
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
