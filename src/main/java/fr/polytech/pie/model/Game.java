@@ -59,7 +59,7 @@ public class Game {
 
     public void translateCurrentPiece(Position translation) {
         if (gameOver) return;
-        var originalPos = piece.getPosition();
+        var originalPos = new Position(piece.getPosition());
 
         piece.translate(translation);
 
@@ -85,7 +85,6 @@ public class Game {
             piece.setPosition(originalPos);
 
             if (translation.getY() < 0) {
-                piece.getPosition().setY(0);
                 freeze();
             }
         }
