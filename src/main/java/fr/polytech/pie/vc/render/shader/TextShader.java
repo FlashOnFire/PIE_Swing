@@ -36,7 +36,6 @@ public class TextShader extends ShaderProgram {
     private int location_projection;
     private int location_textColor;
 
-    @Override
     public void load() {
         super.loadProgram(vertexShader, fragmentShader);
     }

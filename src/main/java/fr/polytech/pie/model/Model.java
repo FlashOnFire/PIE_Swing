@@ -18,15 +18,15 @@ public class Model extends Observable {
     private boolean is3D;
     private ScheduledExecutorService executor;
 
-    private int highscore2D = 0;
-    private int highscore3D = 0;
+    private int highScore2D = 0;
+    private int highScore3D = 0;
 
     /**
      * Constructor for the model with 2D mode as the default
      */
     public Model() {
         this(false);
-        loadHighscore();
+        loadHighScore();
     }
 
     /**
@@ -113,8 +113,8 @@ public class Model extends Observable {
     public void stopGame() {
         stopScheduler();
         System.out.println("Game stopped");
-        if (game.getScore() > (is3D ? highscore3D : highscore2D)) {
-            setHighscore(game.getScore());
+        if (game.getScore() > (is3D ? highScore3D : highScore2D)) {
+            setHighScore(game.getScore());
         }
         game.resetGame();
     }
@@ -165,50 +165,46 @@ public class Model extends Observable {
         return game.isGameOver();
     }
 
-    private void loadHighscore() {
+    private void loadHighScore() {
         try {
-            Path path = Paths.get("highscore.txt");
+            Path path = Paths.get("high-score.txt");
             if (Files.exists(path)) {
                 String content = Files.readString(path).trim();
                 String[] scores = content.split(",");
                 if (scores.length == 2) {
-                    this.highscore2D = Integer.parseInt(scores[0]);
-                    this.highscore3D = Integer.parseInt(scores[1]);
+                    this.highScore2D = Integer.parseInt(scores[0]);
+                    this.highScore3D = Integer.parseInt(scores[1]);
                 } else {
-                    saveHighscore();
+                    saveHighScore();
                 }
             } else {
-                saveHighscore();
+                saveHighScore();
             }
         } catch (Exception e) {
-            System.err.println("Failed to load highscore: " + e.getMessage());
+            System.err.println("Failed to load high-score: " + e.getMessage());
         }
     }
 
-    public void saveHighscore() {
+    public void saveHighScore() {
         try {
-            Path path = Paths.get("highscore.txt");
-            String content = highscore2D + "," + highscore3D;
+            Path path = Paths.get("high-score.txt");
+            String content = highScore2D + "," + highScore3D;
             Files.writeString(path, content);
         } catch (Exception e) {
-            System.err.println("Failed to save highscore: " + e.getMessage());
+            System.err.println("Failed to save high-score: " + e.getMessage());
         }
     }
 
-    public int getHighscore() {
-        return is3D ? highscore3D : highscore2D;
+    public int getHighScore(boolean is3D) {
+        return is3D ? highScore3D : highScore2D;
     }
 
-    public int getHighscore(boolean is3D) {
-        return is3D ? highscore3D : highscore2D;
-    }
-
-    public void setHighscore(int score) {
+    public void setHighScore(int score) {
         if (is3D) {
-            this.highscore3D = score;
+            this.highScore3D = score;
         } else {
-            this.highscore2D = score;
+            this.highScore2D = score;
         }
-        saveHighscore();
+        saveHighScore();
     }
 }

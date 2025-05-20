@@ -11,14 +11,14 @@ public class MenuRenderer implements Renderer {
     private final JFrame frame = new JFrame();
 
     private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
-    private final int highscore2D;
-    private final int highscore3D;
+    private final int highScore2D;
+    private final int highScore3D;
     private JComboBox<String> levelSelector;
-    VueController vueController;
+    final VueController vueController;
 
-    public MenuRenderer(int highscore2D, int highscore3D, VueController vueController) {
-        this.highscore2D = highscore2D;
-        this.highscore3D = highscore3D;
+    public MenuRenderer(int highScore2D, int highScore3D, VueController vueController) {
+        this.highScore2D = highScore2D;
+        this.highScore3D = highScore3D;
         this.vueController = vueController;
 
         frame.setTitle("Tetris");
@@ -41,7 +41,7 @@ public class MenuRenderer implements Renderer {
         menuPanel.add(titleLabel, BorderLayout.NORTH);
         menuPanel.add(centerPanel, BorderLayout.CENTER);
 
-        JPanel highScorePanel = createHighscorePanel();
+        JPanel highScorePanel = createHighScorePanel();
         menuPanel.add(highScorePanel, BorderLayout.BEFORE_FIRST_LINE);
 
         menuPanel.add(createBottomPanel(), BorderLayout.SOUTH);
@@ -58,23 +58,23 @@ public class MenuRenderer implements Renderer {
         return titleLabel;
     }
 
-    private JPanel createHighscorePanel() {
+    private JPanel createHighScorePanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel highscore2DLabel = new JLabel("Highscore 2D : " + highscore2D, JLabel.CENTER);
-        highscore2DLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        highscore2DLabel.setForeground(new Color(34, 139, 34));
-        highscore2DLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel highScore2DLabel = new JLabel("High-score 2D : " + highScore2D, JLabel.CENTER);
+        highScore2DLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        highScore2DLabel.setForeground(new Color(34, 139, 34));
+        highScore2DLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel highscore3DLabel = new JLabel("Highscore 3D : " + highscore3D, JLabel.CENTER);
-        highscore3DLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        highscore3DLabel.setForeground(new Color(34, 139, 34));
-        highscore3DLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel highScore3DLabel = new JLabel("High-score 3D : " + highScore3D, JLabel.CENTER);
+        highScore3DLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        highScore3DLabel.setForeground(new Color(34, 139, 34));
+        highScore3DLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        panel.add(highscore2DLabel);
-        panel.add(highscore3DLabel);
+        panel.add(highScore2DLabel);
+        panel.add(highScore3DLabel);
 
         return panel;
     }

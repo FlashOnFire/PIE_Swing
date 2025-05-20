@@ -103,7 +103,7 @@ public class Renderer3D implements Renderer {
 
         //noinspection resource (first key callback setup so previous must be null)
         glfwSetCursorPosCallback(
-                window, (_, xpos, ypos) -> camController.handleMouseInput(xpos, ypos)
+                window, (_, xPos, yPos) -> camController.handleMouseInput(xPos, yPos)
         );
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 

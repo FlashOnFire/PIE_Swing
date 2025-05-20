@@ -22,11 +22,6 @@ public class CurrentPiece2D extends CurrentPiece {
         }
     }
 
-    public CurrentPiece2D(Piece[][] newPiece, int x, int y, Piece color) {
-        super(x, y, color);
-        this.piece = newPiece;
-    }
-
 
     public Piece[][] getPiece2d() {
         return piece;

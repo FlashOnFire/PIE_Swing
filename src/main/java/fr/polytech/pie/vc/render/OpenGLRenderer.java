@@ -14,7 +14,6 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 public class OpenGLRenderer {
     private final CubeShader cubeShader = new CubeShader();
@@ -72,8 +71,8 @@ public class OpenGLRenderer {
 
         cubeVao.bind();
         for (Cube cube : cubes) {
-            this.cubeShader.setPos(cube.getPosition());
-            this.cubeShader.setColor(cube.getColor());
+            this.cubeShader.setPos(cube.position());
+            this.cubeShader.setColor(cube.color());
             GL30.glDrawElements(GL30.GL_TRIANGLES, cubeVao.getVertexCount(), GL_UNSIGNED_INT, 0);
         }
         cubeVao.unbind();

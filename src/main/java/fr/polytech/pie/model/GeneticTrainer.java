@@ -201,7 +201,7 @@ public class GeneticTrainer {
 
         for (int piece = 0; piece < maxPieces; piece++) {
             currentPiece = nextPiece;
-            if (is3D && grid instanceof Grid3D grid3D) {
+            if (grid instanceof Grid3D grid3D) {
                 nextPiece = PieceGenerator.generate3DPiece(grid.getWidth(), grid.getHeight(), grid3D.getDepth());
             } else {
                 nextPiece = PieceGenerator.generatePiece2D(grid.getWidth(), grid.getHeight());
@@ -222,13 +222,14 @@ public class GeneticTrainer {
             }
 
             int maxHeight = 0;
-            if (is3D && grid instanceof Grid3D grid3D) {
+            if (grid instanceof Grid3D grid3D) {
                 for (int i = 0; i < grid.getWidth(); i++) {
                     for (int j = 0; j < grid3D.getDepth(); j++) {
                         maxHeight = Math.max(maxHeight, grid3D.getHeightOfColumn3D(i, j));
                     }
                 }
-            } else if (grid instanceof Grid2D grid2D) {
+            } else {
+                Grid2D grid2D = (Grid2D) grid;
                 for (int i = 0; i < grid.getWidth(); i++) {
                     maxHeight = Math.max(maxHeight, grid2D.getHeightOfColumn2D(i));
                 }

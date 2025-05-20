@@ -163,11 +163,11 @@ public class TextRenderer {
 
             TextChar ch = glyphList.get(c);
 
-            float x = position.x + ch.getBearing().x() * scale;
-            float y = position.y - (ch.getSize().y - ch.getBearing().y()) * scale;
+            float x = position.x + ch.bearing().x() * scale;
+            float y = position.y - (ch.size().y - ch.bearing().y()) * scale;
 
-            float w = ch.getSize().x() * scale;
-            float h = ch.getSize().y() * scale;
+            float w = ch.size().x() * scale;
+            float h = ch.size().y() * scale;
 
             float[] vertices = new float[]{
                     x, y + h, 0.0f, 0.0f,
@@ -179,13 +179,13 @@ public class TextRenderer {
                     x + w, y + h, 1.0f, 0.0f
             };
 
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, ch.getTextureID());
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, ch.textureID());
 
             VertexBuffer textBuffer = textVAO.getVertexBuffer(0);
             textBuffer.storeData(vertices);
 
             GL11.glDrawArrays(GL30.GL_TRIANGLES, 0, 6);
-            position.x += (int) ((ch.getAdvance() >> 6) * scale); // Bitshift by 6 to convert from 1/64th of a pixel to pixel
+            position.x += (int) ((ch.advance() >> 6) * scale); // Bitshift by 6 to convert from 1/64th of a pixel to pixel
         }
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
