@@ -264,7 +264,6 @@ public class Renderer2D implements Renderer {
         }
 
         if (escape) {
-            escape = false;
             return LoopStatus.SHOW_MENU;
         }
 
@@ -287,12 +286,12 @@ public class Renderer2D implements Renderer {
                 resetGameOver();
                 return LoopStatus.SHOW_MENU;
             }
-            return LoopStatus.GAME_OVER;
+            return LoopStatus.CONTINUE;
         }
 
         if (vueController.getModel().isGameOver() && !isGameOver) {
             showGameOver();
-            return LoopStatus.GAME_OVER;
+            return LoopStatus.CONTINUE;
         }
 
         return LoopStatus.CONTINUE;

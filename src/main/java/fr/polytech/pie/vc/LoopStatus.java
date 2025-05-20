@@ -6,5 +6,4 @@ public enum LoopStatus {
     START_GAME_2D,
     START_GAME_3D,
     QUIT,
-    GAME_OVER
 }
