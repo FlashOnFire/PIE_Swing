@@ -69,6 +69,26 @@ public class TetrisVector {
         }
     }
 
+    public void loop(Consumer<TetrisVector> operation) {
+        TetrisVector param = new TetrisVector(size);
+        int[] indices = new int[size];
+        int currentLevel = 0;
+
+        while (currentLevel >= 0) {
+            if (currentLevel >= size) {
+                operation.accept(new TetrisVector(param));
+                currentLevel--;
+            } else if (indices[currentLevel] < vector[currentLevel]) {
+                param.getVector()[currentLevel] = indices[currentLevel];
+                indices[currentLevel]++;
+                currentLevel++;
+            } else {
+                indices[currentLevel] = 0;
+                currentLevel--;
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
