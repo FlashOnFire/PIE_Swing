@@ -331,7 +331,7 @@ public class Renderer2D implements Renderer {
                 clearGrid();
                 drawFrozenPieces(grid);
                 drawCurrentPiece((Piece2D) currentPiece);
-                clearNextPiecePanels();
+                clearNextPieceGrid();
                 drawNextPiece((Piece2D) nextPiece);
                 scoreLabel.setText("Score: " + score);
                 gridPanel.repaint();
