@@ -169,7 +169,7 @@ public class Model extends Observable {
         return is3D ? highScore3D : highScore2D;
     }
 
-    public void setHighScore(int score, boolean is3D) {
+    public void setHighScore(long score, boolean is3D) {
         if (is3D) {
             this.highScore3D = score;
         } else {

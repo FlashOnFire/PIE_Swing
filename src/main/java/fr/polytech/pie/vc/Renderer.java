@@ -8,7 +8,7 @@ public interface Renderer {
 
     LoopStatus loop();
 
-    void update(Grid grid, Piece piece, Piece nextPiece, int score, boolean isGameOver);
+    void update(Grid grid, Piece piece, Piece nextPiece, long score, boolean isGameOver);
 
     void cleanup();
 }

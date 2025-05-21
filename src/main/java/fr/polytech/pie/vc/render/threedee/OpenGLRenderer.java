@@ -46,7 +46,7 @@ public class OpenGLRenderer {
         this.textRenderer.destroy();
     }
 
-    public void render(long window, Vector2i screenSize, Matrix4f projectionMatrix, Matrix4f viewMatrix, int score, boolean isGameOver, float elapsedTimeSinceGameOver) {
+    public void render(long window, Vector2i screenSize, Matrix4f projectionMatrix, Matrix4f viewMatrix, long score, boolean isGameOver, float elapsedTimeSinceGameOver) {
         if (!isGameOver) {
             glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
         } else {
@@ -102,7 +102,7 @@ public class OpenGLRenderer {
         this.simpleShader.stop();
     }
 
-    public void renderScore(Vector2i screenSize, int score) {
+    public void renderScore(Vector2i screenSize, long score) {
         textRenderer.renderText(fontID, new Vector2i(10, screenSize.y - 30), screenSize, 0.5F, new Vector3f(0.0F, 0.0F, 0.0F), "Score: " + score);
     }
 

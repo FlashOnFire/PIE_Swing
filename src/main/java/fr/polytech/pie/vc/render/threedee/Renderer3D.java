@@ -53,7 +53,7 @@ public class Renderer3D implements Renderer {
 
     private final VueController vueController;
     private double lastLoopTime;
-    private int score = 0;
+    private long score = 0;
 
     private boolean isGameOver = false;
     private float elapsedTimeSinceGameOver = 0;
@@ -304,7 +304,7 @@ public class Renderer3D implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, Piece piece, Piece nextPiece, int score, boolean isGameOver) {
+    public void update(Grid grid, Piece piece, Piece nextPiece, long score, boolean isGameOver) {
         assert piece != null : "Current piece is null";
         assert grid != null : "Grid is null";
 

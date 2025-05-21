@@ -325,7 +325,7 @@ public class Renderer2D implements Renderer {
     }
 
     @Override
-    public void update(Grid grid, Piece currentPiece, Piece nextPiece, int score, boolean isGameOver) {
+    public void update(Grid grid, Piece currentPiece, Piece nextPiece, long score, boolean isGameOver) {
         assert currentPiece instanceof Piece2D : "Current piece is not a 2D piece";
 
         try {

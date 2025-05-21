@@ -21,7 +21,7 @@ public class Game {
     private Ai ai;
     private Piece piece;
     private Piece nextPiece;
-    private int score;
+    private long score;
     private boolean is3D;
     private boolean gameOver;
     private final int difficulty;
@@ -49,7 +49,7 @@ public class Game {
         return nextPiece;
     }
 
-    public int getScore() {
+    public long getScore() {
         return score;
     }
 
@@ -65,7 +65,7 @@ public class Game {
     }
 
     private void updateScore(int linesCleared) {
-        score += linesCleared * 100;
+        score += linesCleared * 100L;
     }
 
     public void translateCurrentPiece(TetrisVector translation) {

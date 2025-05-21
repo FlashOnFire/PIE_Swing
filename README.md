@@ -291,11 +291,11 @@ classDiagram
         class Game {
             - CurrentPiece piece
             - Grid grid
-            - int score
+            - long score
             boolean renderingMode
             Grid grid
             boolean 3D
-            int score
+            long score
             CurrentPiece piece
             + Game(boolean)
             + rotateCurrentPiece() void
@@ -304,7 +304,7 @@ classDiagram
             + translateCurrentPiece2D(int, int) void
             + translateCurrentPiece3D(int, int, int) void
             + resetGame() void
-            - updateScore(int) void
+            - updateScore(long) void
             - generateNewPiece() void
             - freeze() void
         }
