@@ -39,10 +39,8 @@ public class Piece2D extends Piece {
     }
 
     public void rotate2d(Predicate<Piece> collisionChecker) {
-        // Save the original piece in case rotation causes a collision
         var original = clone();
 
-        // Rotate the piece 90 degrees clockwise
         PieceColor[][] rotatedPieceColor = new PieceColor[getWidth()][getHeight()];
 
         for (int i = 0; i < getWidth(); i++) {
@@ -51,8 +49,39 @@ public class Piece2D extends Piece {
             }
         }
 
-        // Update the piece
         pieceColor = rotatedPieceColor;
+
+        TetrisVector[] wallKick = {
+                new TetrisVector(new int[]{-1, 0}),
+                new TetrisVector(new int[]{-1, 1}),
+                new TetrisVector(new int[]{0, -2}),
+                new TetrisVector(new int[]{1, -2})
+        };
+        TetrisVector[] iWallKick = {
+                new TetrisVector(new int[]{-2, 0}),
+                new TetrisVector(new int[]{1, 0}),
+                new TetrisVector(new int[]{-2, -1}),
+                new TetrisVector(new int[]{1, 2})
+        };
+        if (getWidth() == 4 || getHeight() == 4) {
+            if (getWidth() == 4) {
+                position.subtract(new TetrisVector(new int[]{1, 0}));
+            } else if (getHeight() == 4) {
+                position.add(new TetrisVector(new int[]{1, 0}));
+            }
+            wallKick = iWallKick;
+        }
+
+        if (collisionChecker.test(this)) {
+            for (TetrisVector tetrisVector : wallKick) {
+                this.position.add(tetrisVector);
+                if (!collisionChecker.test(this)) {
+                    break;
+                }
+                this.position.subtract(tetrisVector);
+            }
+        }
+
 
         // Check if the rotation causes a collision
         if (collisionChecker.test(this)) {
