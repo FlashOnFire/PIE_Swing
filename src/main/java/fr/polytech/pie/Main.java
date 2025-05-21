@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class Main {
     public static void main(String[] args) {
         try {
-            InputStream audioSrc = Main.class.getResourceAsStream("/sounds/tetris-tek.wav");
+            InputStream audioSrc = Main.class.getResourceAsStream("/sounds/tetris-theme.wav");
             if (audioSrc != null) {
                 AudioInputStream audioStream = AudioSystem.getAudioInputStream(
                         new BufferedInputStream(audioSrc));
