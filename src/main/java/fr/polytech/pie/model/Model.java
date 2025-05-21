@@ -15,8 +15,8 @@ public class Model extends Observable {
 
     private int difficulty = 1;
 
-    private int highScore2D = 0;
-    private int highScore3D = 0;
+    private long highScore2D = 0;
+    private long highScore3D = 0;
 
     public Model() {
         loadHighScore();
@@ -142,8 +142,8 @@ public class Model extends Observable {
                 String content = Files.readString(path).trim();
                 String[] scores = content.split(",");
                 if (scores.length == 2) {
-                    this.highScore2D = Integer.parseInt(scores[0]);
-                    this.highScore3D = Integer.parseInt(scores[1]);
+                    this.highScore2D = Long.parseLong(scores[0]);
+                    this.highScore3D = Long.parseLong(scores[1]);
                 } else {
                     saveHighScore();
                 }
@@ -165,7 +165,7 @@ public class Model extends Observable {
         }
     }
 
-    public int getHighScore(boolean is3D) {
+    public long getHighScore(boolean is3D) {
         return is3D ? highScore3D : highScore2D;
     }
 

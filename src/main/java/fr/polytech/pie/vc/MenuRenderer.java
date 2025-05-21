@@ -14,12 +14,12 @@ public class MenuRenderer implements Renderer {
     final VueController vueController;
     private final JFrame frame = new JFrame();
 
-    private final int highScore2D;
-    private final int highScore3D;
+    private final long highScore2D;
+    private final long highScore3D;
 
     private LoopStatus nextLoopStatus = LoopStatus.CONTINUE;
 
-    public MenuRenderer(int highScore2D, int highScore3D, VueController vueController) {
+    public MenuRenderer(long highScore2D, long highScore3D, VueController vueController) {
         this.highScore2D = highScore2D;
         this.highScore3D = highScore3D;
         this.vueController = vueController;
