@@ -104,4 +104,13 @@ public class TetrisVector {
                 ", size=" + size +
                 '}';
     }
+
+    public void subtract(TetrisVector other) {
+        if (this.size != other.size) {
+            throw new IllegalArgumentException("Positions must have the same size to be added");
+        }
+        for (int i = 0; i < size; i++) {
+            vector[i] = vector[i] - other.vector[i];
+        }
+    }
 }
