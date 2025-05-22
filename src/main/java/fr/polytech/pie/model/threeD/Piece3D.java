@@ -162,9 +162,9 @@ public class Piece3D extends Piece {
         float minX = Float.MAX_VALUE;
         float minY = Float.MAX_VALUE;
         float minZ = Float.MAX_VALUE;
-        float maxX = Float.MIN_VALUE;
-        float maxY = Float.MIN_VALUE;
-        float maxZ = Float.MIN_VALUE;
+        float maxX = 0;
+        float maxY = 0;
+        float maxZ = 0;
         
         void update(Vector3f coords) {
             minX = Math.min(minX, coords.x);
