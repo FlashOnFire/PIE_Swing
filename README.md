@@ -7,7 +7,7 @@ Ce projet est une implémentation du jeu Tetris en utilisant le modèle MVC (Mod
 - **Jeu Tetris** : Une implémentation complète du jeu Tetris avec les rotations wallkick et T-spin.
 - **Architecture MVC** : Utilisation du modèle Modèle-Vue-Contrôleur pour une séparation claire des responsabilités.
 - **Abstraction entre 2D et 3D** : Une abstraction maximale entre les rendus 2D et 3D.
-- **Rendu 3D bas niveau** : Utilisation d'OpenGL pour un rendu 3D très bas niveau (deux caméras).
+- **Rendu 3D bas niveau** : Utilisation d'OpenGL pour un rendu 3D (bas niveau), et implémentation de deux caméras (caméra libre et caméra dirigée).
 - **Intelligence Artificielle** : Une IA qui calcule le meilleur coup à chaque fois avec une récursion de profondeur 2 (la prochaine pièce est prise en compte).
 - **IA en 3D** : L'IA fonctionne également en mode 3D.
 - **Entraînement de l'IA** : Entraînement de l'IA fait maison avec un algorithme génétique.
