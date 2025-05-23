@@ -632,7 +632,7 @@ direction TB
     VueController ..> Renderer3D : «create»
 ```
 
-### Namespace `model`
+### Package `model`
 
 - **Classes Principales :**
   - **`Model`** : Gère la logique du jeu, y compris la rotation des pièces, le démarrage et l'arrêt du jeu, et l'exécution de l'IA.
@@ -642,7 +642,7 @@ direction TB
   - **`Ai`** : Implémente l'intelligence artificielle pour jouer au jeu, calculant les meilleurs mouvements possibles.
   - **`GeneticTrainer`** : Utilisé pour entraîner l'IA en utilisant un algorithme génétique.
 
-### Namespace `vc` (Vue-Contrôleur)
+### Package `vc` (Vue-Contrôleur)
 
 - **Classes Principales :**
   - **`VueController`** : Gère la vue et le contrôleur, coordonnant les interactions entre le modèle et la vue.
