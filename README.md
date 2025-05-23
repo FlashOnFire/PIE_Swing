@@ -4,10 +4,14 @@ Ce projet est une implémentation du jeu Tetris en utilisant le modèle MVC (Mod
 
 ## Fonctionnalités
 
-- **Jeu Tetris** : Une implémentation complète du jeu Tetris avec les rotations wallkick et T-spin.
+- **Jeu Tetris** : Une implémentation complète du jeu Tetris avec des rotations prenant en compte les wallkicks et les T-spin.
 - **Architecture MVC** : Utilisation du modèle Modèle-Vue-Contrôleur pour une séparation claire des responsabilités.
 - **Abstraction entre 2D et 3D** : Une abstraction maximale entre les rendus 2D et 3D.
-- **Rendu 3D bas niveau** : Utilisation d'OpenGL pour un rendu 3D (bas niveau), et implémentation de deux caméras (caméra libre et caméra dirigée).
+- **Rendu 2D** : Utilisation de Swing pour le rendu 2D, avec des blocs stylisés pour un effet Tetris classique.
+- **Rendu 3D** : Utilisation d'OpenGL pour un rendu 3D (bas niveau), et implémentation de deux caméras (caméra libre et caméra dirigée).
+- **Passage de 2D à 3D** : Possibilité de passer du mode 2D au mode 3D à tout moment, à travers un menu, sans redémarrer le jeu.
+- **Rendu de texte en 3D** : Utilisation de FreeType (lib C avec des bindings Java) pour le chargement de polices et la transformation de chaque caractère en une texture et une list de vertices, permettant d'afficher des messages à l'écran.
+- **Rotations en 3D** : Rotations en 3D, en prenant en compte l'orientation et la position de la caméra pour une utilisation plus intuitive.
 - **Intelligence Artificielle** : Une IA qui calcule le meilleur coup à chaque fois avec une récursion de profondeur 2 (la prochaine pièce est prise en compte).
 - **IA en 3D** : L'IA fonctionne également en mode 3D.
 - **Entraînement de l'IA** : Entraînement de l'IA fait maison avec un algorithme génétique.
@@ -650,12 +654,14 @@ direction TB
   - **`OpenGLRenderer`** : Utilise OpenGL pour le rendu graphique.
   - **`CameraController`** : Gère les caméras pour le rendu 3D, permettant de basculer entre une caméra libre et une caméra dirigée.
   - **`TextRenderer`** : Gère le rendu du texte à l'écran.
+  - **`ElementBuffer, VertexArray, VertexBuffer, VertexAttribPointer`** : Classes d'abstraction pour gérer les différents types de buffers OpenGL.
+  - **`CubeShader, SimpleShader, TextShader, ShaderProgram`** : Gèrent les shaders pour le rendu graphique. Le rendu des cubes prend en compte la réflexion de la lumière pour un meilleur effet de perspective.
 
 ## Instructions de Build
 
 ### Utilisation de Nix (recommandé)
 
-Pour garantir que vous avez les bonnes versions des logiciels et des dépendances, il est recommandé d'utiliser Nix.
+Pour garantir que vous avez le même environnement de développement que nous, il est recommandé d'utiliser Nix pour un build reproductible.
 
 ```bash
 nix build
@@ -670,7 +676,7 @@ nix run
 
 ### Utilisation de Gradle
 
-Vous pouvez également utiliser Gradle seule pour construire et exécuter le projet.
+Vous pouvez également utiliser Gradle seul pour construire et exécuter le projet.
 
 ```bash
 gradle fatJar
@@ -682,3 +688,8 @@ Ou simplement :
 ```bash
 gradle run
 ```
+
+
+## Auteurs
+- **Guillaume CALDERON** : p2205143
+- **Eymeric DÉCHELETTE** : p2202851
